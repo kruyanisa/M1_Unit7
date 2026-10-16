@@ -210,12 +210,36 @@
         const currentData = shuffledQuestions[currentQ];
         
         // แอนิเมชันรูปภาพและข้อมูล
-        const imgEl = document.getElementById('personImage');
-        imgEl.style.animation = 'none';
-        imgEl.offsetHeight; // รีเซ็ตแอนิเมชัน
-        imgEl.style.animation = 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
         
-        imgEl.src = currentData.img;
+// แอนิเมชันรูปภาพและข้อมูล
+const imgEl = document.getElementById('personImage');
+
+// ซ่อนรูปเก่าก่อนโหลดรูปใหม่
+imgEl.style.visibility = 'hidden';
+imgEl.style.animation = 'none';
+
+// เมื่อรูปใหม่โหลดเสร็จ จึงแสดงภาพ
+imgEl.onload = function() {
+    imgEl.style.visibility = 'visible';
+    imgEl.style.animation = 'none';
+    void imgEl.offsetHeight;
+    imgEl.style.animation =
+        'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+};
+
+// กรณีรูปโหลดไม่สำเร็จ
+imgEl.onerror = function() {
+    imgEl.style.visibility = 'visible';
+};
+
+// เปลี่ยนเป็นรูปของคำถามใหม่
+imgEl.src = currentData.img;
+
+// กรณีรูปอยู่ใน Cache
+if (imgEl.complete && imgEl.naturalWidth > 0) {
+    imgEl.onload();
+}
+
         document.getElementById('personName').innerText = currentData.name;
         document.getElementById('personYears').innerText = currentData.years;
 
