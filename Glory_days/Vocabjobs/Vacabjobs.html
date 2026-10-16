@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Glory Days - Vocabulary Jobs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --main-theme: #f97316;
+            --dark-theme: #c2410c; 
+            --bg-color: #fff7ed;
+            --card-front: #ffffff;
+            --card-back: #ffedd5;
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 15px;
+            background-color: var(--bg-color);
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-title { font-family: 'Fredoka One', cursive; color: var(--main-theme); text-align: center; margin: 10px 0 5px 0; font-size: 32px;}
+        .sub-title { text-align: center; font-weight: 800; color: #64748b; margin-top: 0; margin-bottom: 25px;}
+
+        /* ปุ่มเริ่มฝึกใหม่ */
+        .btn-restart {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 12px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #0369a1;
+            margin-bottom: 25px;
+            transition: all 0.1s;
+        }
+        .btn-restart:active { transform: translateY(4px); box-shadow: 0 0 0 #0369a1; }
+
+        /* Grid Layout */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* 3D Flipcard CSS */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 230px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            border: 3px solid #fdba74;
+            padding: 10px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .flip-card-front {
+            background-color: var(--card-front);
+            color: var(--dark-theme);
+        }
+        
+        .card-img {
+            width: 105px;
+            height: 105px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            border-radius: 50%;
+            border: 3px solid #fed7aa;
+            pointer-events: none;
+        }
+        
+        .word-en {
+            font-family: 'Fredoka One', cursive;
+            font-size: 20px;
+            margin-bottom: 5px;
+            pointer-events: none;
+        }
+        
+        .play-btn-zone {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background: #fff7ed;
+            border-radius: 50%;
+            font-size: 20px;
+            color: #f97316;
+            transition: 0.2s;
+            border: 2px solid #fed7aa;
+            margin-top: auto;
+        }
+        .play-btn-zone:active { background: #fed7aa; transform: scale(0.9); }
+
+        .flip-card-back {
+            background-color: var(--card-back);
+            color: var(--dark-theme);
+            transform: rotateY(180deg);
+        }
+
+        .word-th { font-weight: 800; font-size: 22px; line-height: 1.4; }
+
+        /* สถานะเมื่อตรวจ/เปิดการ์ด */
+        .flip-card.viewed .flip-card-front,
+        .flip-card.viewed .flip-card-back {
+            border-color: var(--success-color);
+        }
+        .flip-card.viewed .play-btn-zone { 
+            color: var(--success-color); 
+            border-color: #bbf7d0;
+            background: #dcfce7;
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .card-img { width: 85px; height: 85px; }
+            .word-en { font-size: 18px; }
+            .word-th { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="header-title">Glory Days</h1>
+    <h2 class="sub-title">Vocabulary: Jobs (แตะลำโพงเพื่อฟังเสียง แตะการ์ดเพื่อดูคำแปล)</h2>
+
+    <button class="btn-restart" onclick="resetCards()">🔄 เริ่มฝึกใหม่</button>
+
+    <div class="cards-grid" id="cardsContainer"></div>
+
+    <!-- Audio Elements สำหรับเสียงเอฟเฟกต์ -->
+    <audio id="vocabAudio"></audio>
+    <audio id="sfxCorrect" src="correct.mp3" preload="auto"></audio>
+    <audio id="sfxWrong" src="wrong.mp3" preload="auto"></audio>
+
+<script>
+    const vocabList = [
+        { en: "singer", th: "นักร้อง", img: "singer.jpg", audio: "singer.mp3" },
+        { en: "scientist", th: "นักวิทยาศาสตร์", img: "scientist.jpg", audio: "scientist.mp3" },
+        { en: "athlete", th: "นักกีฬา", img: "athlete.jpg", audio: "athlete.mp3" },
+        { en: "astronaut", th: "นักบินอวกาศ", img: "astronaut.jpg", audio: "astronaut.mp3" },
+        { en: "painter", th: "จิตรกร", img: "painter.jpg", audio: "painter.mp3" },
+        { en: "ballerina", th: "นักเต้นบัลเลต์", img: "ballerina.jpg", audio: "ballerina.mp3" },
+        { en: "inventor", th: "นักประดิษฐ์", img: "inventor.jpg", audio: "inventor.mp3" },
+        { en: "nurse", th: "พยาบาล", img: "nurse.jpg", audio: "nurse.mp3" },
+        { en: "explorer", th: "นักสำรวจ", img: "explorer.jpg", audio: "explorer.mp3" }
+    ];
+
+    const container = document.getElementById('cardsContainer');
+    const vocabAudio = document.getElementById('vocabAudio');
+    const sfxCorrect = document.getElementById('sfxCorrect');
+    const sfxWrong = document.getElementById('sfxWrong');
+
+    function playSound(type) {
+        if (type === 'correct') {
+            sfxCorrect.currentTime = 0;
+            sfxCorrect.play().catch(e => console.log("SFX error:", e));
+        } else if (type === 'wrong') {
+            sfxWrong.currentTime = 0;
+            sfxWrong.play().catch(e => console.log("SFX error:", e));
+        }
+    }
+
+    vocabList.forEach((vocab) => {
+        const card = document.createElement('div');
+        card.className = 'flip-card';
+        card.innerHTML = `
+            <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <img src="${vocab.img}" alt="${vocab.en}" class="card-img" onerror="this.src='https://via.placeholder.com/100?text=Job'">
+                    <div class="word-en">${vocab.en}</div>
+                    <div class="play-btn-zone" data-audio="${vocab.audio}">🔊</div>
+                </div>
+                <div class="flip-card-back">
+                    <div class="word-th">${vocab.th}</div>
+                </div>
+            </div>
+        `;
+
+        const frontFace = card.querySelector('.flip-card-front');
+        const playBtn = card.querySelector('.play-btn-zone');
+
+        // เมื่อแตะที่การ์ดเพื่อพลิกดูคำแปล
+        frontFace.addEventListener('click', (e) => {
+            if (!e.target.closest('.play-btn-zone')) {
+                card.classList.toggle('flipped');
+                if (!card.classList.contains('viewed')) {
+                    card.classList.add('viewed');
+                    playSound('correct'); // เล่นเสียง correct.mp3 เมื่อเปิดเรียนรู้คำศัพท์สำเร็จ
+                }
+            }
+        });
+
+        card.querySelector('.flip-card-back').addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+
+        // เมื่อแตะปุ่มลำโพงเพื่อฟังเสียงคำศัพท์
+        playBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            vocabAudio.src = playBtn.getAttribute('data-audio');
+            vocabAudio.play().catch(err => console.log("Audio Error:", err));
+            card.classList.add('viewed');
+        });
+
+        container.appendChild(card);
+    });
+
+    function resetCards() {
+        document.querySelectorAll('.flip-card').forEach(card => {
+            card.classList.remove('flipped'); 
+            card.classList.remove('viewed');  
+        });
+        vocabAudio.pause();
+        vocabAudio.currentTime = 0;
+    }
+</script>
+</body>
+</html>
