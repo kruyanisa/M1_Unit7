@@ -437,11 +437,19 @@
 
     function playTTS(text, callback) {
         if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
+            // แอบเติมจุดและเว้นวรรคตอนท้าย เพื่อบังคับให้ AI ลากเสียงคำสุดท้ายให้จบ
+            const utterance = new SpeechSynthesisUtterance(text + " .");
             utterance.lang = 'en-US';
-            utterance.rate = 0.9; 
-            utterance.onend = callback;
-            utterance.onerror = callback; 
+            utterance.rate = 0.85; // ปรับให้พูดช้าลงอีกนิดนึง จะได้ฟังชัดขึ้น
+            
+            utterance.onend = () => {
+                // หน่วงเวลา 0.3 วินาทีหลังพูดจบ เพื่อไม่ให้ระบบรีบตัดเสียงทิ้ง
+                setTimeout(callback, 300);
+            };
+            utterance.onerror = () => {
+                setTimeout(callback, 300);
+            }; 
+            
             window.speechSynthesis.speak(utterance);
         } else {
             setTimeout(callback, 1000); 
