@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Job Hunter AR - Active Learning</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- โหลด MediaPipe สำหรับเว็บ -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #1e293b;
+            font-family: 'Fredoka One', 'Sarabun', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 1280px;
+            aspect-ratio: 16/9;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        /* ซ่อนวิดีโอต้นฉบับ เราจะวาดทุกอย่างลงบน Canvas */
+        .input_video { display: none; }
+        .output_canvas { width: 100%; height: 100%; display: block; }
+
+        /* หน้าจอเริ่มต้น (เพื่อขออนุญาตใช้กล้องและเสียง) */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white; border: none; padding: 20px 40px; font-size: 28px;
+            border-radius: 20px; cursor: pointer; font-family: 'Fredoka One';
+            box-shadow: 0 8px 0 #15803d; transition: 0.1s; margin-top: 20px;
+        }
+        .btn-start:active { transform: translateY(8px); box-shadow: none; }
+
+        #loading-text { font-size: 24px; color: #fbbf24; margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <video class="input_video" autoplay playsinline></video>
+    <canvas class="output_canvas" width="1280" height="720"></canvas>
+
+    <div id="start-screen">
+        <h1 style="font-size: 48px; color: #fbbf24; margin: 0;">JOB HUNTER AR</h1>
+        <p style="font-size: 20px; color: #e2e8f0;">กรุณาอนุญาตให้ใช้งานกล้องเพื่อเริ่มเกม</p>
+        <button class="btn-start" onclick="initGame()">📸 START CAMERA</button>
+        <div id="loading-text">⏳ โหลดระบบ AI สแกนร่างกาย... (อาจใช้เวลาสักครู่)</div>
+    </div>
+</div>
+
+<script>
+    // --- 1. ตั้งค่าทรัพยากร (ตามไฟล์ที่คุณครูอัปโหลด) ---
+    const jobsData = [
+        { word: "SINGER", img: "singer.jpg", audio: "singer.mp3" },
+        { word: "ASTRONAUT", img: "astronaut.jpg", audio: "astronaut.mp3" },
+        { word: "ATHLETE", img: "athlete.jpg", audio: "athlete.mp3" },
+        { word: "SCIENTIST", img: "scientist.jpg", audio: "scientist.mp3" },
+        { word: "PAINTER", img: "painter.jpg", audio: "painter.mp3" },
+        { word: "EXPLORER", img: "explorer.jpg", audio: "explorer.mp3" },
+        { word: "BALLERINA", img: "ballerina.jpg", audio: "ballerina.mp3" },
+        { word: "INVENTOR", img: "inventor.jpg", audio: "inventor.mp3" },
+        { word: "NURSE", img: "nurse.jpg", audio: "nurse.mp3" }
+    ];
+
+    // โหลดรูปภาพ
+    const images = {};
+    jobsData.forEach(job => {
+        const img = new Image();
+        img.src = job.img;
+        images[job.word] = img;
+    });
+    const bgImage = new Image(); bgImage.src = "bg_game.jpg";
+    const introImage = new Image(); introImage.src = "intro.jpg";
+
+    // โหลดเสียง (AudioContext สำหรับเบราว์เซอร์)
+    const sfxCorrect = new Audio('correct.mp3');
+    const sfxWrong = new Audio('wrong.mp3');
+    const bgm = new Audio('bgm.mp3');
+    bgm.loop = true; bgm.volume = 0.2;
+    const introSfx = new Audio('intro.mp3');
+
+    const vocabAudios = {};
+    jobsData.forEach(job => { vocabAudios[job.word] = new Audio(job.audio); });
+
+    // --- 2. ตัวแปรระบบเกม ---
+    const videoElement = document.getElementsByClassName('input_video')[0];
+    const canvasElement = document.getElementsByClassName('output_canvas')[0];
+    const ctx = canvasElement.getContext('2d');
+
+    let gameState = "loading"; // loading -> intro -> playing -> summary
+    let score = 0;
+    let currentJobIndex = 0;
+    let fallingItems = [];
+    let spawnTimer = 0;
+    let lastVocabSoundTime = 0;
+    let confettiParticles = [];
+    let gameJobs = []; 
+
+    // --- 3. ฟังก์ชันเริ่มเกม (ขออนุญาตกล้อง) ---
+    function initGame() {
+        document.querySelector('.btn-start').style.display = 'none';
+        document.getElementById('loading-text').style.display = 'block';
+
+        // ตั้งค่า MediaPipe Pose
+        const pose = new Pose({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+        }});
+        
+        pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: true, // ตัดฉากหลัง
+            smoothSegmentation: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+        pose.onResults(onResults);
+
+        // เปิดกล้อง
+        const camera = new Camera(videoElement, {
+            onFrame: async () => { await pose.send({image: videoElement}); },
+            width: 1280, height: 720
+        });
+        
+        camera.start().then(() => {
+            // เมื่อกล้องพร้อม
+            document.getElementById('start-screen').style.display = 'none';
+            gameState = "intro";
+            bgm.play().catch(e => console.log(e));
+        });
+    }
+
+    // --- 4. ฟังก์ชันหลักในการวาดหน้าจอ (รันทุกเฟรมที่กล้องอัปเดต) ---
+    function onResults(results) {
+        ctx.save();
+        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        // A. ระบบตัดฉากหลัง (เหมือน Python)
+        if (gameState === "playing" || gameState === "summary") {
+            if (results.segmentationMask && bgImage.complete) {
+                // วาดฉากหลังเกมก่อน
+                ctx.drawImage(bgImage, 0, 0, canvasElement.width, canvasElement.height);
+                
+                // วาดตัวคนทับ โดยใช้ Mask
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
+                
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+                ctx.globalCompositeOperation = 'source-over';
+            } else {
+                ctx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            }
+        }
+
+        // ดึงจุดร่างกาย (Nose = 0, Left Wrist = 15, Right Wrist = 16)
+        let poseLM = results.poseLandmarks;
+        let nose = poseLM ? poseLM[0] : null;
+        let leftWrist = poseLM ? poseLM[15] : null;
+        let rightWrist = poseLM ? poseLM[16] : null;
+
+        // B. จัดการ State ของเกม
+        if (gameState === "intro") {
+            if (introImage.complete) {
+                ctx.drawImage(introImage, 0, 0, canvasElement.width, canvasElement.height);
+            } else {
+                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0,0, canvasElement.width, canvasElement.height);
+            }
+            
+            // วาดกล้องเล็กๆ มุมขวาล่างให้เด็กเห็นตัวเอง
+            ctx.drawImage(results.image, canvasElement.width - 320, canvasElement.height - 180, 320, 180);
+
+            drawText("Raise Hands to Start!", canvasElement.width/2, canvasElement.height - 50, "50px Fredoka One", "#fff");
+
+            // เช็คท่ายกมือ (มือซ้ายและขวาอยู่สูงกว่าจมูก)
+            if (nose && leftWrist && rightWrist) {
+                if (leftWrist.y < nose.y && rightWrist.y < nose.y) {
+                    introSfx.play();
+                    startGame();
+                }
+            }
+        } 
+        else if (gameState === "playing") {
+            let currentJob = gameJobs[currentJobIndex];
+
+            // เล่นเสียงคำศัพท์ซ้ำทุกๆ 5 วินาทีถ้าเด็กหาไม่เจอ
+            if (Date.now() - lastVocabSoundTime > 5000) {
+                vocabAudios[currentJob.word].play();
+                lastVocabSoundTime = Date.now();
+            }
+
+            // วาดป้ายคำศัพท์และคะแนน
+            drawText(currentJob.word, canvasElement.width/2, 80, "70px Fredoka One", "#fbbf24", "#b45309", 6);
+            drawText(`Score: ${score}/${gameJobs.length}`, canvasElement.width - 200, 60, "40px Fredoka One", "#fff");
+
+            // สร้างไอเทมตกลงมา
+            spawnTimer++;
+            if (spawnTimer > 30) { // ปรับความถี่การตก
+                spawnTimer = 0;
+                let isTarget = Math.random() > 0.5;
+                let spawnWord = currentJob.word;
+                if (!isTarget) {
+                    let others = gameJobs.filter(j => j.word !== currentJob.word);
+                    spawnWord = others[Math.floor(Math.random() * others.length)].word;
+                }
+
+                fallingItems.push({
+                    x: Math.random() * (canvasElement.width - 150) + 75,
+                    y: -100,
+                    word: spawnWord,
+                    isTarget: isTarget,
+                    size: 130
+                });
+            }
+
+            // อัปเดตและวาดไอเทมตกลงมา
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
+                let item = fallingItems[i];
+                item.y += 8; // ความเร็วการตก
+
+                // วาดไอเทม (ตัดเป็นวงกลม)
+                if (images[item.word] && images[item.word].complete) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, item.size/2, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(images[item.word], item.x - item.size/2, item.y - item.size/2, item.size, item.size);
+                    ctx.restore();
+                    
+                    // วาดขอบวงกลม
+                    ctx.beginPath(); ctx.arc(item.x, item.y, item.size/2, 0, Math.PI * 2);
+                    ctx.lineWidth = 5; ctx.strokeStyle = "#fff"; ctx.stroke();
+                }
+
+                // เช็คชนกับจมูก (Nose)
+                if (nose) {
+                    let nx = nose.x * canvasElement.width;
+                    let ny = nose.y * canvasElement.height;
+                    let dist = Math.hypot(nx - item.x, ny - item.y);
+
+                    if (dist < (item.size/2 + 30)) { // รัศมีชน
+                        if (item.isTarget) {
+                            sfxCorrect.currentTime = 0; sfxCorrect.play();
+                            score++;
+                            fallingItems = []; // เคลียร์หน้าจอ
+                            currentJobIndex++;
+                            if (currentJobIndex >= gameJobs.length) {
+                                gameState = "summary";
+                                createConfetti();
+                            } else {
+                                vocabAudios[gameJobs[currentJobIndex].word].play();
+                                lastVocabSoundTime = Date.now();
+                            }
+                        } else {
+                            sfxWrong.currentTime = 0; sfxWrong.play();
+                            score = Math.max(0, score - 1);
+                            item.y = canvasElement.height + 100; // ให้ร่วงหายไปเลย
+                        }
+                    }
+                }
+                if (item.y > canvasElement.height + 100) fallingItems.splice(i, 1);
+            }
+        }
+        else if (gameState === "summary") {
+            ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0,0, canvasElement.width, canvasElement.height);
+            
+            drawConfetti();
+
+            drawText("MISSION COMPLETE!", canvasElement.width/2, canvasElement.height/2 - 60, "80px Fredoka One", "#4ade80", "#166534", 8);
+            drawText(`Total Score: ${score}`, canvasElement.width/2, canvasElement.height/2 + 40, "60px Fredoka One", "#fbbf24");
+
+            // ปุ่ม RESTART 
+            let btnW = 350, btnH = 100;
+            let btnX = canvasElement.width/2 - btnW/2;
+            let btnY = canvasElement.height/2 + 120;
+            
+            ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 20); ctx.fill();
+            drawText("RESTART", canvasElement.width/2, btnY + 65, "45px Fredoka One", "#fff");
+
+            // วาดจุดที่มือเพื่อเล็งปุ่ม
+            if (leftWrist && rightWrist) {
+                let lx = leftWrist.x * canvasElement.width, ly = leftWrist.y * canvasElement.height;
+                let rx = rightWrist.x * canvasElement.width, ry = rightWrist.y * canvasElement.height;
+                
+                ctx.fillStyle = "#06b6d4"; ctx.beginPath(); ctx.arc(lx, ly, 25, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#06b6d4"; ctx.beginPath(); ctx.arc(rx, ry, 25, 0, Math.PI*2); ctx.fill();
+
+                if ((lx > btnX && lx < btnX+btnW && ly > btnY && ly < btnY+btnH) || 
+                    (rx > btnX && rx < btnX+btnW && ry > btnY && ry < btnY+btnH)) {
+                    startGame(); // เริ่มใหม่
+                }
+            }
+        }
+        ctx.restore();
+    }
+
+    // --- 5. ฟังก์ชันช่วยเหลือต่างๆ ---
+    function startGame() {
+        gameJobs = [...jobsData].sort(() => Math.random() - 0.5); // สุ่มลำดับคำศัพท์
+        gameState = "playing";
+        currentJobIndex = 0;
+        score = 0;
+        fallingItems = [];
+        confettiParticles = [];
+        vocabAudios[gameJobs[0].word].play();
+        lastVocabSoundTime = Date.now();
+    }
+
+    function drawText(text, x, y, font, color, strokeColor=null, strokeWidth=0) {
+        ctx.font = font; ctx.textAlign = "center";
+        if (strokeColor) {
+            ctx.lineWidth = strokeWidth; ctx.strokeStyle = strokeColor; ctx.strokeText(text, x, y);
+        }
+        ctx.fillStyle = color; ctx.fillText(text, x, y);
+    }
+
+    function createConfetti() {
+        for(let i=0; i<100; i++) {
+            confettiParticles.push({
+                x: Math.random() * canvasElement.width, y: canvasElement.height + 50,
+                sx: (Math.random() - 0.5) * 15, sy: Math.random() * -25 - 15,
+                color: `hsl(${Math.random()*360}, 100%, 50%)`, size: Math.random() * 10 + 5
+            });
+        }
+    }
+
+    function drawConfetti() {
+        for(let i = confettiParticles.length-1; i>=0; i--) {
+            let p = confettiParticles[i];
+            p.x += p.sx; p.y += p.sy; p.sy += 0.8; // แรงโน้มถ่วง
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+            if (p.y > canvasElement.height + 100) confettiParticles.splice(i, 1);
+        }
+    }
+</script>
+</body>
+</html>
