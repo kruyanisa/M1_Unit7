@@ -43,7 +43,7 @@
         .header-title { font-family: 'Fredoka One', cursive; color: var(--main-theme); margin: 0 0 5px 0; font-size: 28px;}
         .progress-text { font-weight: 800; color: #64748b; margin-bottom: 15px; font-size: 16px; }
 
-        /* ปรับส่วนแสดงรูปภาพใหม่ ให้ใหญ่ขึ้นและรักษาอัตราส่วนภาพต้นฉบับ */
+        /* การปรับปรุงที่ 1: แก้ไขกรอบรูปไม่ให้ล้น และแยกโซนรูปกับชื่อให้ชัดเจน */
         .person-display {
             background: #f8fafc;
             border: 3px dashed #bae6fd;
@@ -53,27 +53,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
         
         .large-image-frame {
             width: 100%;
-            max-height: 250px; /* จำกัดความสูงไม่ให้ล้นจอมือถือ */
+            height: 200px; /* ล็อกความสูงรูปไว้ที่ 200px จะได้ไม่ล้น */
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .large-image-frame img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain; /* ให้ภาพพอดีกรอบ ไม่โดนตัด */
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            object-fit: contain; /* ให้รูปยืดหดพอดีกรอบอัตโนมัติ */
         }
 
-        .person-name { font-weight: 800; font-size: 24px; color: #0f172a; margin: 0;}
-        .person-years { font-weight: 600; font-size: 16px; color: #64748b; margin: 0;}
+        .person-name { font-weight: 800; font-size: 24px; color: #0f172a; margin: 0; z-index: 10;}
+        .person-years { font-weight: 600; font-size: 16px; color: #64748b; margin: 0; z-index: 10;}
 
         /* Chat UI */
         .chat-box {
@@ -91,7 +92,7 @@
         
         .role-label { font-family: 'Fredoka One'; font-size: 12px; margin-bottom: 4px; opacity: 0.7;}
 
-        /* ไมโครโฟนปุ่ม */
+        /* ไมโครโฟน */
         .mic-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 100px;}
         .mic-btn {
             width: 70px; height: 70px; border-radius: 50%; border: none;
@@ -101,9 +102,8 @@
         }
         .mic-btn:active { transform: translateY(6px); box-shadow: none; }
         .mic-btn.listening { animation: pulse 1s infinite; background: linear-gradient(135deg, #facc15, #eab308); box-shadow: 0 6px 0 #a16207; }
-        .mic-status { font-weight: bold; color: #64748b; font-size: 14px; display: none;}
+        .mic-status { font-weight: bold; color: #64748b; font-size: 14px; display: none; text-align: center;}
 
-        /* Role Selector */
         .role-selector { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;}
         .role-btn {
             flex: 1; padding: 15px; border-radius: 15px; border: 3px solid #cbd5e1;
@@ -115,7 +115,6 @@
 
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* Modal UI */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(240,249,255,0.9); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s; padding: 15px; box-sizing: border-box; }
         .modal-overlay.active { visibility: visible; opacity: 1; }
         .modal-box { background: white; padding: 30px 20px; border-radius: 30px; text-align: center; width: 100%; max-width: 340px; border: 4px solid var(--main-theme); box-shadow: 0 15px 30px rgba(3, 105, 161, 0.2); box-sizing: border-box; }
@@ -147,7 +146,6 @@
     <div class="game-container" id="conversationScreen" style="display: none;">
         <div class="progress-text" id="progressText">Person 1 / 8</div>
         
-        <!-- รูปภาพขนาดใหญ่ แสดงอัตราส่วนตามไฟล์จริง -->
         <div class="person-display">
             <div class="large-image-frame">
                 <img id="personImage" src="" alt="Person Image">
@@ -157,12 +155,12 @@
         </div>
 
         <div class="chat-box" id="chatBox">
-            <!-- Chat Bubbles จะถูกสร้างตรงนี้ -->
+            <!-- Chat Bubbles -->
         </div>
 
         <div class="mic-container">
             <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
-            <div class="mic-status" id="micStatus">แตะไมค์แล้วอ่านประโยคที่ไฮไลท์</div>
+            <div class="mic-status" id="micStatus">แตะไมค์แล้วอ่านประโยคที่ไฮไลท์ให้ครบถ้วน</div>
             <button class="btn-switch" id="skipBtn" style="display:none; background:#94a3b8; margin-top:10px;" onclick="skipLine()">⏭️ ข้ามข้อนี้ (ไมค์ไม่ติด)</button>
         </div>
     </div>
@@ -191,46 +189,54 @@
     </div>
 
 <script>
-    // อัปเดตรายชื่อไฟล์รูปภาพให้ตรงกับที่คุณครูอัปโหลดขึ้น GitHub
+    // การปรับปรุงที่ 2: แยกประโยคของ B ออกเป็น 2 ตา (ตอบวันเกิดเสร็จ ค่อยสลับมาถามวันตาย)
     const dialoguesData = [
         { name: "Jesse Owens", years: "(1913-1980)", img: "Jesse_Owens.jpg", lines: [
             { role: "A", text: "When was Jesse Owens born?" },
-            { role: "B", text: "In 1913. When did he die?" },
+            { role: "B", text: "In 1913." },
+            { role: "B", text: "When did he die?" },
             { role: "A", text: "In 1980." }
         ]},
         { name: "Anna Pavlova", years: "(1881-1931)", img: "Anna_Pavlova.jpg", lines: [
             { role: "A", text: "When was Anna Pavlova born?" },
-            { role: "B", text: "She was born in 1881. When did she die?" },
+            { role: "B", text: "She was born in 1881." },
+            { role: "B", text: "When did she die?" },
             { role: "A", text: "She died in 1931." }
         ]},
         { name: "Yuri Gagarin", years: "(1934-1968)", img: "Yuri_Gagarin.jpg", lines: [
             { role: "A", text: "When was Yuri Gagarin born?" },
-            { role: "B", text: "He was born in 1934. When did he die?" },
+            { role: "B", text: "He was born in 1934." },
+            { role: "B", text: "When did he die?" },
             { role: "A", text: "He died in 1968." }
         ]},
         { name: "A. Fleming", years: "(1881-1955)", img: "Alexander_Fleming.jpg", lines: [
             { role: "A", text: "When was A. Fleming born?" },
-            { role: "B", text: "He was born in 1881. When did he die?" },
+            { role: "B", text: "He was born in 1881." },
+            { role: "B", text: "When did he die?" },
             { role: "A", text: "He died in 1955." }
         ]},
         { name: "El Greco", years: "(1541-1614)", img: "El_Greco.jpg", lines: [
             { role: "A", text: "When was El Greco born?" },
-            { role: "B", text: "He was born in 1541. When did he die?" },
+            { role: "B", text: "He was born in 1541." },
+            { role: "B", text: "When did he die?" },
             { role: "A", text: "He died in 1614." }
         ]},
         { name: "Marco Polo", years: "(1254-1324)", img: "Marco_Polo.jpg", lines: [
             { role: "A", text: "When was Marco Polo born?" },
-            { role: "B", text: "He was born in 1254. When did he die?" },
+            { role: "B", text: "He was born in 1254." },
+            { role: "B", text: "When did he die?" },
             { role: "A", text: "He died in 1324." }
         ]},
         { name: "Florence Nightingale", years: "(1820-1910)", img: "Florence_Nightingale.jpg", lines: [
             { role: "A", text: "When was Florence Nightingale born?" },
-            { role: "B", text: "She was born in 1820. When did she die?" },
+            { role: "B", text: "She was born in 1820." },
+            { role: "B", text: "When did she die?" },
             { role: "A", text: "She died in 1910." }
         ]},
         { name: "Albert Einstein", years: "(1879-1955)", img: "Albert_Einstein.jpg", lines: [
             { role: "A", text: "When was Albert Einstein born?" },
-            { role: "B", text: "He was born in 1879. When did he die?" },
+            { role: "B", text: "He was born in 1879." },
+            { role: "B", text: "When did he die?" },
             { role: "A", text: "He died in 1955." }
         ]}
     ];
@@ -262,7 +268,7 @@
             if(event.error === 'not-allowed') {
                 Swal.fire('ข้อผิดพลาด', 'กรุณาอนุญาตการใช้ไมโครโฟน', 'error');
             } else {
-                document.getElementById('micStatus').innerText = "ฟังไม่ถนัด ลองพูดใหม่อีกครั้งนะครับ";
+                document.getElementById('micStatus').innerText = "ฟังไม่ถนัด กรุณากดไมค์แล้วพูดใหม่อีกครั้ง";
                 document.getElementById('skipBtn').style.display = 'block'; 
             }
         };
@@ -288,9 +294,8 @@
         score = 0;
         currentPersonIndex = 0;
         
-        // สลับตำแหน่งคำถามให้ไม่เรียงตามลำดับทุกรอบที่เล่น
+        // สลับคำถาม
         dialoguesData.sort(() => Math.random() - 0.5);
-        
         loadPerson();
     }
 
@@ -339,7 +344,7 @@
         if (currentLine.role === userRole) {
             document.getElementById('micBtn').style.display = 'flex';
             document.getElementById('micStatus').style.display = 'block';
-            document.getElementById('micStatus').innerText = "แตะไมค์ 🎤 แล้วอ่านประโยคที่ไฮไลท์";
+            document.getElementById('micStatus').innerText = "แตะไมค์ 🎤 แล้วอ่านประโยคที่ไฮไลท์ให้ครบทุกคำ";
         } else {
             document.getElementById('micBtn').style.display = 'none';
             document.getElementById('micStatus').style.display = 'none';
@@ -358,7 +363,7 @@
         } else {
             recognition.start();
             document.getElementById('micBtn').classList.add('listening');
-            document.getElementById('micStatus').innerText = "กำลังฟัง... พูดได้เลยครับ";
+            document.getElementById('micStatus').innerText = "กำลังฟัง... พูดให้จบประโยคครับ";
             isRecording = true;
         }
     }
@@ -371,19 +376,14 @@
     function checkSpeech(transcript) {
         const expectedText = dialoguesData[currentPersonIndex].lines[currentLineIndex].text;
         
-        const cleanSpoken = transcript.toLowerCase().replace(/[^a-z0-9\s]/g, "");
-        const cleanExpected = expectedText.toLowerCase().replace(/[^a-z0-9\s]/g, "");
-        
-        const expectedWords = cleanExpected.split(" ");
-        let matchCount = 0;
-        expectedWords.forEach(word => {
-            if(cleanSpoken.includes(word)) matchCount++;
-        });
+        // การปรับปรุงที่ 3: ระบบตรวจเช็ค 100% Exact Match
+        // ตัดเครื่องหมายวรรคตอน ตัดช่องว่างส่วนเกิน และแปลงเป็นพิมพ์เล็กทั้งหมดเพื่อเปรียบเทียบ
+        const cleanSpoken = transcript.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, " ");
+        const cleanExpected = expectedText.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, " ");
 
-        const accuracy = matchCount / expectedWords.length;
-
-        if (accuracy >= 0.6) {
-            document.getElementById('micStatus').innerText = "✅ ยอดเยี่ยม! ถูกต้องครับ";
+        // เช็คว่าประโยคที่พูด ตรงกับประโยคที่ต้องการแบบ 100% หรือไม่
+        if (cleanSpoken === cleanExpected) {
+            document.getElementById('micStatus').innerText = "✅ ถูกต้อง 100% เยี่ยมมากครับ!";
             document.getElementById('micBtn').style.display = 'none';
             document.getElementById('skipBtn').style.display = 'none';
             
@@ -396,7 +396,7 @@
                 processLine();
             }, 1000);
         } else {
-            document.getElementById('micStatus').innerText = `❌ เกือบแล้ว ลองอีกครั้ง (ระบบได้ยินว่า: "${transcript}")`;
+            document.getElementById('micStatus').innerHTML = `❌ ยังไม่ถูกต้อง (ระบบได้ยินว่า: <i>"${transcript}"</i>)<br>กรุณากดไมค์และพูดใหม่ให้ครบทุกคำครับ`;
             document.getElementById('skipBtn').style.display = 'block';
         }
     }
