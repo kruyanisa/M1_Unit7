@@ -104,7 +104,7 @@
         .option-btn:active { transform: translateY(4px); box-shadow: 0 0 0 var(--main-theme); }
         .option-btn.disabled { pointer-events: none; }
         
-        /* สถานะถูก/ผิด (เน้นการใช้สีโดยไม่ต้องมีเสียง) */
+        /* สถานะถูก/ผิด (แสดงสีตามเดิม) */
         .correct-ans { background-color: #22c55e !important; border-color: #166534 !important; color: white !important; box-shadow: 0 4px 0 #166534 !important; transform: translateY(0); }
         .wrong-ans { background-color: #ef4444 !important; border-color: #991b1b !important; color: white !important; box-shadow: 0 4px 0 #991b1b !important; animation: shake 0.4s; }
 
@@ -238,12 +238,47 @@
         });
     }
 
+    // เสียงตอบถูกและตอบผิด (สร้างเสียงในเบราว์เซอร์ ไม่ต้องใช้ไฟล์เสียง)
+    function playAnswerSound(isCorrect) {
+        try {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            const context = new AudioContextClass();
+            if (context.state === 'suspended') context.resume();
+
+            const notes = isCorrect
+                ? [{ frequency: 523.25, start: 0, duration: 0.13 }, { frequency: 783.99, start: 0.15, duration: 0.23 }]
+                : [{ frequency: 330, start: 0, duration: 0.16 }, { frequency: 220, start: 0.18, duration: 0.25 }];
+
+            notes.forEach(note => {
+                const oscillator = context.createOscillator();
+                const gain = context.createGain();
+                const startTime = context.currentTime + note.start;
+                const endTime = startTime + note.duration;
+                oscillator.type = isCorrect ? 'sine' : 'triangle';
+                oscillator.frequency.setValueAtTime(note.frequency, startTime);
+                gain.gain.setValueAtTime(0.0001, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0001, endTime);
+                oscillator.connect(gain);
+                gain.connect(context.destination);
+                oscillator.start(startTime);
+                oscillator.stop(endTime);
+            });
+            setTimeout(() => context.close().catch(() => {}), 1000);
+        } catch (error) {
+            console.warn('ไม่สามารถเล่นเสียงได้:', error);
+        }
+    }
+
     function checkAnswer(isCorrect, selectedBtn, correctText) {
         if (!canClick) return;
         canClick = false; 
 
         const allBtns = document.querySelectorAll('.option-btn');
         allBtns.forEach(btn => btn.classList.add('disabled'));
+
+        playAnswerSound(isCorrect);
 
         if (isCorrect) {
             score++;
@@ -268,7 +303,7 @@
             } else {
                 endGame();
             }
-        }, 1200); // ดีเลย์สั้นลงหน่อยเพราะไม่มีเสียง
+        }, 1200); // ดีเลย์เดิม
     }
 
     function endGame() {
