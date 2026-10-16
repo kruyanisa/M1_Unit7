@@ -10,7 +10,7 @@
 
     <style>
         :root {
-            --main-theme: #0ea5e9; /* ธีมสีฟ้าสดใส สำหรับ Speaking */
+            --main-theme: #0ea5e9; 
             --dark-theme: #0369a1; 
             --bg-color: #f0f9ff;
             --accent-theme: #7dd3fc;
@@ -43,13 +43,37 @@
         .header-title { font-family: 'Fredoka One', cursive; color: var(--main-theme); margin: 0 0 5px 0; font-size: 28px;}
         .progress-text { font-weight: 800; color: #64748b; margin-bottom: 15px; font-size: 16px; }
 
-        /* ส่วนของรูปและชื่อบุคคล */
-        .person-header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 10px; border-radius: 20px; border: 2px dashed #bae6fd;}
-        .image-frame { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--accent-theme); overflow: hidden; }
-        .image-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .person-info { text-align: left; }
-        .person-name { font-weight: 800; font-size: 20px; color: #0f172a; margin: 0;}
-        .person-years { font-weight: 600; font-size: 14px; color: #64748b; margin: 0;}
+        /* ปรับส่วนแสดงรูปภาพใหม่ ให้ใหญ่ขึ้นและรักษาอัตราส่วนภาพต้นฉบับ */
+        .person-display {
+            background: #f8fafc;
+            border: 3px dashed #bae6fd;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .large-image-frame {
+            width: 100%;
+            max-height: 250px; /* จำกัดความสูงไม่ให้ล้นจอมือถือ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .large-image-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* ให้ภาพพอดีกรอบ ไม่โดนตัด */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .person-name { font-weight: 800; font-size: 24px; color: #0f172a; margin: 0;}
+        .person-years { font-weight: 600; font-size: 16px; color: #64748b; margin: 0;}
 
         /* Chat UI */
         .chat-box {
@@ -123,14 +147,13 @@
     <div class="game-container" id="conversationScreen" style="display: none;">
         <div class="progress-text" id="progressText">Person 1 / 8</div>
         
-        <div class="person-header">
-            <div class="image-frame">
-                <img id="personImage" src="" alt="Person">
+        <!-- รูปภาพขนาดใหญ่ แสดงอัตราส่วนตามไฟล์จริง -->
+        <div class="person-display">
+            <div class="large-image-frame">
+                <img id="personImage" src="" alt="Person Image">
             </div>
-            <div class="person-info">
-                <p class="person-name" id="personName">Name</p>
-                <p class="person-years" id="personYears">(0000 - 0000)</p>
-            </div>
+            <p class="person-name" id="personName">Name</p>
+            <p class="person-years" id="personYears">(0000 - 0000)</p>
         </div>
 
         <div class="chat-box" id="chatBox">
@@ -168,43 +191,44 @@
     </div>
 
 <script>
+    // อัปเดตรายชื่อไฟล์รูปภาพให้ตรงกับที่คุณครูอัปโหลดขึ้น GitHub
     const dialoguesData = [
-        { name: "Jesse Owens", years: "(1913-1980)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jesse_Owens3.jpg/320px-Jesse_Owens3.jpg", lines: [
+        { name: "Jesse Owens", years: "(1913-1980)", img: "Jesse_Owens.jpg", lines: [
             { role: "A", text: "When was Jesse Owens born?" },
             { role: "B", text: "In 1913. When did he die?" },
             { role: "A", text: "In 1980." }
         ]},
-        { name: "Anna Pavlova", years: "(1881-1931)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Anna_Pavlova_in_The_Dying_Swan_1905_or_later.jpg/320px-Anna_Pavlova_in_The_Dying_Swan_1905_or_later.jpg", lines: [
+        { name: "Anna Pavlova", years: "(1881-1931)", img: "Anna_Pavlova.jpg", lines: [
             { role: "A", text: "When was Anna Pavlova born?" },
             { role: "B", text: "She was born in 1881. When did she die?" },
             { role: "A", text: "She died in 1931." }
         ]},
-        { name: "Yuri Gagarin", years: "(1934-1968)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Yuri_Gagarin_in_Sweden.jpg/320px-Yuri_Gagarin_in_Sweden.jpg", lines: [
+        { name: "Yuri Gagarin", years: "(1934-1968)", img: "Yuri_Gagarin.jpg", lines: [
             { role: "A", text: "When was Yuri Gagarin born?" },
             { role: "B", text: "He was born in 1934. When did he die?" },
             { role: "A", text: "He died in 1968." }
         ]},
-        { name: "A. Fleming", years: "(1881-1955)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexander_Fleming_1951.jpg/320px-Alexander_Fleming_1951.jpg", lines: [
+        { name: "A. Fleming", years: "(1881-1955)", img: "Alexander_Fleming.jpg", lines: [
             { role: "A", text: "When was A. Fleming born?" },
             { role: "B", text: "He was born in 1881. When did he die?" },
             { role: "A", text: "He died in 1955." }
         ]},
-        { name: "El Greco", years: "(1541-1614)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/El_Greco_portrait.jpg/320px-El_Greco_portrait.jpg", lines: [
+        { name: "El Greco", years: "(1541-1614)", img: "El_Greco.jpg", lines: [
             { role: "A", text: "When was El Greco born?" },
             { role: "B", text: "He was born in 1541. When did he die?" },
             { role: "A", text: "He died in 1614." }
         ]},
-        { name: "Marco Polo", years: "(1254-1324)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Marco_Polo_portrait.jpg/320px-Marco_Polo_portrait.jpg", lines: [
+        { name: "Marco Polo", years: "(1254-1324)", img: "Marco_Polo.jpg", lines: [
             { role: "A", text: "When was Marco Polo born?" },
             { role: "B", text: "He was born in 1254. When did he die?" },
             { role: "A", text: "He died in 1324." }
         ]},
-        { name: "Florence Nightingale", years: "(1820-1910)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Florence_Nightingale_CDV_by_H_L_Chase_-_front.jpg/320px-Florence_Nightingale_CDV_by_H_L_Chase_-_front.jpg", lines: [
+        { name: "Florence Nightingale", years: "(1820-1910)", img: "Florence_Nightingale.jpg", lines: [
             { role: "A", text: "When was Florence Nightingale born?" },
             { role: "B", text: "She was born in 1820. When did she die?" },
             { role: "A", text: "She died in 1910." }
         ]},
-        { name: "Albert Einstein", years: "(1879-1955)", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/320px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg", lines: [
+        { name: "Albert Einstein", years: "(1879-1955)", img: "Albert_Einstein.jpg", lines: [
             { role: "A", text: "When was Albert Einstein born?" },
             { role: "B", text: "He was born in 1879. When did he die?" },
             { role: "A", text: "He died in 1955." }
@@ -219,7 +243,6 @@
     let userRole = '';
     let isSwitchingAccount = false;
     
-    // ตั้งค่า Speech Recognition
     let recognition;
     let isRecording = false;
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -240,7 +263,7 @@
                 Swal.fire('ข้อผิดพลาด', 'กรุณาอนุญาตการใช้ไมโครโฟน', 'error');
             } else {
                 document.getElementById('micStatus').innerText = "ฟังไม่ถนัด ลองพูดใหม่อีกครั้งนะครับ";
-                document.getElementById('skipBtn').style.display = 'block'; // ให้ข้ามได้ถ้าไมค์มีปัญหา
+                document.getElementById('skipBtn').style.display = 'block'; 
             }
         };
         recognition.onend = function() { stopMicUI(); };
@@ -264,6 +287,10 @@
         document.getElementById('conversationScreen').style.display = 'block';
         score = 0;
         currentPersonIndex = 0;
+        
+        // สลับตำแหน่งคำถามให้ไม่เรียงตามลำดับทุกรอบที่เล่น
+        dialoguesData.sort(() => Math.random() - 0.5);
+        
         loadPerson();
     }
 
@@ -279,7 +306,6 @@
         const chatBox = document.getElementById('chatBox');
         chatBox.innerHTML = '';
 
-        // สร้าง Chat Bubbles เตรียมไว้
         person.lines.forEach((line, index) => {
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${line.role === 'A' ? 'bubble-A' : 'bubble-B'}`;
@@ -295,7 +321,6 @@
     function processLine() {
         const person = dialoguesData[currentPersonIndex];
         if (currentLineIndex >= person.lines.length) {
-            // จบบทสนทนาของคนนี้ ได้ 1 คะแนน
             score++;
             setTimeout(() => {
                 currentPersonIndex++;
@@ -308,17 +333,14 @@
         const currentLine = person.lines[currentLineIndex];
         const bubble = document.getElementById(`bubble-${currentLineIndex}`);
         
-        // เลื่อนให้เห็น Bubble ปัจจุบันและทำ Active
         document.querySelectorAll('.chat-bubble').forEach(b => b.classList.remove('active'));
         bubble.classList.add('active');
 
         if (currentLine.role === userRole) {
-            // ตาเด็กพูด
             document.getElementById('micBtn').style.display = 'flex';
             document.getElementById('micStatus').style.display = 'block';
             document.getElementById('micStatus').innerText = "แตะไมค์ 🎤 แล้วอ่านประโยคที่ไฮไลท์";
         } else {
-            // ตา AI พูด
             document.getElementById('micBtn').style.display = 'none';
             document.getElementById('micStatus').style.display = 'none';
             playTTS(currentLine.text, () => {
@@ -349,7 +371,6 @@
     function checkSpeech(transcript) {
         const expectedText = dialoguesData[currentPersonIndex].lines[currentLineIndex].text;
         
-        // ทำความสะอาดข้อความเพื่อเปรียบเทียบ (ลบเครื่องหมายวรรคตอนและทำเป็นพิมพ์เล็ก)
         const cleanSpoken = transcript.toLowerCase().replace(/[^a-z0-9\s]/g, "");
         const cleanExpected = expectedText.toLowerCase().replace(/[^a-z0-9\s]/g, "");
         
@@ -359,7 +380,6 @@
             if(cleanSpoken.includes(word)) matchCount++;
         });
 
-        // เกณฑ์ผ่าน: ตรง 60% ขึ้นไป (ช่วยให้เด็กไม่ท้อ)
         const accuracy = matchCount / expectedWords.length;
 
         if (accuracy >= 0.6) {
@@ -382,7 +402,6 @@
     }
 
     function skipLine() {
-        // ให้ข้ามกรณีไมค์ฟังไม่รู้เรื่องจริงๆ เพื่อไม่ให้เด็กค้าง
         const bubble = document.getElementById(`bubble-${currentLineIndex}`);
         bubble.classList.remove('active');
         bubble.classList.add('completed');
@@ -395,12 +414,11 @@
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            utterance.rate = 0.9; // พูดช้าลงนิดนึงให้เด็กฟังง่าย
+            utterance.rate = 0.9; 
             utterance.onend = callback;
-            utterance.onerror = callback; // ถ้า error ก็ให้ข้ามไปเลยเกมจะได้ไม่ค้าง
+            utterance.onerror = callback; 
             window.speechSynthesis.speak(utterance);
         } else {
-            // เบราว์เซอร์ไม่รองรับ ข้ามไปบรรทัดต่อไปเลย
             setTimeout(callback, 1000); 
         }
     }
@@ -447,7 +465,6 @@
                 document.getElementById('modalTitle').innerText = "🔄 ลงชื่อบัญชีใหม่";
                 document.getElementById('modalSub').style.display = 'none';
                 
-                // หยุดเสียงพูดและซ่อนหน้าจอเกม
                 window.speechSynthesis.cancel();
                 document.getElementById('conversationScreen').style.display = 'none';
                 
