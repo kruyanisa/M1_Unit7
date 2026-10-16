@@ -6,12 +6,11 @@
     <title>Match the Items - Glory Days</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- ลิงก์เชื่อมต่อระบบบันทึกคะแนน -->
     <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
 
     <style>
         :root {
-            --main-theme: #f97316; /* ธีมสีส้ม Glory Days */
+            --main-theme: #f97316; 
             --dark-theme: #c2410c; 
             --bg-color: #fff7ed;
             --accent-theme: #fdba74;
@@ -28,7 +27,6 @@
             min-height: 100vh;
         }
 
-        /* Profile Bar */
         .profile-bar {
             font-size: clamp(12px, 3.5vw, 14px); background: #ffedd5; border: 2px solid var(--accent-theme);
             padding: 8px 15px; border-radius: 20px; color: var(--dark-theme); font-weight: bold;
@@ -36,7 +34,6 @@
         }
         .btn-switch { background: #fca5a5; color: white; border: none; padding: 4px 12px; border-radius: 12px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; }
 
-        /* Game Container */
         .game-container {
             width: 100%; max-width: 600px;
             background: white; border-radius: 24px;
@@ -48,7 +45,7 @@
         .header-title { font-family: 'Fredoka One', cursive; color: var(--main-theme); margin: 0 0 5px 0; font-size: 28px;}
         .progress-text { font-weight: 800; color: #64748b; margin-bottom: 15px; font-size: 16px; }
 
-        /* Question Box (รูปอาชีพ) */
+        /* ปรับกล่องโจทย์ให้กดได้เพื่อฟังเสียงซ้ำ */
         .question-box {
             width: 100%;
             height: 200px;
@@ -60,7 +57,25 @@
             align-items: center;
             margin-bottom: 20px;
             overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
         }
+        .question-box:active { transform: scale(0.98); background: #f1f5f9; }
+        
+        /* ไอคอนลำโพงเล็กๆ มุมขวาบนของรูปโจทย์ */
+        .speaker-icon {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            width: 35px; height: 35px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 18px; color: var(--main-theme);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
         .question-img {
             max-width: 90%;
             max-height: 90%;
@@ -69,10 +84,9 @@
             animation: fadeIn 0.5s;
         }
 
-        /* Options Grid (รูปสิ่งของ 4 ตัวเลือก) */
         .options-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* แบ่ง 2 คอลัมน์สำหรับมือถือ */
+            grid-template-columns: 1fr 1fr; 
             gap: 15px;
             width: 100%;
         }
@@ -101,14 +115,12 @@
             border-radius: 10px;
         }
 
-        /* สถานะถูก/ผิด */
         .correct-ans { border-color: #22c55e !important; background-color: #f0fdf4; box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
         .wrong-ans { border-color: #ef4444 !important; background-color: #fef2f2; animation: shake 0.4s; opacity: 0.6; }
 
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* Modal UI */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,247,237,0.9); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s; padding: 15px; box-sizing: border-box; }
         .modal-overlay.active { visibility: visible; opacity: 1; }
         .modal-box { background: white; padding: 30px 20px; border-radius: 30px; text-align: center; width: 100%; max-width: 340px; border: 4px solid var(--main-theme); box-shadow: 0 15px 30px rgba(194, 65, 12, 0.2); box-sizing: border-box; }
@@ -131,18 +143,20 @@
         <h1 class="header-title">Match the Items!</h1>
         <div class="progress-text" id="progressText">Question 1 / 9</div>
 
-        <div class="question-box">
+        <!-- เพิ่ม onclick เพื่อให้เด็กกดฟังเสียงซ้ำได้ -->
+        <div class="question-box" onclick="replayVocabSound()" title="แตะเพื่อฟังเสียงอีกครั้ง">
+            <div class="speaker-icon">🔊</div>
             <img id="mainImage" class="question-img" src="" alt="Job Image" onerror="this.src='https://via.placeholder.com/200?text=Image+Not+Found'">
         </div>
 
-        <div class="options-grid" id="optionsContainer">
-            <!-- ปุ่มตัวเลือกจะถูกสร้างอัตโนมัติด้วย JavaScript -->
-        </div>
+        <div class="options-grid" id="optionsContainer"></div>
     </div>
 
     <!-- ไฟล์เสียง -->
     <audio id="sfxCorrect" src="correct.mp3" preload="auto"></audio>
     <audio id="sfxWrong" src="wrong.mp3" preload="auto"></audio>
+    <!-- เพิ่ม Audio Player สำหรับเสียงคำศัพท์ -->
+    <audio id="vocabAudio" preload="auto"></audio> 
 
     <!-- Modal Login -->
     <div class="modal-overlay" id="loginModal">
@@ -168,18 +182,17 @@
     </div>
 
 <script>
-    // ฐานข้อมูลเกม (จับคู่ไฟล์รูปภาพ)
-    // เปลี่ยนนามสกุลเป็น .jpg ตามที่คุณครูแจ้ง
+    // เพิ่มไฟล์เสียง audio เข้าไปในฐานข้อมูลแต่ละข้อ
     const jobsData = [
-        { id: "singer", jobImg: "singer.jpg", itemImg: "item_singer.jpg" },
-        { id: "astronaut", jobImg: "astronaut.jpg", itemImg: "item_astronaut.jpg" },
-        { id: "athlete", jobImg: "athlete.jpg", itemImg: "item_athlete.jpg" },
-        { id: "scientist", jobImg: "scientist.jpg", itemImg: "item_scientist.jpg" },
-        { id: "painter", jobImg: "painter.jpg", itemImg: "item_painter.jpg" },
-        { id: "explorer", jobImg: "explorer.jpg", itemImg: "item_explorer.jpg" },
-        { id: "ballerina", jobImg: "ballerina.jpg", itemImg: "item_ballerina.jpg" },
-        { id: "inventor", jobImg: "inventor.jpg", itemImg: "item_inventor.jpg" },
-        { id: "nurse", jobImg: "nurse.jpg", itemImg: "item_nurse.jpg" }
+        { id: "singer", jobImg: "singer.jpg", itemImg: "item_singer.jpg", audio: "singer.mp3" },
+        { id: "astronaut", jobImg: "astronaut.jpg", itemImg: "item_astronaut.jpg", audio: "astronaut.mp3" },
+        { id: "athlete", jobImg: "athlete.jpg", itemImg: "item_athlete.jpg", audio: "athlete.mp3" },
+        { id: "scientist", jobImg: "scientist.jpg", itemImg: "item_scientist.jpg", audio: "scientist.mp3" },
+        { id: "painter", jobImg: "painter.jpg", itemImg: "item_painter.jpg", audio: "painter.mp3" },
+        { id: "explorer", jobImg: "explorer.jpg", itemImg: "item_explorer.jpg", audio: "explorer.mp3" },
+        { id: "ballerina", jobImg: "ballerina.jpg", itemImg: "item_ballerina.jpg", audio: "ballerina.mp3" },
+        { id: "inventor", jobImg: "inventor.jpg", itemImg: "item_inventor.jpg", audio: "inventor.mp3" },
+        { id: "nurse", jobImg: "nurse.jpg", itemImg: "item_nurse.jpg", audio: "nurse.mp3" }
     ];
 
     const TOPIC_NAME = 'ม.1 Unit 7 Glory Days Vocab';
@@ -192,13 +205,13 @@
 
     const sfxCorrect = document.getElementById('sfxCorrect');
     const sfxWrong = document.getElementById('sfxWrong');
+    const vocabAudio = document.getElementById('vocabAudio');
 
     window.onload = () => { checkLoginStatus(); };
 
     function initGame() {
         score = 0;
         currentQ = 0;
-        // สุ่มโจทย์ทั้งหมด
         shuffledQuestions = [...jobsData].sort(() => Math.random() - 0.5);
         loadQuestion();
     }
@@ -210,12 +223,16 @@
         const currentData = shuffledQuestions[currentQ];
         document.getElementById('mainImage').src = currentData.jobImg;
 
-        // สุ่มตัวเลือก 4 ข้อ (1 ถูก + 3 ผิด)
+        // โหลดและเล่นเสียงคำศัพท์อัตโนมัติ
+        vocabAudio.src = currentData.audio;
+        vocabAudio.currentTime = 0;
+        vocabAudio.play().catch(e => console.log("เบราว์เซอร์บล็อกการเล่นเสียงอัตโนมัติ: กรุณาแตะที่รูปเพื่อฟังเสียง"));
+
         let wrongOptions = jobsData.filter(job => job.id !== currentData.id);
         wrongOptions = wrongOptions.sort(() => Math.random() - 0.5).slice(0, 3);
         
         let options = [currentData, ...wrongOptions];
-        options = options.sort(() => Math.random() - 0.5); // สลับตำแหน่ง
+        options = options.sort(() => Math.random() - 0.5); 
 
         const container = document.getElementById('optionsContainer');
         container.innerHTML = '';
@@ -230,11 +247,19 @@
         });
     }
 
+    // ฟังก์ชันสำหรับกดฟังเสียงคำศัพท์ซ้ำ
+    function replayVocabSound() {
+        vocabAudio.currentTime = 0;
+        vocabAudio.play().catch(e => console.log(e));
+    }
+
     function checkAnswer(isCorrect, selectedBtn, selectedId, correctId) {
         if (!canClick) return;
-        canClick = false; // ล็อกไม่ให้กดซ้ำ
+        canClick = false; 
 
-        // ปิดการคลิกปุ่มทั้งหมด
+        // หยุดเสียงคำศัพท์เผื่อเด็กกดตอบก่อนที่เสียงจะพูดจบ
+        vocabAudio.pause();
+
         const allBtns = document.querySelectorAll('.option-btn');
         allBtns.forEach(btn => btn.classList.add('disabled'));
 
@@ -246,7 +271,6 @@
             selectedBtn.classList.add('wrong-ans');
             sfxWrong.currentTime = 0; sfxWrong.play().catch(e=>console.log(e));
             
-            // ไฮไลท์ข้อที่ถูกให้เด็กเห็นด้วย
             allBtns.forEach(btn => {
                 if(btn.innerHTML.includes(correctId)) {
                     btn.classList.add('correct-ans');
@@ -254,7 +278,6 @@
             });
         }
 
-        // รอ 1.5 วินาทีแล้วเปลี่ยนข้อ
         setTimeout(() => {
             currentQ++;
             if (currentQ < MAX_Q) {
@@ -276,14 +299,23 @@
         }
     }
 
-    // --- ระบบ Login & Score (อิงตามไฟล์เดิม) ---
     function checkLoginStatus() {
         if(localStorage.getItem('studentId')) {
             document.getElementById('userProfile').style.display = 'flex';
             document.getElementById('p_name').innerText = localStorage.getItem('studentName');
             document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
             document.getElementById('p_id').innerText = localStorage.getItem('studentId'); 
-            if(shuffledQuestions.length === 0) initGame();
+            
+            // หากเด็กล็อกอินค้างไว้ ให้คลิกเริ่มเกมผ่าน Modal อีกครั้งเพื่อปลดล็อคระบบเสียง (Autoplay Policy)
+            if(shuffledQuestions.length === 0) {
+                document.getElementById('modalTitle').innerText = `พร้อมไหม ${localStorage.getItem('studentName')}?`;
+                document.getElementById('modalSub').innerText = "แตะปุ่มด้านล่างเพื่อเริ่มเกม";
+                document.getElementById('modalSub').style.display = 'block';
+                document.getElementById('in_name').style.display = 'none';
+                document.getElementById('in_room').style.display = 'none';
+                document.getElementById('in_id').style.display = 'none';
+                document.getElementById('loginModal').classList.add('active');
+            }
         } else {
             document.getElementById('userProfile').style.display = 'none';
             document.getElementById('loginModal').classList.add('active');
@@ -298,9 +330,15 @@
         }).then((res) => {
             if(res.isConfirmed) {
                 localStorage.clear(); isSwitchingAccount = true;
+                
+                // คืนค่าฟอร์มกลับมา
+                document.getElementById('in_name').style.display = 'block';
+                document.getElementById('in_room').style.display = 'block';
+                document.getElementById('in_id').style.display = 'block';
                 document.getElementById('in_name').value = ''; 
                 document.getElementById('in_room').value = ''; 
                 document.getElementById('in_id').value = '';
+                
                 document.getElementById('modalTitle').innerText = "🔄 ลงชื่อบัญชีใหม่";
                 document.getElementById('modalSub').style.display = 'none';
                 checkLoginStatus(); 
@@ -315,6 +353,13 @@
     });
 
     function confirmUser() {
+        // ถ้ายกเลิกฟอร์ม (แปลว่าแค่กดยืนยันตอนเข้าเล่นซ้ำ)
+        if (document.getElementById('in_name').style.display === 'none') {
+            document.getElementById('loginModal').classList.remove('active'); 
+            initGame();
+            return;
+        }
+
         let n = document.getElementById('in_name').value.trim();
         let r = document.getElementById('in_room').value.trim();
         let id = document.getElementById('in_id').value.trim();
@@ -325,7 +370,12 @@
         localStorage.setItem('studentId', id);
         
         document.getElementById('loginModal').classList.remove('active'); 
-        checkLoginStatus();
+        
+        // คืนค่าแสดงผลเผื่อเปิดใหม่
+        document.getElementById('userProfile').style.display = 'flex';
+        document.getElementById('p_name').innerText = n;
+        document.getElementById('p_room').innerText = r;
+        document.getElementById('p_id').innerText = id;
 
         if (isSwitchingAccount) { 
             isSwitchingAccount = false;
