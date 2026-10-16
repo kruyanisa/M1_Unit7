@@ -39,7 +39,7 @@
         /* ปุ่ม Full Screen */
         .btn-fullscreen {
             position: absolute;
-            top: 15px; right: 15px;
+            top: 70px; right: 15px;
             background: rgba(0, 0, 0, 0.6);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -165,7 +165,7 @@
             smoothSegmentation: true,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5,
-            selfieMode: true // แก้ไขที่ 1: เพิ่มโหมดกระจกเงา
+            selfieMode: true 
         });
         pose.onResults(onResults);
 
@@ -202,6 +202,8 @@
         let nose = poseLM ? poseLM[0] : null;
         let leftWrist = poseLM ? poseLM[15] : null;
         let rightWrist = poseLM ? poseLM[16] : null;
+        let leftIndex = poseLM ? poseLM[19] : null; // เพิ่มปลายนิ้วชี้ซ้าย
+        let rightIndex = poseLM ? poseLM[20] : null; // เพิ่มปลายนิ้วชี้ขวา
 
         if (gameState === "intro") {
             if (introImage.complete) {
@@ -250,7 +252,7 @@
                 });
             }
 
-            let targetHit = false; // ตัวแปรสำหรับเช็คการชนไอเทมที่ถูก
+            let targetHit = false;
 
             for (let i = fallingItems.length - 1; i >= 0; i--) {
                 let item = fallingItems[i];
@@ -269,30 +271,41 @@
                     ctx.lineWidth = 5; ctx.strokeStyle = "#fff"; ctx.stroke();
                 }
 
-                if (nose) {
-                    let nx = nose.x * canvasElement.width;
-                    let ny = nose.y * canvasElement.height;
-                    let dist = Math.hypot(nx - item.x, ny - item.y);
+                // --- แก้ไขระบบการชนตรงนี้ (เช็คทั้ง จมูก ข้อมือ นิ้วชี้) ---
+                let hit = false;
+                let hitRadius = item.size/2 + 35; // ขยายรัศมีการชนให้แตะง่ายขึ้นนิดนึง
+                
+                // คำนวณฟังก์ชันหาระยะห่าง
+                const checkHit = (point) => {
+                    if (!point) return false;
+                    let px = point.x * canvasElement.width;
+                    let py = point.y * canvasElement.height;
+                    return Math.hypot(px - item.x, py - item.y) < hitRadius;
+                };
 
-                    if (dist < (item.size/2 + 30)) { 
-                        if (item.isTarget) {
-                            sfxCorrect.currentTime = 0; 
-                            sfxCorrect.play().catch(e => console.log(e));
-                            score++;
-                            targetHit = true; // แก้ไขที่ 2: ตั้งค่าว่าชนเป้าหมายแล้ว
-                            break; // ออกจากลูปการชนทันทีเพื่อป้องกันบั๊ก
-                        } else {
-                            sfxWrong.currentTime = 0; 
-                            sfxWrong.play().catch(e => console.log(e));
-                            score = Math.max(0, score - 1);
-                            item.y = canvasElement.height + 100; 
-                        }
+                // เช็คว่าส่วนไหนของร่างกายโดนบ้าง (จมูก, ข้อมือซ้าย/ขวา, นิ้วชี้ซ้าย/ขวา)
+                if (checkHit(nose) || checkHit(leftWrist) || checkHit(rightWrist) || checkHit(leftIndex) || checkHit(rightIndex)) {
+                    hit = true;
+                }
+
+                if (hit) { 
+                    if (item.isTarget) {
+                        sfxCorrect.currentTime = 0; 
+                        sfxCorrect.play().catch(e => console.log(e));
+                        score++;
+                        targetHit = true; 
+                        break; 
+                    } else {
+                        sfxWrong.currentTime = 0; 
+                        sfxWrong.play().catch(e => console.log(e));
+                        score = Math.max(0, score - 1);
+                        item.y = canvasElement.height + 100; // เตะไอเทมตกจอไปเลย
                     }
                 }
+                
                 if (!targetHit && item.y > canvasElement.height + 100) fallingItems.splice(i, 1);
             }
 
-            // ถ้าเก็บไอเทมที่ถูกได้แล้ว ค่อยมาเปลี่ยนข้อและลบไอเทมที่เหลือตรงนี้
             if (targetHit) {
                 fallingItems = []; 
                 currentJobIndex++;
@@ -322,6 +335,7 @@
             ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.roundRect(btnX, btnY, btnW, btnH, 20); ctx.fill();
             drawText("RESTART", canvasElement.width/2, btnY + 65, "45px Fredoka One", "#fff");
 
+            // วาดจุดที่มือเพื่อเล็งปุ่ม Restart
             if (leftWrist && rightWrist) {
                 let lx = leftWrist.x * canvasElement.width, ly = leftWrist.y * canvasElement.height;
                 let rx = rightWrist.x * canvasElement.width, ry = rightWrist.y * canvasElement.height;
