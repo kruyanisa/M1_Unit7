@@ -6,12 +6,13 @@
     <title>Vocabulary Flashcards - Unit 7</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
-            --main-theme: #4f46e5; /* สีน้ำเงินอมม่วง */
-            --dark-theme: #312e81; 
-            --bg-color: #eef2ff;
+            --main-theme: #0284c7; /* สีฟ้าน้ำทะเล */
+            --dark-theme: #0369a1; 
+            --bg-color: #f0f9ff;
             --accent-theme: #f59e0b;
         }
 
@@ -33,26 +34,26 @@
         }
         
         .progress-text { 
-            font-weight: 800; color: #6366f1; 
+            font-weight: 800; color: #0ea5e9; 
             margin-bottom: 20px; font-size: 16px; text-align: center; 
         }
 
         .controls {
             display: flex; justify-content: space-between; align-items: center;
-            width: 100%; max-width: 800px; margin-bottom: 15px;
-            background: white; padding: 10px 20px; border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box;
+            width: 100%; max-width: 800px; margin-bottom: 20px;
+            background: white; padding: 12px 20px; border-radius: 15px;
+            border: 2px solid #bae6fd; box-sizing: border-box;
         }
         
-        .status-counter { font-size: 16px; font-weight: 800; color: #10b981; }
+        .status-counter { font-size: 17px; font-weight: 800; color: #10b981; }
 
         .btn-reset { 
             background: #f43f5e; color: white; border: none; 
             padding: 8px 15px; border-radius: 12px; cursor: pointer; 
             font-family: 'Sarabun'; font-weight: bold; font-size: 15px;
-            box-shadow: 0 3px 0 #be123c; transition: 0.1s;
+            box-shadow: 0 4px 0 #be123c; transition: 0.1s;
         }
-        .btn-reset:active { transform: translateY(3px); box-shadow: none; }
+        .btn-reset:active { transform: translateY(4px); box-shadow: none; }
 
         /* Grid จัดการ์ด */
         .cards-grid {
@@ -67,14 +68,13 @@
         /* CSS สำหรับ 3D Flip Card */
         .card-scene {
             perspective: 1000px;
-            width: 100%; height: 220px;
+            width: 100%; height: 230px;
         }
 
         .card-obj {
             width: 100%; height: 100%;
             transition: transform 0.6s;
             transform-style: preserve-3d;
-            cursor: pointer;
             position: relative;
         }
 
@@ -84,62 +84,68 @@
 
         .card-face {
             position: absolute; width: 100%; height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
             backface-visibility: hidden;
             border-radius: 20px;
-            box-shadow: 0 8px 15px rgba(79, 70, 229, 0.15);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 15px; box-sizing: border-box; text-align: center;
             border: 3px solid transparent;
+            cursor: pointer; /* ให้รู้ว่ากดพลิกได้ */
+        }
+
+        /* พื้นหลังศิลปะ (ลายกระดาษอาร์ตอ่อนๆ) */
+        .art-bg {
+            background-color: #ffffff;
+            background-image: url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
         }
 
         /* หน้าการ์ด (ภาษาอังกฤษ) */
         .card-front {
-            background-color: white;
-            /* ลวดลายพื้นหลังจางๆ ให้ไม่ดูว่างเปล่า */
-            background-image: radial-gradient(#e0e7ff 2px, transparent 2px);
-            background-size: 20px 20px;
+            z-index: 2;
+            transform: rotateY(0deg); /* ให้อยู่ด้านหน้า */
         }
-        .vocab-text { font-family: 'Fredoka One'; font-size: 24px; color: #1e293b; margin-bottom: 15px; z-index: 2; text-shadow: 2px 2px 0px white;}
-        .word-type { font-weight: 800; font-size: 14px; color: #94a3b8; margin-bottom: 5px; z-index: 2; text-transform: uppercase;}
         
+        .word-type { font-weight: 800; font-size: 14px; color: #64748b; margin-bottom: 10px; background: #e2e8f0; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;}
+        .vocab-text { font-family: 'Fredoka One'; font-size: 26px; color: #0f172a; margin-bottom: 20px; text-shadow: 1px 1px 0px white;}
+        
+        /* ปุ่มลำโพง */
         .btn-audio {
             background: linear-gradient(135deg, #38bdf8, #0284c7);
-            color: white; border: none; width: 50px; height: 50px; border-radius: 50%;
-            font-size: 24px; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 0 #0369a1; z-index: 5; transition: 0.1s;
+            color: white; border: none; width: 55px; height: 55px; border-radius: 50%;
+            font-size: 26px; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 0 #0369a1; transition: 0.1s; cursor: pointer;
         }
-        .btn-audio:active { transform: translateY(4px); box-shadow: none; }
+        .btn-audio:active { transform: translateY(5px); box-shadow: none; }
 
         /* หลังการ์ด (ภาษาไทย) */
         .card-back {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            transform: rotateY(180deg);
+            background: #f8fafc;
+            transform: rotateY(180deg); /* ซ่อนไว้ด้านหลังแต่แรก */
         }
-        .thai-text { font-size: 22px; font-weight: 800; color: var(--dark-theme); margin-bottom: 15px;}
+        .thai-text { font-size: 22px; font-weight: 800; color: var(--dark-theme); margin-bottom: 25px;}
         
+        /* ปุ่มจำได้แล้ว */
         .btn-studied {
-            background: #10b981; color: white; border: none; padding: 10px 20px;
+            background: #10b981; color: white; border: none; padding: 12px 25px;
             border-radius: 12px; font-family: 'Sarabun'; font-weight: bold; font-size: 16px;
-            box-shadow: 0 4px 0 #047857; z-index: 5; transition: 0.1s;
+            box-shadow: 0 5px 0 #047857; transition: 0.1s; cursor: pointer;
         }
-        .btn-studied:active { transform: translateY(4px); box-shadow: none; }
+        .btn-studied:active { transform: translateY(5px); box-shadow: none; }
 
-        /* สถานะไฮไลท์เมื่อฝึกแล้ว */
+        /* สถานะไฮไลท์เมื่อกดจำได้แล้ว */
         .card-scene.studied .card-front, .card-scene.studied .card-back {
             border-color: #10b981;
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
         .card-scene.studied .card-front {
-            background-color: #ecfdf5;
+            background-color: #ecfdf5; /* เปลี่ยนสีพื้นเป็นสีเขียวอ่อน */
             background-image: none;
         }
         .card-scene.studied .btn-studied {
-            background: #94a3b8; box-shadow: 0 4px 0 #64748b;
+            background: #94a3b8; box-shadow: 0 5px 0 #64748b;
         }
-        .card-scene.studied .btn-studied::after { content: " (ยกเลิก)"; font-size: 12px;}
-
-        /* ป้องกันไม่ให้คลิกปุ่มแล้วการ์ดพลิกตาม */
-        .no-flip { pointer-events: auto; }
+        .card-scene.studied .btn-studied::after { content: " (ยกเลิก)"; font-size: 13px;}
     </style>
 </head>
 <body>
@@ -153,11 +159,10 @@
     </div>
 
     <div class="cards-grid" id="flashcardsContainer">
-        <!-- การ์ดจะถูกสร้างอัตโนมัติที่นี่ -->
+        <!-- การ์ดจะถูกสร้างด้วย JavaScript -->
     </div>
 
 <script>
-    // ข้อมูลคำศัพท์ 20 คำ (แก้ไขชื่อไฟล์ audio เพื่อรองรับเว้นวรรค)
     const vocabData = [
         { word: "be able to", type: "phr", thai: "สามารถ", audio: "be_able_to.mp3" },
         { word: "the most famous", type: "phr", thai: "มีชื่อเสียงที่สุด", audio: "the_most_famous.mp3" },
@@ -192,37 +197,63 @@
         container.innerHTML = '';
 
         vocabData.forEach((vocab, index) => {
-            // สร้าง Scene ครอบการ์ด
             const scene = document.createElement('div');
             scene.className = 'card-scene';
             scene.id = `scene-${index}`;
 
-            // สร้างตัวการ์ด 3D
             const cardObj = document.createElement('div');
             cardObj.className = 'card-obj';
-            // กดที่ตัวการ์ดเพื่อพลิก (แต่จะไม่รวมตอนคลิกปุ่มลำโพงหรือปุ่มไฮไลท์)
-            cardObj.onclick = (e) => {
-                if(!e.target.closest('.no-flip')) {
-                    cardObj.classList.toggle('is-flipped');
-                }
+            cardObj.id = `card-${index}`;
+
+            // โซนหน้าการ์ด (อังกฤษ)
+            const front = document.createElement('div');
+            front.className = 'card-face card-front art-bg';
+            
+            // ทำให้พื้นที่หน้าการ์ดกดพลิกได้ (แต่ถ้ากดโดนปุ่มลำโพงจะไม่พลิก)
+            front.onclick = (e) => {
+                cardObj.classList.add('is-flipped');
             };
 
-            // หน้าการ์ด (อังกฤษ)
-            const front = document.createElement('div');
-            front.className = 'card-face card-front';
             front.innerHTML = `
                 <div class="word-type">${vocab.type}</div>
                 <div class="vocab-text">${vocab.word}</div>
-                <button class="btn-audio no-flip" onclick="playAudio('${vocab.word}', '${vocab.audio}')">🔊</button>
             `;
 
-            // หลังการ์ด (ไทย)
+            // ปุ่มลำโพง (แยกฟังก์ชันคลิกให้ชัดเจน)
+            const audioBtn = document.createElement('button');
+            audioBtn.className = 'btn-audio';
+            audioBtn.innerHTML = '🔊';
+            audioBtn.onclick = (e) => {
+                e.stopPropagation(); // หยุดไม่ให้คลิกทะลุไปโดนตัวพลิกการ์ด
+                playAudio(vocab.audio);
+            };
+            front.appendChild(audioBtn);
+
+
+            // โซนหลังการ์ด (ไทย)
             const back = document.createElement('div');
             back.className = 'card-face card-back';
+            
+            // คลิกพื้นที่ว่างเพื่อพลิกกลับ
+            back.onclick = (e) => {
+                cardObj.classList.remove('is-flipped');
+            };
+
             back.innerHTML = `
                 <div class="thai-text">${vocab.thai}</div>
-                <button class="btn-studied no-flip" id="btn-study-${index}" onclick="toggleStudied(${index})">✔️ จำได้แล้ว</button>
             `;
+
+            // ปุ่มจำได้แล้ว
+            const studyBtn = document.createElement('button');
+            studyBtn.className = 'btn-studied';
+            studyBtn.id = `btn-study-${index}`;
+            studyBtn.innerHTML = '✔️ จำได้แล้ว';
+            studyBtn.onclick = (e) => {
+                e.stopPropagation(); // หยุดไม่ให้คลิกทะลุไปพลิกการ์ด
+                toggleStudied(index);
+            };
+            back.appendChild(studyBtn);
+
 
             cardObj.appendChild(front);
             cardObj.appendChild(back);
@@ -231,37 +262,29 @@
         });
     }
 
-    // ฟังก์ชันเล่นเสียง (ลองหา mp3 ก่อน ถ้าไม่มีให้ใช้เสียง AI)
-    function playAudio(word, audioFileName) {
+    // ฟังก์ชันเล่นไฟล์ MP3 อย่างเดียว
+    function playAudio(audioFileName) {
         const audio = new Audio(audioFileName);
-        
         audio.play().catch(error => {
-            // ถ้าระบบหาไฟล์ mp3 ไม่เจอ ให้ใช้ Web Speech API อ่านแทน
-            console.log("MP3 not found, using AI voice for:", word);
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(word);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                window.speechSynthesis.speak(utterance);
-            }
+            console.error("ไม่พบไฟล์เสียง:", audioFileName);
         });
     }
 
-    // สลับสถานะไฮไลท์ (ฝึกแล้ว)
     function toggleStudied(index) {
         const scene = document.getElementById(`scene-${index}`);
         const btn = document.getElementById(`btn-study-${index}`);
 
         if (scene.classList.contains('studied')) {
+            // ถ้ายกเลิก
             scene.classList.remove('studied');
             btn.innerText = "✔️ จำได้แล้ว";
             studiedTotal--;
         } else {
+            // ถ้าจำได้แล้ว
             scene.classList.add('studied');
             btn.innerText = "⭐ เก่งมาก";
             studiedTotal++;
             
-            // เช็คว่าถ้าจำครบ 20 คำ ให้จุดพลุฉลอง
             if(studiedTotal === vocabData.length) {
                 fireConfetti();
             }
@@ -273,14 +296,13 @@
         document.getElementById('studiedCount').innerText = studiedTotal;
     }
 
-    // ปุ่มเริ่มใหม่ (ล้างไฮไลท์ทั้งหมด)
     function resetAllCards() {
         Swal.fire({
             title: 'เริ่มใหม่ทั้งหมด?',
-            text: "ระบบจะล้างแถบสีไฮไลท์ทั้งหมด คุณแน่ใจหรือไม่?",
+            text: "ระบบจะล้างแถบสีเขียวและการนับคะแนนทั้งหมด",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#4f46e5',
+            confirmButtonColor: '#0284c7',
             cancelButtonColor: '#94a3b8',
             confirmButtonText: 'ตกลง, เริ่มใหม่!',
             cancelButtonText: 'ยกเลิก'
@@ -289,40 +311,26 @@
                 studiedTotal = 0;
                 updateCounter();
                 
-                // พลิกการ์ดกลับหน้าแรก และล้างคลาส studied
                 vocabData.forEach((_, index) => {
                     const scene = document.getElementById(`scene-${index}`);
-                    const cardObj = scene.querySelector('.card-obj');
+                    const cardObj = document.getElementById(`card-${index}`);
                     const btn = document.getElementById(`btn-study-${index}`);
                     
                     scene.classList.remove('studied');
-                    cardObj.classList.remove('is-flipped');
+                    cardObj.classList.remove('is-flipped'); // บังคับพลิกกลับหน้าอังกฤษ
                     btn.innerText = "✔️ จำได้แล้ว";
                 });
             }
         });
     }
 
-    // เอฟเฟกต์จุดพลุฉลองตอนท่องครบ
     function fireConfetti() {
         var duration = 3 * 1000;
         var end = Date.now() + duration;
 
         (function frame() {
-            confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ['#4f46e5', '#f59e0b', '#10b981']
-            });
-            confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ['#4f46e5', '#f59e0b', '#10b981']
-            });
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#0284c7', '#f59e0b', '#10b981'] });
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#0284c7', '#f59e0b', '#10b981'] });
 
             if (Date.now() < end) {
                 requestAnimationFrame(frame);
