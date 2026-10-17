@@ -68,7 +68,7 @@
         /* CSS สำหรับ 3D Flip Card */
         .card-scene {
             perspective: 1000px;
-            width: 100%; height: 230px;
+            width: 100%; height: 200px; /* ลดความสูงลงนิดหน่อยเพราะไม่มีปุ่มด้านหลังแล้ว */
         }
 
         .card-obj {
@@ -91,7 +91,8 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             padding: 15px; box-sizing: border-box; text-align: center;
             border: 3px solid transparent;
-            cursor: pointer; /* ให้รู้ว่ากดพลิกได้ */
+            cursor: pointer;
+            transition: background-color 0.4s;
         }
 
         /* พื้นหลังศิลปะ (ลายกระดาษอาร์ตอ่อนๆ) */
@@ -103,7 +104,7 @@
         /* หน้าการ์ด (ภาษาอังกฤษ) */
         .card-front {
             z-index: 2;
-            transform: rotateY(0deg); /* ให้อยู่ด้านหน้า */
+            transform: rotateY(0deg); 
         }
         
         .word-type { font-weight: 800; font-size: 14px; color: #64748b; margin-bottom: 10px; background: #e2e8f0; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;}
@@ -121,31 +122,23 @@
         /* หลังการ์ด (ภาษาไทย) */
         .card-back {
             background: #f8fafc;
-            transform: rotateY(180deg); /* ซ่อนไว้ด้านหลังแต่แรก */
+            transform: rotateY(180deg);
         }
-        .thai-text { font-size: 22px; font-weight: 800; color: var(--dark-theme); margin-bottom: 25px;}
-        
-        /* ปุ่มจำได้แล้ว */
-        .btn-studied {
-            background: #10b981; color: white; border: none; padding: 12px 25px;
-            border-radius: 12px; font-family: 'Sarabun'; font-weight: bold; font-size: 16px;
-            box-shadow: 0 5px 0 #047857; transition: 0.1s; cursor: pointer;
-        }
-        .btn-studied:active { transform: translateY(5px); box-shadow: none; }
+        .thai-text { font-size: 26px; font-weight: 800; color: var(--dark-theme); margin-bottom: 10px;}
+        .studied-mark { font-size: 16px; color: #10b981; font-weight: bold; background: #dcfce7; padding: 5px 15px; border-radius: 20px; margin-top: 15px; opacity: 0; transition: opacity 0.3s;}
 
-        /* สถานะไฮไลท์เมื่อกดจำได้แล้ว */
-        .card-scene.studied .card-front, .card-scene.studied .card-back {
-            border-color: #10b981;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-        }
+        /* สถานะไฮไลท์เมื่อกดพลิกแล้ว (สีเขียว) */
         .card-scene.studied .card-front {
             background-color: #ecfdf5; /* เปลี่ยนสีพื้นเป็นสีเขียวอ่อน */
             background-image: none;
+            border-color: #34d399;
         }
-        .card-scene.studied .btn-studied {
-            background: #94a3b8; box-shadow: 0 5px 0 #64748b;
+        .card-scene.studied .card-back {
+            background-color: #ecfdf5;
+            border-color: #34d399;
         }
-        .card-scene.studied .btn-studied::after { content: " (ยกเลิก)"; font-size: 13px;}
+        .card-scene.studied .studied-mark { opacity: 1; }
+
     </style>
 </head>
 <body>
@@ -154,7 +147,7 @@
     <div class="progress-text">M.1 Unit 7 Glory days</div>
 
     <div class="controls">
-        <div class="status-counter">จำได้แล้ว: <span id="studiedCount">0</span> / 20</div>
+        <div class="status-counter">ฝึกแล้ว: <span id="studiedCount">0</span> / 20</div>
         <button class="btn-reset" onclick="resetAllCards()">🔄 เริ่มใหม่ทั้งหมด</button>
     </div>
 
@@ -209,9 +202,10 @@
             const front = document.createElement('div');
             front.className = 'card-face card-front art-bg';
             
-            // ทำให้พื้นที่หน้าการ์ดกดพลิกได้ (แต่ถ้ากดโดนปุ่มลำโพงจะไม่พลิก)
+            // คลิกหน้าการ์ดเพื่อพลิก และนับคะแนนทันที!
             front.onclick = (e) => {
                 cardObj.classList.add('is-flipped');
+                markAsStudied(index); // เรียกฟังก์ชันนับคะแนน
             };
 
             front.innerHTML = `
@@ -219,41 +213,29 @@
                 <div class="vocab-text">${vocab.word}</div>
             `;
 
-            // ปุ่มลำโพง (แยกฟังก์ชันคลิกให้ชัดเจน)
+            // ปุ่มลำโพง
             const audioBtn = document.createElement('button');
             audioBtn.className = 'btn-audio';
             audioBtn.innerHTML = '🔊';
             audioBtn.onclick = (e) => {
-                e.stopPropagation(); // หยุดไม่ให้คลิกทะลุไปโดนตัวพลิกการ์ด
+                e.stopPropagation(); // หยุดไม่ให้คลิกทะลุไปพลิกการ์ดเวลาจิ้มลำโพง
                 playAudio(vocab.audio);
             };
             front.appendChild(audioBtn);
-
 
             // โซนหลังการ์ด (ไทย)
             const back = document.createElement('div');
             back.className = 'card-face card-back';
             
-            // คลิกพื้นที่ว่างเพื่อพลิกกลับ
+            // คลิกหลังการ์ดเพื่อพลิกกลับไปหน้าแรก
             back.onclick = (e) => {
                 cardObj.classList.remove('is-flipped');
             };
 
             back.innerHTML = `
                 <div class="thai-text">${vocab.thai}</div>
+                <div class="studied-mark">✔️ ผ่านแล้ว</div>
             `;
-
-            // ปุ่มจำได้แล้ว
-            const studyBtn = document.createElement('button');
-            studyBtn.className = 'btn-studied';
-            studyBtn.id = `btn-study-${index}`;
-            studyBtn.innerHTML = '✔️ จำได้แล้ว';
-            studyBtn.onclick = (e) => {
-                e.stopPropagation(); // หยุดไม่ให้คลิกทะลุไปพลิกการ์ด
-                toggleStudied(index);
-            };
-            back.appendChild(studyBtn);
-
 
             cardObj.appendChild(front);
             cardObj.appendChild(back);
@@ -262,7 +244,7 @@
         });
     }
 
-    // ฟังก์ชันเล่นไฟล์ MP3 อย่างเดียว
+    // ฟังก์ชันเล่นเสียง MP3
     function playAudio(audioFileName) {
         const audio = new Audio(audioFileName);
         audio.play().catch(error => {
@@ -270,36 +252,32 @@
         });
     }
 
-    function toggleStudied(index) {
+    // ฟังก์ชันนับคะแนน (ทำงานอัตโนมัติเมื่อกดพลิกการ์ด)
+    function markAsStudied(index) {
         const scene = document.getElementById(`scene-${index}`);
-        const btn = document.getElementById(`btn-study-${index}`);
-
-        if (scene.classList.contains('studied')) {
-            // ถ้ายกเลิก
-            scene.classList.remove('studied');
-            btn.innerText = "✔️ จำได้แล้ว";
-            studiedTotal--;
-        } else {
-            // ถ้าจำได้แล้ว
+        
+        // ถ้ายอมยังไม่เคยถูกพลิก (ยังไม่มีคลาส studied) ให้นับเพิ่ม 1
+        if (!scene.classList.contains('studied')) {
             scene.classList.add('studied');
-            btn.innerText = "⭐ เก่งมาก";
             studiedTotal++;
+            updateCounter();
             
+            // จุดพลุเมื่อพลิกครบทุกใบ
             if(studiedTotal === vocabData.length) {
-                fireConfetti();
+                setTimeout(fireConfetti, 500); // หน่วงเวลาครึ่งวิ ให้การ์ดพลิกเสร็จก่อนพลุแตก
             }
         }
-        updateCounter();
     }
 
     function updateCounter() {
         document.getElementById('studiedCount').innerText = studiedTotal;
     }
 
-    function resetAllCards() {
+    // ปุ่มเริ่มใหม่ แก้บั๊กให้ทำงานได้ 100%
+    window.resetAllCards = function() {
         Swal.fire({
             title: 'เริ่มใหม่ทั้งหมด?',
-            text: "ระบบจะล้างแถบสีเขียวและการนับคะแนนทั้งหมด",
+            text: "ระบบจะล้างความคืบหน้ากลับไปเป็น 0 / 20",
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#0284c7',
@@ -308,21 +286,23 @@
             cancelButtonText: 'ยกเลิก'
         }).then((result) => {
             if (result.isConfirmed) {
+                // รีเซ็ตตัวเลข
                 studiedTotal = 0;
                 updateCounter();
                 
-                vocabData.forEach((_, index) => {
-                    const scene = document.getElementById(`scene-${index}`);
-                    const cardObj = document.getElementById(`card-${index}`);
-                    const btn = document.getElementById(`btn-study-${index}`);
+                // ล้างคลาสไฮไลท์สีเขียว และพลิกการ์ดกลับทั้งหมด
+                for (let i = 0; i < vocabData.length; i++) {
+                    const scene = document.getElementById(`scene-${i}`);
+                    const cardObj = document.getElementById(`card-${i}`);
                     
-                    scene.classList.remove('studied');
-                    cardObj.classList.remove('is-flipped'); // บังคับพลิกกลับหน้าอังกฤษ
-                    btn.innerText = "✔️ จำได้แล้ว";
-                });
+                    if (scene && cardObj) {
+                        scene.classList.remove('studied');
+                        cardObj.classList.remove('is-flipped');
+                    }
+                }
             }
         });
-    }
+    };
 
     function fireConfetti() {
         var duration = 3 * 1000;
