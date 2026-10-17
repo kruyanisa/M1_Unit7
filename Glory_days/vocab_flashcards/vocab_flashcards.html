@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vocabulary Flashcards - Unit 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --main-theme: #4f46e5; /* สีน้ำเงินอมม่วง */
+            --dark-theme: #312e81; 
+            --bg-color: #eef2ff;
+            --accent-theme: #f59e0b;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 15px 10px;
+            background-color: var(--bg-color);
+            color: #334155;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .header-title { 
+            font-family: 'Fredoka One', cursive; 
+            color: var(--main-theme); 
+            margin: 0 0 5px 0; 
+            font-size: 32px;
+            text-align: center;
+        }
+        
+        .progress-text { 
+            font-weight: 800; color: #6366f1; 
+            margin-bottom: 20px; font-size: 16px; text-align: center; 
+        }
+
+        .controls {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; max-width: 800px; margin-bottom: 15px;
+            background: white; padding: 10px 20px; border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box;
+        }
+        
+        .status-counter { font-size: 16px; font-weight: 800; color: #10b981; }
+
+        .btn-reset { 
+            background: #f43f5e; color: white; border: none; 
+            padding: 8px 15px; border-radius: 12px; cursor: pointer; 
+            font-family: 'Sarabun'; font-weight: bold; font-size: 15px;
+            box-shadow: 0 3px 0 #be123c; transition: 0.1s;
+        }
+        .btn-reset:active { transform: translateY(3px); box-shadow: none; }
+
+        /* Grid จัดการ์ด */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            width: 100%; max-width: 800px;
+        }
+        @media (min-width: 480px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 768px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        /* CSS สำหรับ 3D Flip Card */
+        .card-scene {
+            perspective: 1000px;
+            width: 100%; height: 220px;
+        }
+
+        .card-obj {
+            width: 100%; height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-obj.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 8px 15px rgba(79, 70, 229, 0.15);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 15px; box-sizing: border-box; text-align: center;
+            border: 3px solid transparent;
+        }
+
+        /* หน้าการ์ด (ภาษาอังกฤษ) */
+        .card-front {
+            background-color: white;
+            /* ลวดลายพื้นหลังจางๆ ให้ไม่ดูว่างเปล่า */
+            background-image: radial-gradient(#e0e7ff 2px, transparent 2px);
+            background-size: 20px 20px;
+        }
+        .vocab-text { font-family: 'Fredoka One'; font-size: 24px; color: #1e293b; margin-bottom: 15px; z-index: 2; text-shadow: 2px 2px 0px white;}
+        .word-type { font-weight: 800; font-size: 14px; color: #94a3b8; margin-bottom: 5px; z-index: 2; text-transform: uppercase;}
+        
+        .btn-audio {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: white; border: none; width: 50px; height: 50px; border-radius: 50%;
+            font-size: 24px; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 0 #0369a1; z-index: 5; transition: 0.1s;
+        }
+        .btn-audio:active { transform: translateY(4px); box-shadow: none; }
+
+        /* หลังการ์ด (ภาษาไทย) */
+        .card-back {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            transform: rotateY(180deg);
+        }
+        .thai-text { font-size: 22px; font-weight: 800; color: var(--dark-theme); margin-bottom: 15px;}
+        
+        .btn-studied {
+            background: #10b981; color: white; border: none; padding: 10px 20px;
+            border-radius: 12px; font-family: 'Sarabun'; font-weight: bold; font-size: 16px;
+            box-shadow: 0 4px 0 #047857; z-index: 5; transition: 0.1s;
+        }
+        .btn-studied:active { transform: translateY(4px); box-shadow: none; }
+
+        /* สถานะไฮไลท์เมื่อฝึกแล้ว */
+        .card-scene.studied .card-front, .card-scene.studied .card-back {
+            border-color: #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+        .card-scene.studied .card-front {
+            background-color: #ecfdf5;
+            background-image: none;
+        }
+        .card-scene.studied .btn-studied {
+            background: #94a3b8; box-shadow: 0 4px 0 #64748b;
+        }
+        .card-scene.studied .btn-studied::after { content: " (ยกเลิก)"; font-size: 12px;}
+
+        /* ป้องกันไม่ให้คลิกปุ่มแล้วการ์ดพลิกตาม */
+        .no-flip { pointer-events: auto; }
+    </style>
+</head>
+<body>
+
+    <h1 class="header-title">Vocabulary Flashcards</h1>
+    <div class="progress-text">M.1 Unit 7 Glory days</div>
+
+    <div class="controls">
+        <div class="status-counter">จำได้แล้ว: <span id="studiedCount">0</span> / 20</div>
+        <button class="btn-reset" onclick="resetAllCards()">🔄 เริ่มใหม่ทั้งหมด</button>
+    </div>
+
+    <div class="cards-grid" id="flashcardsContainer">
+        <!-- การ์ดจะถูกสร้างอัตโนมัติที่นี่ -->
+    </div>
+
+<script>
+    // ข้อมูลคำศัพท์ 20 คำ (แก้ไขชื่อไฟล์ audio เพื่อรองรับเว้นวรรค)
+    const vocabData = [
+        { word: "be able to", type: "phr", thai: "สามารถ", audio: "be_able_to.mp3" },
+        { word: "the most famous", type: "phr", thai: "มีชื่อเสียงที่สุด", audio: "the_most_famous.mp3" },
+        { word: "Barcelona", type: "n", thai: "เมืองบาร์เซโลนา", audio: "barcelona.mp3" },
+        { word: "Crete", type: "n", thai: "เกาะครีต", audio: "crete.mp3" },
+        { word: "Seville", type: "n", thai: "เมืองเซบียา", audio: "seville.mp3" },
+        { word: "Toledo", type: "n", thai: "เมืองโตเลโด", audio: "toledo.mp3" },
+        { word: "artist", type: "n", thai: "ศิลปิน, จิตรกร", audio: "artist.mp3" },
+        { word: "city", type: "n", thai: "เมือง, นคร", audio: "city.mp3" },
+        { word: "dessert", type: "n", thai: "ขนมหวาน", audio: "dessert.mp3" },
+        { word: "flour", type: "n", thai: "แป้งทำขนม/อาหาร", audio: "flour.mp3" },
+        { word: "genius", type: "n", thai: "อัจฉริยะ", audio: "genius.mp3" },
+        { word: "lake", type: "n", thai: "ทะเลสาบ", audio: "lake.mp3" },
+        { word: "nickname", type: "n", thai: "ฉายา, ชื่อเล่น", audio: "nickname.mp3" },
+        { word: "pasta", type: "n", thai: "พาสต้า", audio: "pasta.mp3" },
+        { word: "professor", type: "n", thai: "ศาสตราจารย์", audio: "professor.mp3" },
+        { word: "rice", type: "n", thai: "ข้าว", audio: "rice.mp3" },
+        { word: "river", type: "n", thai: "แม่น้ำ", audio: "river.mp3" },
+        { word: "real", type: "adj", thai: "แท้จริง", audio: "real.mp3" },
+        { word: "better", type: "adj", thai: "ดีกว่า, เก่งกว่า", audio: "better.mp3" },
+        { word: "greatest", type: "adj", thai: "ยิ่งใหญ่ที่สุด, ดีเยี่ยมที่สุด", audio: "greatest.mp3" }
+    ];
+
+    let studiedTotal = 0;
+
+    window.onload = () => {
+        renderCards();
+    };
+
+    function renderCards() {
+        const container = document.getElementById('flashcardsContainer');
+        container.innerHTML = '';
+
+        vocabData.forEach((vocab, index) => {
+            // สร้าง Scene ครอบการ์ด
+            const scene = document.createElement('div');
+            scene.className = 'card-scene';
+            scene.id = `scene-${index}`;
+
+            // สร้างตัวการ์ด 3D
+            const cardObj = document.createElement('div');
+            cardObj.className = 'card-obj';
+            // กดที่ตัวการ์ดเพื่อพลิก (แต่จะไม่รวมตอนคลิกปุ่มลำโพงหรือปุ่มไฮไลท์)
+            cardObj.onclick = (e) => {
+                if(!e.target.closest('.no-flip')) {
+                    cardObj.classList.toggle('is-flipped');
+                }
+            };
+
+            // หน้าการ์ด (อังกฤษ)
+            const front = document.createElement('div');
+            front.className = 'card-face card-front';
+            front.innerHTML = `
+                <div class="word-type">${vocab.type}</div>
+                <div class="vocab-text">${vocab.word}</div>
+                <button class="btn-audio no-flip" onclick="playAudio('${vocab.word}', '${vocab.audio}')">🔊</button>
+            `;
+
+            // หลังการ์ด (ไทย)
+            const back = document.createElement('div');
+            back.className = 'card-face card-back';
+            back.innerHTML = `
+                <div class="thai-text">${vocab.thai}</div>
+                <button class="btn-studied no-flip" id="btn-study-${index}" onclick="toggleStudied(${index})">✔️ จำได้แล้ว</button>
+            `;
+
+            cardObj.appendChild(front);
+            cardObj.appendChild(back);
+            scene.appendChild(cardObj);
+            container.appendChild(scene);
+        });
+    }
+
+    // ฟังก์ชันเล่นเสียง (ลองหา mp3 ก่อน ถ้าไม่มีให้ใช้เสียง AI)
+    function playAudio(word, audioFileName) {
+        const audio = new Audio(audioFileName);
+        
+        audio.play().catch(error => {
+            // ถ้าระบบหาไฟล์ mp3 ไม่เจอ ให้ใช้ Web Speech API อ่านแทน
+            console.log("MP3 not found, using AI voice for:", word);
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        });
+    }
+
+    // สลับสถานะไฮไลท์ (ฝึกแล้ว)
+    function toggleStudied(index) {
+        const scene = document.getElementById(`scene-${index}`);
+        const btn = document.getElementById(`btn-study-${index}`);
+
+        if (scene.classList.contains('studied')) {
+            scene.classList.remove('studied');
+            btn.innerText = "✔️ จำได้แล้ว";
+            studiedTotal--;
+        } else {
+            scene.classList.add('studied');
+            btn.innerText = "⭐ เก่งมาก";
+            studiedTotal++;
+            
+            // เช็คว่าถ้าจำครบ 20 คำ ให้จุดพลุฉลอง
+            if(studiedTotal === vocabData.length) {
+                fireConfetti();
+            }
+        }
+        updateCounter();
+    }
+
+    function updateCounter() {
+        document.getElementById('studiedCount').innerText = studiedTotal;
+    }
+
+    // ปุ่มเริ่มใหม่ (ล้างไฮไลท์ทั้งหมด)
+    function resetAllCards() {
+        Swal.fire({
+            title: 'เริ่มใหม่ทั้งหมด?',
+            text: "ระบบจะล้างแถบสีไฮไลท์ทั้งหมด คุณแน่ใจหรือไม่?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'ตกลง, เริ่มใหม่!',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                studiedTotal = 0;
+                updateCounter();
+                
+                // พลิกการ์ดกลับหน้าแรก และล้างคลาส studied
+                vocabData.forEach((_, index) => {
+                    const scene = document.getElementById(`scene-${index}`);
+                    const cardObj = scene.querySelector('.card-obj');
+                    const btn = document.getElementById(`btn-study-${index}`);
+                    
+                    scene.classList.remove('studied');
+                    cardObj.classList.remove('is-flipped');
+                    btn.innerText = "✔️ จำได้แล้ว";
+                });
+            }
+        });
+    }
+
+    // เอฟเฟกต์จุดพลุฉลองตอนท่องครบ
+    function fireConfetti() {
+        var duration = 3 * 1000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+            confetti({
+                particleCount: 5,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#4f46e5', '#f59e0b', '#10b981']
+            });
+            confetti({
+                particleCount: 5,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#4f46e5', '#f59e0b', '#10b981']
+            });
+
+            if (Date.now() < end) {
+                requestAnimationFrame(frame);
+            }
+        }());
+    }
+</script>
+</body>
+</html>
