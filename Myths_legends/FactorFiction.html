@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Myths & Legends - Read Along</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --main-theme: #d97706; /* สีส้มทอง */
+            --dark-theme: #b45309;
+            --bg-color: #fffbeb;
+            --box-bg: #ffffff;
+            --highlight-bg: #fde047; /* สีเหลืองไฮไลท์ */
+            --text-color: #334155;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 15px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .header-title {
+            font-family: 'Fredoka One', cursive;
+            color: var(--main-theme);
+            font-size: 32px; margin: 0 0 5px 0;
+            text-align: center;
+            text-shadow: 2px 2px 0px #fde68a;
+        }
+        
+        .sub-title {
+            font-weight: 800; color: #fb923c;
+            margin-bottom: 20px; font-size: 18px; text-align: center;
+        }
+
+        /* กล่องควบคุมเสียง */
+        .audio-container {
+            width: 100%; max-width: 600px;
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            padding: 15px 20px; border-radius: 20px;
+            box-shadow: 0 8px 15px rgba(2, 132, 199, 0.2);
+            margin-bottom: 25px; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center;
+            position: sticky; top: 10px; z-index: 100;
+        }
+
+        audio {
+            width: 100%; height: 40px;
+            outline: none;
+        }
+
+        /* กล่องเนื้อเรื่อง */
+        .story-container {
+            width: 100%; max-width: 600px;
+            background: var(--box-bg);
+            border-radius: 20px;
+            padding: 25px; box-sizing: border-box;
+            box-shadow: 0 10px 20px rgba(217, 119, 6, 0.1);
+            border: 3px solid #fcd34d;
+            line-height: 1.9;
+            font-size: 18px;
+            color: #1e293b;
+        }
+
+        .story-section { margin-bottom: 25px; }
+        .story-section:last-child { margin-bottom: 0; }
+
+        .section-title {
+            font-family: 'Fredoka One', cursive;
+            color: var(--dark-theme);
+            font-size: 22px;
+            border-bottom: 2px dashed #fcd34d;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* เอฟเฟกต์ไฮไลท์ */
+        .sync-text {
+            border-radius: 4px;
+            padding: 2px 0;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sync-text.active {
+            background-color: var(--highlight-bg);
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 2px 0 #eab308;
+        }
+        
+        /* ใส่รูปประกอบเล็กๆ */
+        .hero-img {
+            width: 100%; border-radius: 12px;
+            margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1 class="header-title">Myths & Legends</h1>
+    <div class="sub-title">Listen and Read Along 🎧📖</div>
+
+    <!-- ส่วนควบคุมเสียง -->
+    <div class="audio-container">
+        <!-- 🟢 เปลี่ยนชื่อไฟล์เสียงตรงนี้หากชื่อไม่ตรง -->
+        <audio id="storyAudio" controls>
+            <source src="Myths_legends.mp3" type="audio/mpeg">
+            เบราว์เซอร์ของคุณไม่รองรับการเล่นเสียง
+        </audio>
+    </div>
+
+    <!-- ส่วนเนื้อเรื่อง -->
+    <div class="story-container">
+        
+        <!-- Intro -->
+        <div class="story-section">
+            <div class="section-title">Fact or Fiction?</div>
+            <div>
+                <span class="sync-text" data-start="0.494" data-end="8.994">Fact or fiction? There are a lot of myths and legends around the world. Are they true? We </span>
+                <span class="sync-text" data-start="8.994" data-end="13.000">will never know. However, they still fascinate us. </span>
+            </div>
+        </div>
+
+        <!-- Hercules -->
+        <div class="story-section">
+            <div class="section-title">Hercules and the Lernaean Hydra</div>
+            <div>
+                <span class="sync-text" data-start="13.000" data-end="18.874">Hercules and the Lernaean Hydra. Hercules </span>
+                <span class="sync-text" data-start="18.874" data-end="26.874">lived in Greece. He was the son of Zeus, the most powerful of the gods, and Alcmene. Hercules </span>
+                <span class="sync-text" data-start="26.874" data-end="34.886">was very strong. He had to carry out 12 labours to become a god. One of these was to kill the </span>
+                <span class="sync-text" data-start="34.886" data-end="42.946">Hydra. The Hydra was a monster with nine heads. It wasn't easy to kill. Each time he tried </span>
+                <span class="sync-text" data-start="42.946" data-end="49.446">to cut off one of her heads, two more appeared in its place. With the help of his nephew, </span>
+                <span class="sync-text" data-start="49.446" data-end="56.746">Iolaus, Hercules managed to cut off eight of the heads. Then he grabbed the ninth head and </span>
+                <span class="sync-text" data-start="56.746" data-end="61.000">buried it under a big rock. The Hydra was dead. </span>
+            </div>
+        </div>
+
+        <!-- St George -->
+        <div class="story-section">
+            <div class="section-title">Saint George and the Dragon</div>
+            <div>
+                <span class="sync-text" data-start="61.000" data-end="66.962">Saint George and the Dragon. Saint George was a brave </span>
+                <span class="sync-text" data-start="66.962" data-end="73.882">soldier. He travelled a lot until he reached Libya, in North Africa. The people there were </span>
+                <span class="sync-text" data-start="73.882" data-end="82.062">very sad. A dragon killed all the young girls. Only the king's daughter was still alive. Saint </span>
+                <span class="sync-text" data-start="82.062" data-end="90.190">George decided to save the princess. The dragon was very scary. Its head was big and its tail </span>
+                <span class="sync-text" data-start="90.190" data-end="97.710">was long. Saint George tried to kill it with his spear, but he failed. He tried again, but still </span>
+                <span class="sync-text" data-start="97.710" data-end="104.570">he didn't succeed. In the end, after a long battle, he managed to kill it. The princess </span>
+                <span class="sync-text" data-start="104.570" data-end="109.000">and all the people were safe at last.</span>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const audio = document.getElementById("storyAudio");
+        const syncElements = document.querySelectorAll(".sync-text");
+
+        // อัปเดตไฮไลท์ทุกครั้งที่เวลาของเสียงเดินหน้า
+        audio.addEventListener("timeupdate", () => {
+            const currentTime = audio.currentTime;
+
+            syncElements.forEach(span => {
+                const start = parseFloat(span.getAttribute("data-start"));
+                const end = parseFloat(span.getAttribute("data-end"));
+
+                // เช็คว่าเวลาปัจจุบันตกอยู่ในช่วงของข้อความท่อนนี้หรือไม่
+                if (currentTime >= start && currentTime < end) {
+                    span.classList.add("active");
+                    
+                    // เลื่อนหน้าจอตามข้อความที่กำลังอ่าน (ให้อยู่ตรงกลางจอ)
+                    const rect = span.getBoundingClientRect();
+                    if(rect.top < 0 || rect.bottom > window.innerHeight) {
+                         span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                } else {
+                    span.classList.remove("active");
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
