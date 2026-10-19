@@ -92,21 +92,21 @@
 
         /* การจัดวางรูปภาพ (อัตราส่วน 16:9 และอยู่ด้านบนเนื้อหาเสมอ) */
         .story-content { 
-            display: flex; flex-direction: column; /* บังคับเนื้อหาเรียงจากบนลงล่าง */
+            display: flex; flex-direction: column; 
             gap: 20px; margin-bottom: 30px;
         }
         .img-wrapper { 
             width: 100%; 
-            aspect-ratio: 16 / 9; /* บังคับกรอบรูป 16:9 */
+            aspect-ratio: 16 / 9; 
             overflow: hidden;
             border-radius: 16px; 
             box-shadow: 0 8px 16px rgba(0,0,0,0.15); 
             border: 4px solid #e0f2fe;
-            background-color: #0f172a; /* สีพื้นหลังเผื่อรูปโหลดไม่ทัน */
+            background-color: #0f172a; 
         }
         .story-img { 
             width: 100%; height: 100%; 
-            object-fit: cover; /* จัดภาพให้เต็มกรอบ 16:9 โดยไม่ผิดสัดส่วน */
+            object-fit: cover; 
             transition: opacity 0.4s ease-in-out;
         }
 
@@ -116,7 +116,7 @@
             padding: 2px 5px; 
             margin: 0 1px;
             transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s;
-            display: inline; /* ให้ประโยคต่อกันตามปกติ */
+            display: inline; 
         }
         .sync-text.active { 
             background-color: var(--highlight-bg); 
@@ -125,7 +125,7 @@
             box-shadow: 0 3px 0 #eab308; 
         }
 
-        /* ------------------ กล่องข้อสอบ T/F ------------------ */
+        /* ------------------ กล่องข้อสอบ T/F (อัปเดตใหม่ 3D) ------------------ */
         .quiz-container {
             width: 100%; max-width: 650px;
             background: #fffbeb; border-radius: 20px;
@@ -134,22 +134,38 @@
         }
         .quiz-title { font-family: 'Fredoka One', cursive; color: #b45309; font-size: 24px; text-align: center; margin-bottom: 20px;}
         
-        .quiz-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #fde68a;}
-        .quiz-row:last-child { border-bottom: none; }
+        .quiz-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 2px dashed #fde68a;}
+        .quiz-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
         
         .q-text { font-size: 18px; font-weight: 800; color: #7c2d12; line-height: 1.5;}
-        .tf-options { display: flex; gap: 10px; }
+        .tf-options { display: flex; gap: 15px; }
+        
+        /* ปุ่มแบบ 3D ดูมีมิติ */
         .btn-tf {
-            flex: 1; padding: 10px; border-radius: 10px; border: 2px solid #cbd5e1;
-            background: white; font-family: 'Fredoka One', cursive; font-size: 18px; color: #475569;
-            cursor: pointer; transition: 0.2s;
+            flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1;
+            background: white; font-family: 'Fredoka One', cursive; font-size: 20px; color: #475569;
+            cursor: pointer; transition: all 0.1s;
+            box-shadow: 0 5px 0 #94a3b8; /* เงาให้ดูเป็นปุ่มนูน */
         }
-        .btn-tf.selected-t { background: #38bdf8; color: white; border-color: #0284c7; }
-        .btn-tf.selected-f { background: #f43f5e; color: white; border-color: #be123c; }
-        .btn-tf.correct { background: #22c55e !important; color: white !important; border-color: #166534 !important; }
-        .btn-tf.wrong { background: #ef4444 !important; color: white !important; border-color: #991b1b !important; opacity: 0.5;}
+        .btn-tf:active {
+            transform: translateY(5px);
+            box-shadow: none; /* กดแล้วเงาหาย */
+        }
+        
+        /* สถานะตอนเด็กกดเลือก (ใช้สีกลางๆ) */
+        .btn-tf.selected { 
+            background: #0ea5e9; 
+            color: white; 
+            border-color: #0284c7; 
+            box-shadow: 0 5px 0 #0369a1;
+        }
+        .btn-tf.selected:active { transform: translateY(5px); box-shadow: none; }
+        
+        /* สถานะตอนเฉลย */
+        .btn-tf.correct { background: #22c55e !important; color: white !important; border-color: #166534 !important; box-shadow: 0 5px 0 #14532d !important; pointer-events: none;}
+        .btn-tf.wrong { background: #ef4444 !important; color: white !important; border-color: #991b1b !important; opacity: 0.8; box-shadow: 0 5px 0 #7f1d1d !important; pointer-events: none;}
 
-        .btn-action { width: 100%; padding: 15px; background: var(--main-theme); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 6px 0 var(--dark-theme); transition: 0.1s; font-size: 20px; margin-top: 20px;}
+        .btn-action { width: 100%; padding: 15px; background: var(--main-theme); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 6px 0 var(--dark-theme); transition: 0.1s; font-size: 20px; margin-top: 25px;}
         .btn-action:active { transform: translateY(6px); box-shadow: none; }
 
         /* Modal UI */
@@ -200,7 +216,6 @@
         </details>
 
         <div class="story-content">
-            <!-- ภาพ 16:9 จะแสดงอยู่ด้านบนสุดของหมวดนี้เสมอ -->
             <div class="img-wrapper">
                 <img id="img-hercules" src="Hercules1.png" alt="Hercules" class="story-img" onerror="this.style.display='none'">
             </div>
@@ -230,7 +245,6 @@
         </details>
 
         <div class="story-content">
-            <!-- ภาพ 16:9 จะแสดงอยู่ด้านบนสุดของหมวดนี้เสมอ -->
             <div class="img-wrapper">
                 <img id="img-stgeorge" src="Saint_George1.png" alt="St George" class="story-img" onerror="this.style.display='none'">
             </div>
@@ -385,12 +399,13 @@
         if(hasChecked) return; 
         userAnswers[qNum] = ans;
         
+        // ล้างสีสถานะเดิม
         const buttons = document.querySelectorAll(`.quiz-row:nth-child(${qNum + 1}) .btn-tf`);
-        buttons.forEach(btn => btn.classList.remove('selected-t', 'selected-f'));
+        buttons.forEach(btn => btn.classList.remove('selected'));
 
+        // ใส่สีเดียว (ฟ้า) สำหรับปุ่มที่ถูกเลือก
         const selectedBtn = Array.from(buttons).find(btn => btn.innerText === ans);
-        if(ans === 'T') selectedBtn.classList.add('selected-t');
-        else selectedBtn.classList.add('selected-f');
+        selectedBtn.classList.add('selected');
     }
 
     function checkQuiz() {
@@ -409,7 +424,7 @@
             const cAns = correctAnswers[i];
 
             buttons.forEach(btn => {
-                btn.classList.remove('selected-t', 'selected-f');
+                btn.classList.remove('selected');
                 if (btn.innerText === cAns) {
                     btn.classList.add('correct');
                 } 
@@ -540,7 +555,7 @@
         document.getElementById('checkAnswersBtn').style.display = 'block';
         
         const buttons = document.querySelectorAll('.btn-tf');
-        buttons.forEach(btn => btn.classList.remove('selected-t', 'selected-f', 'correct', 'wrong'));
+        buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'wrong'));
         
         document.getElementById('quizSection').scrollIntoView({ behavior: 'smooth' });
     }
