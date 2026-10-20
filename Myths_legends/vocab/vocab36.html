@@ -1,1 +1,208 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Myths & Legends - Vocabulary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --main-theme: #0284c7; 
+            --dark-theme: #0369a1;
+            --bg-color: #f0f9ff;
+            --accent-theme: #f59e0b; 
+        }
 
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 20px 10px;
+            background-color: var(--bg-color);
+            color: #334155;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .header-title {
+            font-family: 'Fredoka One', cursive; color: var(--main-theme);
+            font-size: 32px; margin: 0 0 5px 0; text-align: center;
+        }
+        .sub-title { font-weight: 800; color: #0ea5e9; margin-bottom: 20px; font-size: 16px; text-align: center; }
+
+        .controls {
+            width: 100%; max-width: 800px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding: 0 5px;
+            box-sizing: border-box;
+        }
+        .progress-text { font-weight: 800; font-size: 18px; color: var(--dark-theme); }
+        .btn-reset {
+            background: #f43f5e; color: white; border: none; padding: 8px 15px;
+            border-radius: 12px; cursor: pointer; font-family: 'Sarabun';
+            font-weight: 800; font-size: 16px; box-shadow: 0 4px 0 #be123c;
+            transition: 0.1s;
+        }
+        .btn-reset:active { transform: translateY(4px); box-shadow: none; }
+
+        .vocab-grid {
+            width: 100%; max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding-bottom: 40px;
+        }
+
+        /* รองรับมือถือและแท็บเล็ต */
+        @media (max-width: 768px) { .vocab-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 500px) { .vocab-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .vocab-card {
+            background: white;
+            border: 2px solid #bae6fd;
+            border-radius: 16px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(2, 132, 199, 0.1);
+            transition: all 0.2s ease;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
+        }
+        .vocab-card:hover { border-color: var(--main-theme); transform: translateY(-3px); box-shadow: 0 8px 15px rgba(2, 132, 199, 0.15); }
+        .vocab-card:active { transform: translateY(2px); box-shadow: none; }
+
+        /* สถานะกดฟังแล้ว (ไฮไลท์) */
+        .vocab-card.listened {
+            background: #dcfce7;
+            border-color: #22c55e;
+        }
+        .vocab-card.listened .word-en { color: #166534; }
+        .vocab-card.listened .word-th { color: #15803d; }
+        .vocab-card.listened .icon-sound { filter: hue-rotate(250deg); }
+
+        .num-badge {
+            position: absolute; top: 8px; left: 8px;
+            background: #cbd5e1; color: white; font-family: 'Fredoka One', cursive;
+            font-size: 12px; padding: 2px 6px; border-radius: 8px;
+        }
+        .vocab-card.listened .num-badge { background: #22c55e; }
+
+        .icon-sound { font-size: 24px; margin-bottom: 8px; }
+        
+        .word-en { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--dark-theme); margin-bottom: 5px;}
+        .word-pos { font-size: 12px; color: #64748b; font-weight: 800; font-style: italic; margin-bottom: 2px;}
+        .word-th { font-size: 15px; font-weight: 600; color: #475569; }
+
+    </style>
+</head>
+<body>
+
+    <h1 class="header-title">Vocabulary (36 Words)</h1>
+    <div class="sub-title">Myths & legends 🎧📖</div>
+
+    <div class="controls">
+        <div class="progress-text">ฟังแล้ว: <span id="countDisplay">0</span>/36</div>
+        <button class="btn-reset" onclick="resetProgress()">🔄 เริ่มฝึกใหม่</button>
+    </div>
+
+    <div class="vocab-grid" id="vocabContainer">
+        <!-- การ์ดคำศัพท์จะถูกสร้างด้วย JS -->
+    </div>
+
+    <!-- แทร็กเสียงที่ใช้สลับเล่น -->
+    <audio id="audioPlayer"></audio>
+
+<script>
+    const vocabData = [
+        { id: 1, word: "appear", pos: "v.", th: "ปรากฏตัว" },
+        { id: 2, word: "bury", pos: "v.", th: "ฝัง" },
+        { id: 3, word: "fail", pos: "v.", th: "ล้มเหลว" },
+        { id: 4, word: "fascinate", pos: "v.", th: "ทำให้หลงใหล" },
+        { id: 5, word: "grab", pos: "v.", th: "คว้า, จับ" },
+        { id: 6, word: "kill", pos: "v.", th: "ฆ่า" },
+        { id: 7, word: "reach", pos: "v.", th: "ไปถึง" },
+        { id: 8, word: "save", pos: "v.", th: "ช่วยเหลือ" },
+        { id: 9, word: "succeed", pos: "v.", th: "ทำสำเร็จ" },
+        { id: 10, word: "travel", pos: "v.", th: "เดินทาง" },
+        { id: 11, word: "Alcmene", pos: "n.", th: "อัลก์เมนี" },
+        { id: 12, word: "daughter", pos: "n.", th: "ลูกสาว" },
+        { id: 13, word: "fact", pos: "n.", th: "ข้อเท็จจริง" },
+        { id: 14, word: "fiction", pos: "n.", th: "เรื่องแต่ง" },
+        { id: 15, word: "god", pos: "n.", th: "เทพเจ้า" },
+        { id: 16, word: "help", pos: "n.", th: "ความช่วยเหลือ" },
+        { id: 17, word: "Hercules", pos: "n.", th: "เฮอร์คิวลีส" },
+        { id: 18, word: "Iolaus", pos: "n.", th: "ไอโอเลาส์" },
+        { id: 19, word: "labour", pos: "n.", th: "ภารกิจ, งานหนัก" },
+        { id: 20, word: "legend", pos: "n.", th: "ตำนาน" },
+        { id: 21, word: "Libya", pos: "n.", th: "ประเทศลิเบีย" },
+        { id: 22, word: "monster", pos: "n.", th: "สัตว์ประหลาด" },
+        { id: 23, word: "myth", pos: "n.", th: "เรื่องปรัมปรา" },
+        { id: 24, word: "nephew", pos: "n.", th: "หลานชาย" },
+        { id: 25, word: "place", pos: "n.", th: "สถานที่, การแทนที่" },
+        { id: 26, word: "princess", pos: "n.", th: "เจ้าหญิง" },
+        { id: 27, word: "the Hydra", pos: "n.", th: "ไฮดรา" },
+        { id: 28, word: "soldier", pos: "n.", th: "ทหาร" },
+        { id: 29, word: "spear", pos: "n.", th: "หอก" },
+        { id: 30, word: "Zeus", pos: "n.", th: "ซุส" },
+        { id: 31, word: "alive", pos: "adj.", th: "ยังมีชีวิตอยู่" },
+        { id: 32, word: "brave", pos: "adj.", th: "กล้าหาญ" },
+        { id: 33, word: "sad", pos: "adj.", th: "เศร้า" },
+        { id: 34, word: "safe", pos: "adj.", th: "ปลอดภัย" },
+        { id: 35, word: "young", pos: "adj.", th: "อายุน้อย, วัยรุ่น" },
+        { id: 36, word: "still", pos: "adv.", th: "ยังคง" }
+    ];
+
+    let listenedCount = 0;
+    const player = document.getElementById("audioPlayer");
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById("vocabContainer");
+        
+        vocabData.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "vocab-card";
+            card.id = `card-${item.id}`;
+            
+            card.innerHTML = `
+                <div class="num-badge">${item.id}</div>
+                <div class="icon-sound">🎧</div>
+                <div class="word-en">${item.word}</div>
+                <div class="word-pos">${item.pos}</div>
+                <div class="word-th">${item.th}</div>
+            `;
+            
+            card.onclick = () => playVocabAudio(item.id, card);
+            container.appendChild(card);
+        });
+    });
+
+    function playVocabAudio(id, cardElement) {
+        // เรียกเล่นไฟล์เสียง (อิงตามชื่อไฟล์ 1.mp3, 2.mp3, ...)
+        player.src = `${id}.mp3`;
+        player.play().catch(e => {
+            console.log(`ไม่พบไฟล์ ${id}.mp3 (คุณครูต้องนำไฟล์มาอัปโหลดไว้ด้วยนะครับ)`);
+            // เพื่อจำลองการคลิกให้เห็นไฮไลท์ แม้ยังไม่ได้อัปไฟล์เสียง
+        });
+
+        // แอนิเมชันป๊อปอัปนิดนึงตอนกด
+        cardElement.style.transform = "scale(0.95)";
+        setTimeout(() => { cardElement.style.transform = ""; }, 150);
+
+        // เช็คว่าถ้ายังไม่เคยไฮไลท์ ให้เปลี่ยนสีและบวกคะแนน
+        if (!cardElement.classList.contains("listened")) {
+            cardElement.classList.add("listened");
+            listenedCount++;
+            document.getElementById("countDisplay").innerText = listenedCount;
+        }
+    }
+
+    function resetProgress() {
+        const cards = document.querySelectorAll(".vocab-card");
+        cards.forEach(card => {
+            card.classList.remove("listened");
+        });
+        listenedCount = 0;
+        document.getElementById("countDisplay").innerText = listenedCount;
+    }
+</script>
+</body>
+</html>
