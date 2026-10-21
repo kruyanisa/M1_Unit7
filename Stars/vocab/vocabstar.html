@@ -10,10 +10,10 @@
     
     <style>
         :root {
-            --main-theme: #0ea5e9; /* สีฟ้า */
+            --main-theme: #0ea5e9; 
             --dark-theme: #0284c7;
             --bg-color: #f0f9ff;
-            --accent-theme: #f59e0b; /* สีเหลืองส้ม */
+            --accent-theme: #f59e0b; 
         }
 
         body {
@@ -46,8 +46,12 @@
         
         .score-board {
             background: var(--main-theme); color: white; padding: 10px 20px; border-radius: 15px;
-            font-family: 'Fredoka One', cursive; font-size: 20px; text-align: center; margin-bottom: 20px;
+            font-family: 'Fredoka One', cursive; font-size: 20px; text-align: center; margin-bottom: 10px;
             box-shadow: 0 4px 0 var(--dark-theme);
+        }
+        
+        .round-indicator {
+            text-align: center; font-weight: 800; color: #94a3b8; font-size: 14px; margin-bottom: 15px;
         }
 
         .instruction-text { font-weight: 800; color: var(--accent-theme); margin-bottom: 15px; text-align: center; font-size: 15px;}
@@ -119,14 +123,18 @@
         <div class="sub-title">Stars: Biography and Careers</div>
         
         <div class="score-board">
-            Score: <span id="scoreDisplay">0</span> / <span id="maxScoreDisplay">10</span>
+            Score: <span id="scoreDisplay">0</span> / <span id="maxScoreDisplay">19</span>
         </div>
+        
+        <!-- ตัวบอกด่านย่อย -->
+        <div class="round-indicator" id="roundDisplay">Set 1 of 4</div>
         
         <div class="instruction-text">👆 จิ้มคำศัพท์ภาษาอังกฤษ แล้วจิ้มคำแปลภาษาไทยที่ตรงกัน</div>
 
         <div class="match-grid" id="matchContainer">
             <!-- สร้างด้วย JS -->
         </div>
+
     </div>
 
     <!-- Modal Login -->
@@ -146,7 +154,7 @@
         <div class="modal-box">
             <h2 style="color:var(--dark-theme); margin-top:0; font-size: 26px;">🎉 เก่งมาก!</h2>
             <p style="color: #64748b; font-weight: 600; margin-bottom: 0;">คะแนนของคุณคือ</p>
-            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#bae6fd;">/10</span></span>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#bae6fd;">/19</span></span>
             <div id="saveStatus" style="font-weight:bold; font-size:15px; margin-bottom:15px; color:#15803d; min-height:22px;"></div>
             <button id="playAgainBtn" class="btn-action" onclick="resetGame()" style="display:none; margin-top:5px; margin-bottom: 0;">🔄 เล่นใหม่อีกครั้ง</button>
         </div>
@@ -154,13 +162,18 @@
 
 <script>
     const TOPIC_NAME = 'ม.1 Unit 7 Vocabulary Match';
-    const ITEMS_PER_ROUND = 10; // เล่นรอบละ 10 คำ
-    let MAX_SCORE = ITEMS_PER_ROUND; 
+    const ITEMS_PER_ROUND = 5; // แสดงทีละ 5 คำ
+    let MAX_SCORE = 19; // คำศัพท์ทั้งหมด 19 คำ
     let score = 0;
+    
     let isSwitchingAccount = false;
     let currentAudio = null;
+    
+    let currentRound = 0;
+    let totalRounds = 0;
+    let shuffledFullDeck = []; // เก็บคำศัพท์ที่สุ่มลำดับแล้วทั้ง 19 คำ
+    let wordsMatchedInRound = 0; // นับคำที่จับคู่ถูกในรอบนั้นๆ
 
-    // คำศัพท์ทั้งหมด 19 คำ (ไฟล์เสียงใช้ film.mp3 ร่วมกันสำหรับคำนามและกริยา)
     const allVocab = [
         { en: "become", th: "กลายเป็น, ได้มาเป็น", audio: "become.mp3" },
         { en: "career", th: "อาชีพ, เส้นทางอาชีพ", audio: "career.mp3" },
@@ -194,23 +207,39 @@
             document.getElementById('p_id').innerText = localStorage.getItem('studentId'); 
         }
         document.getElementById('maxScoreDisplay').innerText = MAX_SCORE;
-        buildGame();
+        startGame();
     });
 
-    function buildGame() {
+    function startGame() {
+        score = 0;
+        currentRound = 0;
+        document.getElementById('scoreDisplay').innerText = score;
+        
+        // สับเปลี่ยนคำศัพท์ทั้งหมด 19 คำตั้งแต่เริ่มเกม
+        shuffledFullDeck = [...allVocab].sort(() => Math.random() - 0.5);
+        totalRounds = Math.ceil(shuffledFullDeck.length / ITEMS_PER_ROUND);
+        
+        loadRound();
+    }
+
+    function loadRound() {
         const container = document.getElementById('matchContainer');
         container.innerHTML = '';
-        score = 0;
-        document.getElementById('scoreDisplay').innerText = score;
         selectedEnglish = null;
         selectedThai = null;
+        wordsMatchedInRound = 0;
 
-        let shuffledData = [...allVocab].sort(() => Math.random() - 0.5).slice(0, ITEMS_PER_ROUND);
+        document.getElementById('roundDisplay').innerText = `Set ${currentRound + 1} of ${totalRounds}`;
+
+        // ตัดคำศัพท์มา 5 คำตามรอบ (ถ้าด่านสุดท้ายจะเหลือ 4 คำ)
+        const startIndex = currentRound * ITEMS_PER_ROUND;
+        const roundData = shuffledFullDeck.slice(startIndex, startIndex + ITEMS_PER_ROUND);
+        const roundItemCount = roundData.length;
         
         let enList = [];
         let thList = [];
 
-        shuffledData.forEach(item => {
+        roundData.forEach(item => {
             enList.push({ text: item.en, matchId: item.en, type: 'en', audio: item.audio });
             thList.push({ text: item.th, matchId: item.en, type: 'th' });
         });
@@ -218,13 +247,13 @@
         enList.sort(() => Math.random() - 0.5);
         thList.sort(() => Math.random() - 0.5);
 
-        for (let i = 0; i < ITEMS_PER_ROUND; i++) {
+        for (let i = 0; i < roundItemCount; i++) {
             const enBtn = document.createElement('div');
             enBtn.className = 'item-btn';
             enBtn.setAttribute('data-id', enList[i].matchId);
             enBtn.setAttribute('data-type', 'en');
             enBtn.innerHTML = `<div class="sound-icon" onclick="event.stopPropagation(); playAudio('${enList[i].audio}')">🔊</div><span>${enList[i].text}</span>`;
-            enBtn.onclick = () => handleSelect(enBtn);
+            enBtn.onclick = () => handleSelect(enBtn, roundItemCount);
             container.appendChild(enBtn);
 
             const thBtn = document.createElement('div');
@@ -232,7 +261,7 @@
             thBtn.setAttribute('data-id', thList[i].matchId);
             thBtn.setAttribute('data-type', 'th');
             thBtn.innerText = thList[i].text;
-            thBtn.onclick = () => handleSelect(thBtn);
+            thBtn.onclick = () => handleSelect(thBtn, roundItemCount);
             container.appendChild(thBtn);
         }
     }
@@ -243,7 +272,7 @@
         currentAudio.play().catch(e => console.log('Audio error:', e));
     }
 
-    function handleSelect(btn) {
+    function handleSelect(btn, roundItemCount) {
         if(btn.classList.contains('matched')) return;
 
         const type = btn.getAttribute('data-type');
@@ -267,16 +296,17 @@
         }
 
         playSound(700, "sine", 0.05);
-        checkMatch();
+        checkMatch(roundItemCount);
     }
 
-    function checkMatch() {
+    function checkMatch(roundItemCount) {
         if (selectedEnglish && selectedThai) {
             const idEn = selectedEnglish.getAttribute('data-id');
             const idTh = selectedThai.getAttribute('data-id');
 
             if (idEn === idTh) {
                 score++;
+                wordsMatchedInRound++;
                 document.getElementById('scoreDisplay').innerText = score;
                 playSound(800, "sine", 0.15);
                 
@@ -289,8 +319,16 @@
                 selectedEnglish = null;
                 selectedThai = null;
 
-                if (score === MAX_SCORE) {
-                    setTimeout(() => { showLoginModal(); }, 600);
+                // ตรวจสอบว่าจบรอบหรือจบเกม
+                if (wordsMatchedInRound === roundItemCount) {
+                    currentRound++;
+                    if (currentRound < totalRounds) {
+                        // โหลดด่านถัดไป
+                        setTimeout(() => { loadRound(); }, 800);
+                    } else {
+                        // จบเกมครบ 19 คำ
+                        setTimeout(() => { showLoginModal(); }, 800);
+                    }
                 }
             } else {
                 playSound(150, "sawtooth", 0.3);
@@ -317,7 +355,7 @@
         if(currentAudio) { currentAudio.pause(); }
         document.getElementById('scoreModal').classList.remove('active');
         document.getElementById('loginModal').classList.remove('active');
-        buildGame();
+        startGame(); // เริ่มสุ่ม 19 คำใหม่ทั้งหมด
     }
 
     function showLoginModal() {
