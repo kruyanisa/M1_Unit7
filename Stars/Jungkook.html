@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jungkook Fact File - Read & Arrange</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
+    
+    <style>
+        :root {
+            --main-theme: #6b21a8; 
+            --dark-theme: #4c1d95;
+            --bg-color: #faf5ff;
+            --accent-theme: #eab308; 
+            --box-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 15px 10px;
+            background-color: var(--bg-color);
+            color: #334155;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .profile-bar {
+            font-size: clamp(12px, 3.5vw, 14px); background: #f3e8ff; border: 2px solid var(--main-theme);
+            padding: 8px 15px; border-radius: 20px; color: var(--dark-theme); font-weight: bold;
+            display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; width: 100%; max-width: 780px;
+        }
+        .btn-switch { background: #f43f5e; color: white; border: none; padding: 4px 12px; border-radius: 12px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; }
+
+        .game-container {
+            width: 100%; max-width: 780px;
+            background: var(--box-bg); border-radius: 24px;
+            padding: 20px; box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(107, 33, 168, 0.15);
+            border: 3px solid #e9d5ff;
+            margin-bottom: 30px;
+        }
+
+        .header-title { font-family: 'Fredoka One', cursive; color: var(--main-theme); font-size: clamp(24px, 5vw, 32px); margin: 0 0 5px 0; text-align: center; }
+        .sub-title { font-weight: 800; color: #a855f7; margin-bottom: 15px; font-size: 16px; text-align: center; }
+        
+        /* Fact File Box */
+        .fact-file-section {
+            background: linear-gradient(135deg, #fdf4ff, #fae8ff); border: 2px solid #e9d5ff;
+            border-radius: 16px; padding: 15px; margin-bottom: 25px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        @media (min-width: 600px) {
+            .fact-file-section { flex-direction: row; align-items: center; }
+        }
+        .artist-img {
+            width: 100%; max-width: 250px; margin: 0 auto; aspect-ratio: 16/9;
+            object-fit: cover; border-radius: 12px; border: 3px solid var(--accent-theme);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .fact-list { flex: 1; margin: 0; padding: 0 0 0 20px; font-size: 15px; line-height: 1.6; color: #581c87; font-weight: 600; }
+        .fact-list li { margin-bottom: 5px; }
+
+        .section-header {
+            font-family: 'Fredoka One', cursive; background: #f3e8ff; color: var(--dark-theme);
+            padding: 10px 15px; border-radius: 12px; margin: 25px 0 15px; font-size: 18px;
+            border-left: 5px solid var(--main-theme);
+        }
+
+        /* Puzzle Board */
+        .task-card {
+            background: #fafaf9; border: 2px solid #e7e5e4; border-radius: 16px;
+            padding: 15px; margin-bottom: 20px;
+        }
+        .q-number { font-family: 'Fredoka One', cursive; color: var(--main-theme); font-size: 20px; margin-bottom: 10px; }
+        
+        .slots-row {
+            display: flex; flex-wrap: wrap; gap: 8px; min-height: 42px;
+            padding: 8px; background: #fff; border: 2px dashed #cbd5e1;
+            border-radius: 12px; margin-bottom: 10px; align-items: center;
+        }
+        .slots-row.correct { border-color: #22c55e; background: #f0fdf4; }
+        .slots-row.wrong { border-color: #ef4444; background: #fef2f2; }
+
+        .word-token {
+            background: #f1f5f9; color: #334155; border: 1.5px solid #cbd5e1;
+            padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 15px;
+            cursor: pointer; user-select: none; transition: 0.1s; display: inline-block;
+        }
+        .word-token:active { transform: scale(0.95); }
+        .word-token.selected { opacity: 0.4; cursor: default; }
+        .word-token.correct-visual { background: #22c55e; color: white; border-color: #166534; pointer-events: none; }
+        .word-token.wrong-visual { background: #ef4444; color: white; border-color: #991b1b; }
+
+        .pool-row {
+            display: flex; flex-wrap: wrap; gap: 8px; padding: 5px 0; margin-bottom: 12px;
+        }
+
+        /* Answer selection styling */
+        .ans-block {
+            display: flex; align-items: center; gap: 8px; background: #f3e8ff;
+            padding: 10px; border-radius: 12px; border: 1.5px solid #d8b4fe;
+        }
+        .ans-label { font-weight: 800; color: var(--dark-theme); font-size: 14px; }
+        .ans-select {
+            flex: 1; padding: 6px; border-radius: 8px; border: 1.5px solid #cbd5e1;
+            font-family: 'Sarabun', sans-serif; font-size: 14px; font-weight: 600;
+            outline: none; color: #475569;
+        }
+        .ans-select.correct { border-color: #22c55e; background: #dcfce7; color: #15803d; pointer-events: none; }
+        .ans-select.wrong { border-color: #ef4444; background: #fee2e2; color: #b91c1c; }
+
+        .btn-action { width: 100%; padding: 15px; background: var(--main-theme); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; box-shadow: 0 6px 0 var(--dark-theme); transition: 0.1s; font-size: 20px; margin-top: 10px;}
+        .btn-action:active { transform: translateY(6px); box-shadow: none; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(250,245,255,0.9); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s; padding: 15px; box-sizing: border-box; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-box { background: white; padding: 30px 20px; border-radius: 30px; text-align: center; width: 100%; max-width: 340px; border: 4px solid var(--main-theme); box-shadow: 0 15px 30px rgba(107, 33, 168, 0.2); box-sizing: border-box; }
+        .modal-box input { width: 100%; padding: 12px; margin-bottom: 12px; border: 2px solid var(--main-theme); border-radius: 15px; text-align: center; font-family: 'Sarabun'; font-size: 16px; font-weight: 600; box-sizing: border-box; outline: none; }
+        .modal-box input:focus { border-color: var(--dark-theme); }
+        .score-num { font-size: 60px; font-weight: 900; color: var(--dark-theme); margin: 10px 0; display: block; line-height: 1;}
+    </style>
+</head>
+<body>
+
+    <div id="userProfile" class="profile-bar" style="display:none;">
+        <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+        <button class="btn-switch" onclick="switchAccount()">🔄 สลับบัญชี</button>
+    </div>
+
+    <div class="game-container">
+        <h1 class="header-title">Jungkook Fact File ⭐</h1>
+        <div class="sub-title">Read the fact file, put the words in order, and answer the questions.</div>
+
+        <!-- Fact File Section -->
+        <div class="fact-file-section">
+            <img src="Jungkook.jpg" alt="Jungkook Fact File Image" class="artist-img" onerror="this.src='https://placehold.co/500x281/6b21a8/ffffff?text=Jungkook'">
+            <ul class="fact-list">
+                <li style="list-style-type: '💜 ';"><strong>Jeon Jung-kook</strong> (Born 01/09/1997, Busan, South Korea)</li>
+                <li style="list-style-type: '🎯 ';">2011 - auditioned for a talent show</li>
+                <li style="list-style-type: '🎵 ';">2013 - made his debut as a member of BTS</li>
+                <li style="list-style-type: '🇰🇷 ';">2015 - participated in the <i>One Dream, One Korea</i> campaign</li>
+                <li style="list-style-type: '🎬 ';">2016 - was cast in the pilot episode of <i>Flower Crew</i></li>
+                <li style="list-style-type: '🤝 ';">2018 - performed <i>We Don't Talk Anymore</i> with Charlie Puth</li>
+                <li style="list-style-type: '🎧 ';">2020 - released the song <i>Still With You</i>, for free</li>
+            </ul>
+        </div>
+
+        <div class="section-header">Challenge Block (10 Points)</div>
+        <div id="quizSection">
+            <!-- ไดนามิกสร้าง 5 ด่าน -->
+        </div>
+
+        <button class="btn-action" id="submitBtn" onclick="trySubmit()">✅ ส่งคำตอบ (Submit)</button>
+    </div>
+
+    <!-- Modal Login -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 id="modalTitle" style="color:var(--dark-theme); margin-top:0; font-size: 24px;">📝 ลงชื่อส่งคำตอบ</h2>
+            <p id="modalSub" style="color: #64748b; font-weight: 600; margin-top: 0; display:none; font-size: 14px;"></p>
+            <input type="text" id="in_name" placeholder="ชื่อ - นามสกุล">
+            <input type="text" id="in_room" placeholder="ชั้น/ห้อง (เช่น 1/1)">
+            <input type="text" id="in_id" placeholder="รหัสนักเรียน (5 หลัก)" maxlength="5">
+            <button class="btn-action" id="btnSubmitLogin" onclick="confirmUser()" style="margin-top:5px; margin-bottom: 0;">🚀 บันทึกคะแนน</button>
+        </div>
+    </div>
+
+    <!-- Modal Score -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:var(--dark-theme); margin-top:0; font-size: 26px;">🎉 ทำภารกิจสำเร็จ!</h2>
+            <p style="color: #64748b; font-weight: 600; margin-bottom: 0;">คะแนนของคุณคือ</p>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#e9d5ff;">/10</span></span>
+            <div id="saveStatus" style="font-weight:bold; font-size:15px; margin-bottom:15px; color:#15803d; min-height:22px;"></div>
+            <button id="playAgainBtn" class="btn-action" onclick="resetGame()" style="display:none; margin-top:5px; margin-bottom: 0;">🔄 เล่นใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+<script>
+    const TOPIC_NAME = 'ม.1 Unit 7 Read the fact file';
+    let totalScore = 0;
+    const MAX_SCORE = 10;
+    let isSwitchingAccount = false;
+
+    // คอนเทนต์โจทย์และการเรียงคำ 5 ข้อ (เรียงคำ 5 คะแนน, เลือกคำตอบ 5 คะแนน)
+    const challenges = [
+        {
+            words: ["in", "Korea", "was", "Jungkook", "born"],
+            correctOrder: "was Jungkook born in Korea ?",
+            question: "1. จัดเรียงคำถาม: ?",
+            ansOptions: ["Yes, he was.", "No, he wasn't.", "He was.", "No."],
+            correctAns: "Yes, he was.",
+            hint: "Answer the question:"
+        },
+        {
+            words: ["audition", "when", "he", "did", "talent show", "a", "for"],
+            correctOrder: "when did he audition for a talent show ?",
+            question: "2. จัดเรียงคำถาม: ?",
+            ansOptions: ["In 2013.", "In 2015.", "In 2011.", "In 2016."],
+            correctAns: "In 2011.",
+            hint: "Answer the question:"
+        },
+        {
+            words: ["year", "release", "what", "did", "Still With You", "he"],
+            correctOrder: "what year did he release Still With You ?",
+            question: "3. จัดเรียงคำถาม: ?",
+            ansOptions: ["In 2018.", "In 2016.", "In 2015.", "In 2020."],
+            correctAns: "In 2020.",
+            hint: "Answer the question:"
+        },
+        {
+            words: ["perform", "what", "with", "song", "he", "did", "Charlie Puth"],
+            correctOrder: "what song did he perform with Charlie Puth ?",
+            question: "4. จัดเรียงคำถาม: ?",
+            ansOptions: ["Still With You.", "One Dream, One Korea.", "We Don't Talk Anymore.", "Flower Crew."],
+            correctAns: "We Don't Talk Anymore.",
+            hint: "Answer the question:"
+        },
+        {
+            words: ["with", "group", "debut", "did", "make", "his", "he", "what"],
+            correctOrder: "what group did he make his debut with ?",
+            question: "5. จัดเรียงคำถาม: ?",
+            ansOptions: ["BTS.", "Flower Crew.", "South Korea.", "One Korea."],
+            correctAns: "BTS.",
+            hint: "Answer the question:"
+        }
+    ];
+
+    // เก็บผลการเรียงประโยคของเด็ก [{ index: 0, array_of_strings }]
+    let progressArrangement = [[], [], [], [], []];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if(localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId'); 
+        }
+        buildQuiz();
+    });
+
+    function buildQuiz() {
+        const quizContainer = document.getElementById("quizSection");
+        quizContainer.innerHTML = '';
+        progressArrangement = [[], [], [], [], []];
+
+        challenges.forEach((item, index) => {
+            const card = document.createElement("div");
+            card.className = "task-card";
+            card.id = `card-${index}`;
+
+            // 1. หัวข้อเลขข้อ
+            const qNum = document.createElement("div");
+            qNum.className = "q-number";
+            qNum.innerText = item.question;
+            card.appendChild(qNum);
+
+            // 2. แผ่นสล็อตใส่คำ
+            const slots = document.createElement("div");
+            slots.className = "slots-row";
+            slots.id = `slots-${index}`;
+            slots.onclick = () => returnLastWord(index); // กดลบล่าสุด
+            card.appendChild(slots);
+
+            // 3. คลังคำสุ่ม
+            const pool = document.createElement("div");
+            pool.className = "pool-row";
+            pool.id = `pool-${index}`;
+            
+            // สุ่ม (shuffle) เพื่อไม่ให้ซ้ำเดิมในทุกรอบ
+            let shuffled = [...item.words].sort(() => Math.random() - 0.5);
+            shuffled.forEach((word, wordIdx) => {
+                const token = document.createElement("span");
+                token.className = `word-token w-token-${index}`;
+                token.innerText = word;
+                token.id = `token-${index}-${wordIdx}`;
+                token.onclick = () => selectToken(index, token);
+                pool.appendChild(token);
+            });
+            card.appendChild(pool);
+
+            // 4. ส่วนตอบคำถามสั้น
+            const ansBlock = document.createElement("div");
+            ansBlock.className = "ans-block";
+            ansBlock.innerHTML = `
+                <span class="ans-label">${item.hint}</span>
+                <select class="ans-select" id="ans-${index}">
+                    <option value="">-- Select Answer --</option>
+                    ${item.ansOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                </select>
+            `;
+            card.appendChild(ansBlock);
+
+            quizContainer.appendChild(card);
+        });
+    }
+
+    // กดเลือกคำจากคลัง ไปวางในสล็อต
+    function selectToken(idx, tokenElement) {
+        if (tokenElement.classList.contains("selected")) return;
+        tokenElement.classList.add("selected");
+
+        const word = tokenElement.innerText;
+        progressArrangement[idx].push({ word, tokenId: tokenElement.id });
+
+        updateSlots(idx);
+        playSound(700, "sine", 0.05);
+    }
+
+    // ลบคำล่าสุดที่วางไป
+    function returnLastWord(idx) {
+        if (progressArrangement[idx].length === 0) return;
+        const popped = progressArrangement[idx].pop();
+        
+        const token = document.getElementById(popped.tokenId);
+        if (token) token.classList.remove("selected");
+
+        updateSlots(idx);
+        playSound(350, "sawtooth", 0.08);
+    }
+
+    // อัพเดทแถบผลลัพธ์คำสล็อต
+    function updateSlots(idx) {
+        const slotsRow = document.getElementById(`slots-${idx}`);
+        slotsRow.innerHTML = '';
+        progressArrangement[idx].forEach(item => {
+            const wordSpan = document.createElement("span");
+            wordSpan.className = "word-token";
+            wordSpan.innerText = item.word;
+            slotsRow.appendChild(wordSpan);
+        });
+        // ใส่เครื่องหมาย ? ท้ายประโยค
+        if(progressArrangement[idx].length > 0) {
+            const qSpan = document.createElement("span");
+            qSpan.style.fontFamily = "'Fredoka One', cursive";
+            qSpan.style.color = "var(--main-theme)";
+            qSpan.style.marginLeft = "3px";
+            qSpan.innerText = " ?";
+            slotsRow.appendChild(qSpan);
+        }
+    }
+
+    function trySubmit() {
+        let allValid = true;
+        for (let i = 0; i < challenges.length; i++) {
+            const dropLen = progressArrangement[i].length;
+            const dropTargetLen = challenges[i].words.length;
+            const selectVal = document.getElementById(`ans-${i}`).value;
+
+            if (dropLen === 0 || !selectVal) {
+                allValid = false;
+                break;
+            }
+        }
+
+        if (!allValid) {
+            Swal.fire({
+                title: 'ยังทำไม่ครบ!',
+                text: 'กรุณาเรียงคำถามและเลือกคำตอบให้ครบทุกข้อก่อนส่งนะครับ',
+                icon: 'warning',
+                confirmButtonColor: '#6b21a8'
+            });
+            return;
+        }
+
+        calculateScore();
+    }
+
+    function calculateScore() {
+        totalScore = 0;
+
+        challenges.forEach((item, index) => {
+            // 1. ตรวจสอบการเรียงคำประโยค
+            // แปลงคำศัพท์ทั้งหมดที่เลือกเป็นข้อความ เพื่อเปรียบเทียบตรงตัว (ตัวพิมพ์เล็ก)
+            const studentStr = progressArrangement[index].map(t => t.word).join(" ").toLowerCase() + " ?";
+            const targetStr = item.correctOrder.toLowerCase();
+            
+            const slotsRow = document.getElementById(`slots-${index}`);
+            const tokens = document.querySelectorAll(`.w-token-${index}`);
+
+            slotsRow.classList.remove("correct", "wrong");
+
+            if (studentStr === targetStr) {
+                totalScore++;
+                slotsRow.classList.add("correct");
+                // เปลี่ยนตัวในคลังให้เป็นสีเขียว
+                tokens.forEach(t => t.classList.add("correct-visual"));
+            } else {
+                slotsRow.classList.add("wrong");
+                // ถ้าผิดให้โชว์คำตอบเฉลยแทน
+                slotsRow.innerHTML = `<span style="color:#b91c1c; font-weight:bold;">${item.correctOrder}</span>`;
+                tokens.forEach(t => t.classList.add("wrong-visual"));
+            }
+
+            // ล็อกไม่ให้คลิกต่อ
+            slotsRow.onclick = null;
+            tokens.forEach(t => t.onclick = null);
+
+            // 2. ตรวจสอบคำตอบสั้น
+            const selectElem = document.getElementById(`ans-${index}`);
+            selectElem.classList.remove("correct", "wrong");
+
+            if (selectElem.value === item.correctAns) {
+                totalScore++;
+                selectElem.classList.add("correct");
+            } else {
+                selectElem.classList.add("wrong");
+                // แสดงคำตอบที่ถูกข้างๆ หรือเปลี่ยนค่าไปคำเฉลย
+                const label = selectElem.parentNode.querySelector('.ans-label');
+                label.innerHTML += ` (Answer: <span style="color:#15803d; font-weight:bold;">${item.correctAns}</span>)`;
+            }
+            selectElem.disabled = true;
+        });
+
+        if (totalScore === MAX_SCORE) playSound(500, "sine", 0.5);
+        else playSound(200, "sawtooth", 0.4);
+
+        document.getElementById('submitBtn').style.display = 'none';
+        
+        setTimeout(() => { showLoginModal(); }, 1500);
+    }
+
+    // ---------------- ระบบ Soft Reset คืนค่าเกม ----------------
+    function resetGame() {
+        totalScore = 0;
+        
+        // รีเฟรชส่วนพัซเซิลและคำถามใหม่
+        buildQuiz();
+
+        // โชว์ปุ่มส่ง
+        document.getElementById('submitBtn').style.display = 'block';
+
+        // ซ่อนป๊อปอัปทั้งหมด
+        document.getElementById('scoreModal').classList.remove('active');
+        document.getElementById('loginModal').classList.remove('active');
+    }
+
+    // ---------------- ระบบ Login & บันทึกคะแนน ----------------
+    function showLoginModal() {
+        if(!localStorage.getItem('studentId')) {
+            document.getElementById('modalTitle').innerText = "📝 ลงชื่อส่งคำตอบ";
+            document.getElementById('modalSub').innerText = `คะแนนของคุณคือ ${totalScore}/${MAX_SCORE}\nลงชื่อเพื่อบันทึกคะแนน`;
+            document.getElementById('modalSub').style.display = 'block';
+            document.getElementById('btnSubmitLogin').innerText = "🚀 บันทึกคะแนน";
+            document.getElementById('loginModal').classList.add('active');
+        } else { 
+            submitScore(); 
+        }
+    }
+
+    function switchAccount() {
+        Swal.fire({
+            title: '⚠️ เปลี่ยนคนเล่น?', text: "คำตอบเดิมจะถูกล้างและเริ่มเกมใหม่", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#6b21a8', cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'ตกลง', cancelButtonText: 'ยกเลิก'
+        }).then((res) => {
+            if(res.isConfirmed) {
+                localStorage.clear(); 
+                document.getElementById('userProfile').style.display = 'none';
+                isSwitchingAccount = true;
+                
+                document.getElementById('in_name').value = '';
+                document.getElementById('in_room').value = '';
+                document.getElementById('in_id').value = '';
+                
+                document.getElementById('modalTitle').innerText = "🔄 ลงชื่อบัญชีใหม่";
+                document.getElementById('modalSub').innerText = "กรุณาลงชื่อนักเรียนก่อนเริ่มทำภารกิจครับ";
+                document.getElementById('modalSub').style.display = 'block';
+                document.getElementById('btnSubmitLogin').innerText = "🚀 เริ่มเล่นเกม";
+                
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function() {
+        let nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `ม.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `ม.1/${nums[0]}`;
+    });
+
+    function confirmUser() {
+        let n = document.getElementById('in_name').value.trim();
+        let r = document.getElementById('in_room').value.trim();
+        let id = document.getElementById('in_id').value.trim();
+        if(!n || !r || id.length !== 5) { Swal.fire('ข้อมูลไม่ครบ!', 'กรุณากรอกชื่อ ห้อง และรหัส 5 หลัก', 'warning'); return; }
+        
+        localStorage.setItem('studentName', n); 
+        localStorage.setItem('studentRoom', r); 
+        localStorage.setItem('studentId', id);
+        
+        document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('userProfile').style.display = 'flex';
+        document.getElementById('p_name').innerText = n;
+        document.getElementById('p_room').innerText = r;
+        document.getElementById('p_id').innerText = id; 
+
+        if (isSwitchingAccount) {
+            isSwitchingAccount = false;
+            resetGame();
+        } else {
+            submitScore();
+        }
+    }
+
+    function submitScore() {
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScoreText').innerText = totalScore;
+        const stat = document.getElementById('saveStatus');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        if(typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ ไม่พบไฟล์ตั้งค่า (quiz-config.js)"; 
+            playAgainBtn.style.display = 'block'; return;
+        }
+
+        stat.innerText = "⏳ กำลังส่งคะแนน...";
+        playAgainBtn.style.display = 'none';
+
+        const payload = {
+            name: localStorage.getItem('studentName'), 
+            room: localStorage.getItem('studentRoom'),
+            studentId: "'" + localStorage.getItem('studentId'), 
+            lesson: TOPIC_NAME, score: totalScore, maxScore: MAX_SCORE
+        };
+
+        fetch(QUIZ_CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+            .catch(e => console.error(e));
+
+        setTimeout(() => {
+            stat.innerText = "✅ บันทึกคะแนนลงระบบเรียบร้อย!"; 
+            playAgainBtn.style.display = 'block';
+        }, 1500);
+    }
+
+    function playSound(freq, type, duration) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+</script>
+</body>
+</html>
