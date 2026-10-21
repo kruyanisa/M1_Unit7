@@ -127,7 +127,6 @@
         <div class="match-grid" id="matchContainer">
             <!-- สร้างด้วย JS -->
         </div>
-
     </div>
 
     <!-- Modal Login -->
@@ -206,7 +205,6 @@
         selectedEnglish = null;
         selectedThai = null;
 
-        // สุ่มเลือกคำมา 10 คำ
         let shuffledData = [...allVocab].sort(() => Math.random() - 0.5).slice(0, ITEMS_PER_ROUND);
         
         let enList = [];
@@ -217,13 +215,10 @@
             thList.push({ text: item.th, matchId: item.en, type: 'th' });
         });
 
-        // สลับตำแหน่งการจัดเรียงซ้ายขวา (อังกฤษสลับตำแหน่งอิสระ, ไทยสลับตำแหน่งอิสระ)
         enList.sort(() => Math.random() - 0.5);
         thList.sort(() => Math.random() - 0.5);
 
-        // วางลงใน Grid สลับซ้ายขวาตามที่เรียงมา
         for (let i = 0; i < ITEMS_PER_ROUND; i++) {
-            // สร้างปุ่มอังกฤษ (ด้านซ้าย)
             const enBtn = document.createElement('div');
             enBtn.className = 'item-btn';
             enBtn.setAttribute('data-id', enList[i].matchId);
@@ -232,7 +227,6 @@
             enBtn.onclick = () => handleSelect(enBtn);
             container.appendChild(enBtn);
 
-            // สร้างปุ่มไทย (ด้านขวา)
             const thBtn = document.createElement('div');
             thBtn.className = 'item-btn';
             thBtn.setAttribute('data-id', thList[i].matchId);
@@ -254,7 +248,6 @@
 
         const type = btn.getAttribute('data-type');
         
-        // ถ้ากดปุ่มฝั่งเดียวกันที่เลือกไว้แล้ว ให้ยกเลิก
         if (type === 'en') {
             if (selectedEnglish) selectedEnglish.classList.remove('selected');
             if (selectedEnglish !== btn) {
@@ -283,7 +276,6 @@
             const idTh = selectedThai.getAttribute('data-id');
 
             if (idEn === idTh) {
-                // ถูกต้อง
                 score++;
                 document.getElementById('scoreDisplay').innerText = score;
                 playSound(800, "sine", 0.15);
@@ -301,7 +293,6 @@
                     setTimeout(() => { showLoginModal(); }, 600);
                 }
             } else {
-                // ผิด
                 playSound(150, "sawtooth", 0.3);
                 selectedEnglish.classList.add('wrong-shake');
                 selectedThai.classList.add('wrong-shake');
@@ -322,7 +313,6 @@
         }
     }
 
-    // ---------------- ระบบ Soft Reset คืนค่าเกม ----------------
     function resetGame() {
         if(currentAudio) { currentAudio.pause(); }
         document.getElementById('scoreModal').classList.remove('active');
@@ -330,7 +320,6 @@
         buildGame();
     }
 
-    // ---------------- ระบบ Login & บันทึกคะแนน ----------------
     function showLoginModal() {
         if(!localStorage.getItem('studentId')) {
             document.getElementById('modalTitle').innerText = "📝 ลงชื่อส่งคำตอบ";
