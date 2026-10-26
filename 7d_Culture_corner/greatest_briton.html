@@ -82,76 +82,21 @@
         @keyframes pop { 0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
         /* Reading Modal */
-.read-modal-overlay { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); 
-    display: flex; justify-content: center; align-items: center; 
-    z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s; 
-    padding: 80px 15px 15px 15px; /* เพิ่ม Padding ด้านบนป้องกันรูปทะลุขอบจอ */
-    box-sizing: border-box; 
-}
-.read-modal-overlay.active { visibility: visible; opacity: 1; }
-/* แก้ไขกล่อง Modal หลัก เอา overflow ออก */
-.read-modal-box { 
-    background: white; 
-    border-radius: 20px; 
-    width: 100%; 
-    max-width: 500px; 
-    position: relative; 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
-    /* เอา max-height และ overflow-y: auto; ตรงนี้ออกไปแล้วครับ */
-}
-
-/* ย้ายระบบเลื่อนมาไว้ที่ส่วนเนื้อหาแทน */
-.rm-content { 
-    padding: 20px; 
-    max-height: 50vh; /* จำกัดความสูงเนื้อหาให้อยู่ในครึ่งจอ */
-    overflow-y: auto; /* เลื่อนอ่านได้เฉพาะข้อความ รูปจะไม่โดนตัด */
-}
-
-/* เพิ่ม z-index ให้รูปลอยอยู่บนสุดจริงๆ */
-.rm-img { 
-    width: 140px; 
-    height: 140px; 
-    border-radius: 50%; 
-    border: 4px solid white; 
-    object-fit: cover; 
-    margin-top: -70px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
-    background: white;
-    position: relative;
-    z-index: 10;
-}
-.rm-header { background: var(--main-blue); padding: 20px; text-align: center; position: relative; border-radius: 20px 20px 0 0;}
-
-/* ขยายขนาดรูปและปรับตำแหน่ง */
-.rm-img { 
-    width: 140px; 
-    height: 140px; 
-    border-radius: 50%; border: 4px solid white; object-fit: cover; 
-    margin-top: -70px; /* ดึงรูปขึ้นครึ่งหนึ่งของความสูงรูป */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: white;
-}
-
-.rm-title { font-family: 'Fredoka One', cursive; color: white; font-size: 24px; margin: 10px 0 0 0; }
-.rm-role { color: #bae6fd; font-weight: 800; font-size: 14px; margin: 0; }
-.rm-content { padding: 20px; }
-.rm-text { font-size: 16px; line-height: 1.6; color: #334155; text-align: justify; margin-bottom: 20px;}
-.btn-audio { background: #fef08a; border: 2px solid #ca8a04; color: #854d0e; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-family: 'Sarabun'; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0 auto; box-shadow: 0 4px 0 #a16207; transition: 0.1s;}
-.btn-audio:active { transform: translateY(4px); box-shadow: none; }
-
-/* ทำให้ปุ่มปิดสีแดงเด่นขึ้น */
-.btn-close-read { 
-    position: absolute; top: 15px; right: 15px; 
-    background: #ef4444; color: white; border: 2px solid white; 
-    width: 35px; height: 35px; border-radius: 50%; 
-    font-size: 16px; font-weight: bold; cursor: pointer; 
-    display: flex; justify-content: center; align-items: center; 
-    z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
+        .read-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s; padding: 80px 15px 15px 15px; box-sizing: border-box; }
+        .read-modal-overlay.active { visibility: visible; opacity: 1; }
+        .read-modal-box { background: white; border-radius: 20px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .rm-header { background: var(--main-blue); padding: 20px; text-align: center; position: relative; border-radius: 20px 20px 0 0;}
+        .rm-img { width: 140px; height: 140px; border-radius: 50%; border: 4px solid white; object-fit: cover; margin-top: -70px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: white; position: relative; z-index: 10;}
+        .rm-title { font-family: 'Fredoka One', cursive; color: white; font-size: 24px; margin: 10px 0 0 0; }
+        .rm-role { color: #bae6fd; font-weight: 800; font-size: 14px; margin: 0; }
+        .rm-content { padding: 20px; max-height: 50vh; overflow-y: auto; }
+        .rm-text { font-size: 16px; line-height: 1.6; color: #334155; text-align: justify; margin-bottom: 20px;}
+        .btn-audio { background: #fef08a; border: 2px solid #ca8a04; color: #854d0e; padding: 10px 20px; border-radius: 25px; font-weight: bold; font-family: 'Sarabun'; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 0 auto; box-shadow: 0 4px 0 #a16207; transition: 0.1s;}
+        .btn-audio:active { transform: translateY(4px); box-shadow: none; }
+        .btn-close-read { position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; border: 2px solid white; width: 35px; height: 35px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.2);}
 
         /* ================= STEP 2: QUIZ ================= */
-        .score-board { text-align: right; font-weight: 800; font-size: 18px; color: var(--main-blue); margin-bottom: 10px; }
+        .score-board { text-align: right; font-weight: 800; font-size: 18px; color: var(--main-blue); margin-bottom: 10px; display: none; } /* ซ่อนคะแนนตอนเล่นไปก่อน */
         .word-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 15px; border: 2px dashed #cbd5e1; }
         .word-btn { background: white; border: 2px solid #94a3b8; border-radius: 10px; padding: 8px 12px; font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 800; color: #334155; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 0 #94a3b8; }
         .word-btn:active { transform: translateY(4px); box-shadow: none; }
@@ -159,16 +104,23 @@
         .word-btn.used { opacity: 0.4; pointer-events: none; transform: scale(0.95); box-shadow: none; }
 
         .sentence-list { display: flex; flex-direction: column; gap: 15px; }
-        .sentence-item { font-size: 16px; font-weight: 600; line-height: 1.8; color: #1e293b; background: #f1f5f9; padding: 15px; border-radius: 12px; border-left: 5px solid var(--main-blue); }
+        .sentence-item { font-size: 16px; font-weight: 600; line-height: 1.8; color: #1e293b; background: #f1f5f9; padding: 15px; border-radius: 12px; border-left: 5px solid var(--main-blue); transition: 0.3s; }
         .drop-slot { display: inline-block; min-width: 120px; text-align: center; background: white; border: 2px dashed #94a3b8; border-radius: 8px; padding: 2px 10px; color: #94a3b8; font-weight: 800; font-style: italic; cursor: pointer; transition: all 0.2s; margin: 0 5px; vertical-align: middle; }
         .drop-slot:hover { border-color: var(--main-blue); background: #e0f2fe; }
-        .drop-slot.filled { background: #dcfce7; border: 2px solid var(--success); color: #15803d; font-style: normal; cursor: default; }
-        .drop-slot.wrong-shake { animation: shake 0.4s; border-color: var(--main-red); background: #fee2e2; color: var(--main-red); }
-        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+        
+        .drop-slot.filled { background: #e2e8f0; border: 2px solid #64748b; color: #334155; font-style: normal; } /* ใส่คำแล้วแต่ยังไม่ตรวจ */
+        
+        /* สไตล์ตอนเฉลย */
+        .sentence-item.correct-ans { background: #dcfce7; border-color: var(--success); }
+        .sentence-item.correct-ans .drop-slot { background: var(--success); border-color: var(--success); color: white; }
+        
+        .sentence-item.wrong-ans { background: #fee2e2; border-color: var(--main-red); }
+        .sentence-item.wrong-ans .drop-slot { background: var(--main-red); border-color: var(--main-red); color: white; text-decoration: line-through; }
 
         /* Action Buttons */
         .btn-action { width: 100%; max-width: 400px; margin: 20px auto 0 auto; background: var(--main-red); color: white; font-weight: 800; font-size: 18px; padding: 15px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 #991b1b; transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-action:active { transform: translateY(4px); box-shadow: none; }
+        .btn-action.disabled { opacity: 0.5; pointer-events: none; }
         .btn-unlock { background: var(--main-blue); box-shadow: 0 4px 0 var(--dark-blue); display: none; }
 
         /* Modals Login & Score */
@@ -177,18 +129,11 @@
         .score-num { font-size: 60px; font-weight: 900; color: var(--main-red); margin: 10px 0; display: block; line-height: 1;}
         .btn-submit-modal { width: 100%; padding: 15px; background: var(--main-red); color: white; border: none; border-radius: 15px; font-weight: 800; font-size: 18px; cursor: pointer; box-shadow: 0 4px 0 #991b1b; transition: 0.1s; margin-top: 10px; font-family: 'Sarabun'; }
         .btn-submit-modal:active { transform: translateY(4px); box-shadow: none; }
-
-        /* Modals Login & Score */
-.modal-overlay { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(240,249,255,0.9); backdrop-filter: blur(5px); 
-    display: flex; justify-content: center; align-items: center; 
-    z-index: 3000; visibility: hidden; opacity: 0; transition: 0.3s; 
-    padding: 15px; box-sizing: border-box; 
-}
-.modal-overlay.active { 
-    visibility: visible; opacity: 1; 
-}
+        
+        .overlay-dim {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.7); z-index: 10; display: none; border-radius: 16px;
+        }
     </style>
 </head>
 <body>
@@ -213,15 +158,15 @@
     </div>
 
     <!-- ================= STEP 2 ================= -->
-    <div class="section-container" id="section-quiz" style="display: none;">
+    <div class="section-container" id="section-quiz" style="display: none; position: relative;">
+        <div class="overlay-dim" id="quizOverlay"></div>
         <div class="step-badge">Step 2: Comprehension Quiz</div>
-        <div class="score-board">Score: <span id="scoreDisplay">0</span> / 6</div>
-        <div style="text-align:center; margin-bottom:15px; font-size:14px; color:#64748b; font-weight:600;">Tap a name, then tap the blank box to replace the bold word.</div>
+        <div style="text-align:center; margin-bottom:15px; font-size:14px; color:#64748b; font-weight:600;">Tap a name, then tap the blank box to fill it. Fill all boxes to check answers!</div>
         
         <div class="word-bank" id="wordBank"></div>
         <div class="sentence-list" id="sentenceList"></div>
 
-        <button class="btn-action" onclick="trySubmit()">✅ Submit Final Score</button>
+        <button class="btn-action disabled" id="btnSubmitQuiz" onclick="checkAllAnswers()">✅ Check Answers & Submit</button>
     </div>
 
     <!-- Reading Modal -->
@@ -259,7 +204,7 @@
             <p style="color: #64748b; font-weight: 600; margin-bottom: 0;">Your final score is</p>
             <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#fca5a5;">/6</span></span>
             <div id="saveStatus" style="font-weight:bold; font-size:15px; margin-bottom:15px; color:#15803d; min-height:22px;"></div>
-            <button class="btn-submit-modal" style="background: var(--main-blue); box-shadow: 0 4px 0 var(--dark-blue);" onclick="restartApp()">🔄 Start Over</button>
+            <button class="btn-submit-modal" style="background: var(--main-blue); box-shadow: 0 4px 0 var(--dark-blue);" onclick="restartQuizOnly()">🔄 Try Again</button>
         </div>
     </div>
 
@@ -269,7 +214,6 @@
     const TOPIC_NAME = 'M.1 Unit 7 The Greatest Briton (Reading & Quiz)';
     const MAX_SCORE = 6;
     
-    // Data
     const peopleData = [
         { id: "powell", name: "Robert Baden Powell", role: "a soldier / founder of Scout", img: "powell.jpg", audio: "powell.mp3", text: "Robert Baden Powell was a British Army officer, writer, founder and first Chief Scout of the world-wide Scout Movement. Even though he died in 1941, today there are still scout groups all over the world." },
         { id: "elizabeth", name: "Queen Elizabeth II", role: "a queen", img: "elizabeth.jpg", audio: "elizabeth.mp3", text: "Queen Elizabeth II was born in April 1926 and was the longest reigning monarch in the world. She had two birthdays each year. Her favourite dog was the Corgi. She died in 2022." },
@@ -290,9 +234,14 @@
 
     let readCards = new Set();
     let currentAudioFile = "";
+    
+    // สำหรับระบบแบบฝึกหัดใหม่
+    let answersState = {}; // เก็บคำตอบที่เด็กเลือกไว้ { slotId: selectedId }
     let quizScore = 0;
     let selectedWordObj = null;
     let isSubmitting = false;
+    let filledCount = 0; // จำนวนช่องที่เติมแล้ว
+
     const audioPlayer = document.getElementById('audioPlayer');
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -306,19 +255,26 @@
     });
 
     function initApp() {
-        // Reset States
         readCards.clear();
-        quizScore = 0;
-        selectedWordObj = null;
-        
-        // UI Reset
         document.getElementById('section-reading').style.display = 'block';
         document.getElementById('section-quiz').style.display = 'none';
         document.getElementById('btnUnlockQuiz').style.display = 'none';
         document.getElementById('readCount').innerText = 0;
-        document.getElementById('scoreDisplay').innerText = 0;
 
         renderGallery();
+        resetQuizState();
+    }
+    
+    function resetQuizState() {
+        quizScore = 0;
+        filledCount = 0;
+        answersState = {};
+        selectedWordObj = null;
+        
+        document.getElementById('quizOverlay').style.display = 'none';
+        document.getElementById('btnSubmitQuiz').classList.add('disabled');
+        document.getElementById('btnSubmitQuiz').innerText = "✅ Check Answers & Submit";
+        
         renderQuiz();
     }
 
@@ -372,7 +328,6 @@
     function updateReadProgress() {
         const count = readCards.size;
         document.getElementById('readCount').innerText = count;
-        
         if (count === 6) {
             document.getElementById('btnUnlockQuiz').style.display = 'flex';
             playSound('success');
@@ -386,7 +341,7 @@
         window.scrollTo(0, 0);
     }
 
-    // ================= STEP 2: QUIZ LOGIC =================
+    // ================= STEP 2: QUIZ LOGIC (Modified) =================
     function renderQuiz() {
         const shuffledNames = [...peopleData].sort(() => Math.random() - 0.5);
         const wordBank = document.getElementById('wordBank');
@@ -396,7 +351,6 @@
             const btn = document.createElement('button');
             btn.className = 'word-btn';
             btn.id = `btn-${item.id}`;
-            // Use Diana's full title for the button to match previous activity
             let displayName = item.name;
             if(item.id === "diana") displayName = "Diana, Princess of Wales";
             
@@ -410,9 +364,10 @@
         sentencesData.forEach(item => {
             const div = document.createElement('div');
             div.className = 'sentence-item';
+            div.id = `sent-row-${item.id}`;
             div.innerHTML = `
                 ${item.textPre}
-                <span class="drop-slot" id="slot-${item.id}" onclick="placeWord('${item.id}', '${item.correctId}')">
+                <span class="drop-slot" id="slot-${item.id}" onclick="placeWord('${item.id}')">
                     ${item.boldText}
                 </span>
                 ${item.textPost}
@@ -431,57 +386,80 @@
         playSound('tap');
     }
 
-    function placeWord(slotId, correctId) {
+    function placeWord(slotId) {
         const slot = document.getElementById(`slot-${slotId}`);
-        if (slot.classList.contains('filled')) return;
-        if (!selectedWordObj) {
-            slot.classList.add('wrong-shake');
-            setTimeout(() => slot.classList.remove('wrong-shake'), 400);
-            return;
+        
+        // ถ้าเคยมีคำตอบเดิมอยู่ ให้คืนค่าปุ่มเดิมกลับไปที่ Word Bank ก่อน
+        if (answersState[slotId]) {
+            const oldBtn = document.getElementById(`btn-${answersState[slotId]}`);
+            if(oldBtn) {
+                oldBtn.classList.remove('used');
+                filledCount--;
+            }
+            answersState[slotId] = null;
+            slot.classList.remove('filled');
+            
+            // หา boldText ดั้งเดิมมาใส่คืน
+            const originalData = sentencesData.find(s => s.id == slotId);
+            slot.innerText = originalData.boldText;
         }
 
-        if (selectedWordObj.id === correctId) {
-            slot.classList.add('filled');
-            let displayName = selectedWordObj.name;
-            if(selectedWordObj.id === "diana") displayName = "Diana, Princess of Wales";
-            slot.innerText = displayName;
-            
-            selectedWordObj.btnElement.classList.remove('selected');
-            selectedWordObj.btnElement.classList.add('used');
-            
-            quizScore++;
-            document.getElementById('scoreDisplay').innerText = quizScore;
-            selectedWordObj = null;
-            playSound('correct');
+        if (!selectedWordObj) return;
+
+        // วางคำตอบใหม่ (ยังไม่ตรวจถูกผิด)
+        slot.classList.add('filled');
+        let displayName = selectedWordObj.name;
+        if(selectedWordObj.id === "diana") displayName = "Diana, Princess of Wales";
+        slot.innerText = displayName;
+        
+        answersState[slotId] = selectedWordObj.id;
+        selectedWordObj.btnElement.classList.remove('selected');
+        selectedWordObj.btnElement.classList.add('used');
+        selectedWordObj = null;
+        filledCount++;
+        playSound('tap');
+
+        // เช็คว่าเติมครบทุกช่องหรือยัง ถ้าครบให้เปิดปุ่มส่ง
+        if (filledCount === MAX_SCORE) {
+            document.getElementById('btnSubmitQuiz').classList.remove('disabled');
         } else {
-            slot.classList.add('wrong-shake');
-            selectedWordObj.btnElement.classList.remove('selected');
-            selectedWordObj = null;
-            playSound('wrong');
-            setTimeout(() => slot.classList.remove('wrong-shake'), 400);
+            document.getElementById('btnSubmitQuiz').classList.add('disabled');
         }
+    }
+
+    function checkAllAnswers() {
+        // ห้ามกดปุ่มซ้ำ
+        document.getElementById('btnSubmitQuiz').classList.add('disabled');
+        document.getElementById('btnSubmitQuiz').innerText = "⏳ Checking...";
+        
+        // บล็อกไม่ให้แก้คำตอบเพิ่ม
+        document.getElementById('quizOverlay').style.display = 'block';
+
+        quizScore = 0;
+        
+        // ตรวจทีละข้อและแสดงสี
+        sentencesData.forEach(item => {
+            const row = document.getElementById(`sent-row-${item.id}`);
+            const answeredId = answersState[item.id];
+            
+            if (answeredId === item.correctId) {
+                row.classList.add('correct-ans');
+                quizScore++;
+            } else {
+                row.classList.add('wrong-ans');
+            }
+        });
+
+        if (quizScore === MAX_SCORE) playSound('success');
+        else playSound('wrong');
+
+        // รอ 3 วินาที เพื่อให้เด็กๆ ดูข้อที่ผิด แล้วถึงเด้งไปหน้าส่งคะแนน
+        setTimeout(() => {
+            proceedToLogin();
+        }, 3000);
     }
 
     // ================= SUBMISSION LOGIC =================
-    function trySubmit() {
-        if (quizScore < MAX_SCORE) {
-            Swal.fire({
-                title: 'Incomplete!',
-                html: `You have completed <b>${quizScore}</b> out of <b>${MAX_SCORE}</b> sentences.<br><br><i>Submit this score or keep playing?</i>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#0284c7',
-                confirmButtonText: 'Submit Score',
-                cancelButtonText: 'Keep Playing'
-            }).then((result) => {
-                if (result.isConfirmed) proceedToLogin();
-            });
-        } else {
-            proceedToLogin();
-        }
-    }
-
     function proceedToLogin() {
         if(!localStorage.getItem('studentId')) {
             isSubmitting = true; 
@@ -564,9 +542,11 @@
         }, 1500);
     }
 
-    function restartApp() {
+    // ถ้ากดปุ่ม "Try Again" ในหน้าต่างส่งคะแนน ให้ทำเฉพาะส่วนควิซใหม่
+    function restartQuizOnly() {
         document.getElementById('scoreModal').classList.remove('active');
-        initApp();
+        resetQuizState();
+        window.scrollTo(0, 0);
     }
 
     // Audio SFX
@@ -591,8 +571,8 @@
             } else if (type === 'wrong') {
                 osc.type = "sawtooth"; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (type === 'success') {
                 osc.type = "sine"; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
