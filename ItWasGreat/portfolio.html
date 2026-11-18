@@ -10,7 +10,7 @@
     
     <style>
         :root {
-            --main-teal: #0ea5e9; /* ธีมสีฟ้าสดใส */
+            --main-teal: #0ea5e9; 
             --dark-teal: #0369a1;
             --main-orange: #f59e0b;
             --bg-color: #f0f9ff;
@@ -124,9 +124,13 @@
     <h1 class="header-title">My Weekend Portfolio</h1>
     <div class="header-subtitle">Match the places and activities! 📸</div>
 
+    <!-- ไฟล์เสียง SFX แบบ MP3 ของคุณครู -->
+    <audio id="audioCorrect" src="correct.mp3"></audio>
+    <audio id="audioWrong" src="wrong.mp3"></audio>
+
     <div class="game-container">
         <div class="round-info">
-            <span>Score: <span id="scoreDisplay" style="color:var(--success);">0</span></span>
+            <span>Score: <span id="scoreDisplay" style="color:var(--success);">0</span>/10</span>
             <span>Image: <span id="roundDisplay">1</span>/5</span>
         </div>
         
@@ -170,7 +174,7 @@
         <div class="modal-box">
             <h2 style="color:var(--dark-teal); margin-top:0; font-size: 26px;">🎉 เรียบร้อย!</h2>
             <p style="color: #64748b; font-weight: 600; margin-bottom: 0;">คะแนนของคุณคือ</p>
-            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#fcd34d;">/5</span></span>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#fcd34d;">/10</span></span>
             <div id="saveStatus" style="font-weight:bold; font-size:15px; margin-bottom:15px; color:#15803d; min-height:22px;"></div>
             <button class="btn-submit-modal" style="background: var(--main-orange); box-shadow: 0 4px 0 #b45309;" onclick="restartGame()">🔄 ลองเล่นใหม่อีกครั้ง</button>
         </div>
@@ -179,7 +183,6 @@
 <script>
     const TOPIC_NAME = 'ม.1 Unit 7 It was great Portfolio';
     
-    // ข้อมูลคำศัพท์และ V.2 ตามที่คุณครูออกแบบไว้
     const allData = [
         { id: 1, image: "zoo.jpg", place: "the zoo", action: "saw wild animals" },
         { id: 2, image: "concert_hall.jpg", place: "a concert hall", action: "listened to a guitar concert" },
@@ -188,6 +191,7 @@
         { id: 5, image: "cinema.jpg", place: "the cinema", action: "saw Jumanji" }
     ];
 
+    const MAX_SCORE = 10; // 5 ข้อ x 2 คะแนน
     let currentDataList = [];
     let currentRound = 0;
     let score = 0;
@@ -195,7 +199,7 @@
     let selectedAction = null;
     let isSubmitting = false;
 
-    // ระบบปลดล็อกเสียงของ Browser
+    // สำหรับเสียงปุ่มกดทั่วไป (ไม่ต้องใช้ไฟล์)
     let audioCtx = null;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -208,19 +212,11 @@
         }
     });
 
-    function initAudio() {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-
     function initGame() {
         score = 0;
         currentRound = 0;
         document.getElementById('scoreDisplay').innerText = score;
-        
-        // สุ่มลำดับภาพทั้ง 5 รูป
         currentDataList = [...allData].sort(() => Math.random() - 0.5);
-        
         loadRound();
     }
 
@@ -237,7 +233,6 @@
         document.getElementById('roundDisplay').innerText = currentRound + 1;
         document.getElementById('mainImage').src = currentItem.image;
         
-        // Reset Slots
         const sPlace = document.getElementById('slotPlace');
         const sAction = document.getElementById('slotAction');
         sPlace.innerText = "the ..."; sPlace.className = "slot";
@@ -246,7 +241,6 @@
         document.getElementById('btnCheck').classList.add('disabled');
         document.getElementById('btnCheck').innerText = "🔍 ตรวจคำตอบ";
 
-        // สร้างตัวเลือก Place (สุ่มถูก 1 ผิด 2)
         const allPlaces = allData.map(d => d.place);
         const placeChoices = generateChoices(currentItem.place, allPlaces);
         const placeContainer = document.getElementById('placeOptions');
@@ -260,7 +254,6 @@
             placeContainer.appendChild(btn);
         });
 
-        // สร้างตัวเลือก Action (สุ่มถูก 1 ผิด 2)
         const allActions = allData.map(d => d.action);
         const actionChoices = generateChoices(currentItem.action, allActions);
         const actionContainer = document.getElementById('actionOptions');
@@ -277,19 +270,15 @@
 
     function generateChoices(correctAnswer, allOptionsPool) {
         let choices = [correctAnswer];
-        // ห้ามเอาตัวเลือกที่ซ้ำกับคำตอบที่ถูก
         let distractors = allOptionsPool.filter(opt => opt !== correctAnswer);
-        // สับเปลี่ยน distractors
         distractors.sort(() => Math.random() - 0.5);
-        // เอามา 2 ข้อ
         choices.push(distractors[0]);
         choices.push(distractors[1]);
-        // สับเปลี่ยนตำแหน่งอีกทีก่อนคืนค่า
         return choices.sort(() => Math.random() - 0.5);
     }
 
     function pickPlace(text, btnId) {
-        initAudio(); playSound('tap');
+        playSound('tap');
         selectedPlace = text;
         const sPlace = document.getElementById('slotPlace');
         sPlace.innerText = text;
@@ -302,7 +291,7 @@
     }
 
     function pickAction(text, btnId) {
-        initAudio(); playSound('tap');
+        playSound('tap');
         selectedAction = text;
         const sAction = document.getElementById('slotAction');
         sAction.innerText = text;
@@ -321,51 +310,59 @@
     }
 
     function checkAnswer() {
-        initAudio();
         const currentItem = currentDataList[currentRound];
         const isPlaceCorrect = (selectedPlace === currentItem.place);
         const isActionCorrect = (selectedAction === currentItem.action);
-        const isAllCorrect = isPlaceCorrect && isActionCorrect;
 
-        // Lock buttons
+        // คำนวณคะแนนข้อนี้
+        let pointsEarned = 0;
+        if (isPlaceCorrect) pointsEarned++;
+        if (isActionCorrect) pointsEarned++;
+
+        score += pointsEarned;
+        document.getElementById('scoreDisplay').innerText = score;
+
+        // ล็อกปุ่ม
         document.querySelectorAll('.btn-choice').forEach(b => b.classList.add('disabled'));
         document.getElementById('btnCheck').classList.add('disabled');
 
-        // Highlight correct/wrong Places
+        // ไฮไลท์ฝั่งสถานที่
         const placeBtns = document.getElementById('placeOptions').querySelectorAll('.btn-choice');
         placeBtns.forEach(btn => {
-            if (btn.innerText === currentItem.place) btn.classList.add('correct-ans'); // เฉลยข้อถูก
-            if (btn.classList.contains('selected') && !isPlaceCorrect) btn.classList.add('wrong-ans'); // บอกข้อที่เลือกผิด
+            if (btn.innerText === currentItem.place) btn.classList.add('correct-ans'); 
+            if (btn.classList.contains('selected') && !isPlaceCorrect) btn.classList.add('wrong-ans'); 
         });
 
-        // Highlight correct/wrong Actions
+        // ไฮไลท์ฝั่งกิจกรรม
         const actionBtns = document.getElementById('actionOptions').querySelectorAll('.btn-choice');
         actionBtns.forEach(btn => {
             if (btn.innerText === currentItem.action) btn.classList.add('correct-ans');
             if (btn.classList.contains('selected') && !isActionCorrect) btn.classList.add('wrong-ans');
         });
 
-        if (isAllCorrect) {
-            score++;
-            document.getElementById('scoreDisplay').innerText = score;
-            playSound('correct');
-            document.getElementById('btnCheck').innerText = "✅ ยอดเยี่ยม!";
+        // แจ้งผลลัพธ์และเล่นเสียง MP3
+        if (pointsEarned === 2) {
+            document.getElementById('audioCorrect').play().catch(e=>{});
+            document.getElementById('btnCheck').innerText = "✅ ยอดเยี่ยม! (+2 คะแนน)";
+        } else if (pointsEarned === 1) {
+            document.getElementById('audioWrong').play().catch(e=>{});
+            document.getElementById('btnCheck').innerText = "⚠️ เกือบถูก! (+1 คะแนน) ดูเฉลยสีเขียวนะ";
         } else {
-            playSound('wrong');
+            document.getElementById('audioWrong').play().catch(e=>{});
             document.getElementById('btnCheck').innerText = "❌ ผิดจ้า ดูเฉลยสีเขียวนะ";
         }
 
         setTimeout(() => {
             currentRound++;
             loadRound();
-        }, 2500); // รอ 2.5 วินาทีให้ดูเฉลยก่อนเปลี่ยนด่าน
+        }, 3000); // ให้เวลาดูเฉลย 3 วินาที
     }
 
     // ================= ระบบลงชื่อ & ส่งคะแนน =================
     function proceedToLogin() {
         if(!localStorage.getItem('studentId')) {
             isSubmitting = true; 
-            document.getElementById('modalSub').innerText = `คุณทำได้ ${score}/5 คะแนน\nลงชื่อเพื่อบันทึกคะแนนเข้าสู่ระบบ`;
+            document.getElementById('modalSub').innerText = `คุณทำได้ ${score}/${MAX_SCORE} คะแนน\nลงชื่อเพื่อบันทึกคะแนนเข้าสู่ระบบ`;
             document.getElementById('loginModal').classList.add('active');
         } else {
             submitScore();
@@ -432,7 +429,7 @@
             name: localStorage.getItem('studentName'), 
             room: localStorage.getItem('studentRoom'),
             studentId: "'" + localStorage.getItem('studentId'), 
-            lesson: TOPIC_NAME, score: score, maxScore: 5 // 5 รูป 5 คะแนน
+            lesson: TOPIC_NAME, score: score, maxScore: MAX_SCORE
         };
 
         fetch(QUIZ_CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
@@ -440,7 +437,7 @@
 
         setTimeout(() => {
             stat.innerText = "✅ บันทึกคะแนนลงระบบเรียบร้อย!"; 
-            initAudio(); playSound('success');
+            playSound('success'); // ใช้เสียงจบบทเรียน
         }, 1500);
     }
 
@@ -450,12 +447,12 @@
         window.scrollTo(0, 0);
     }
 
-    // Audio SFX API
+    // เสียงปุ่มกดทั่วไป (ไม่ต้องดึงจากไฟล์)
     function playSound(type) {
-        if (!audioCtx) return;
         try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const gain = audioCtx.createGain();
-            osc = audioCtx.createOscillator();
+            const osc = audioCtx.createOscillator();
             osc.connect(gain); gain.connect(audioCtx.destination);
             
             if (type === 'tap') {
@@ -463,17 +460,6 @@
                 gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.05);
-            } else if (type === 'correct') {
-                osc.type = "sine"; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            } else if (type === 'wrong') {
-                osc.type = "sawtooth"; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
             } else if (type === 'success') {
                 osc.type = "sine"; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
