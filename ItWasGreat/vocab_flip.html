@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>It was great! - Vocab Flip Cards</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
+    
+    <style>
+        :root {
+            --main-blue: #3b82f6; 
+            --dark-blue: #1d4ed8;
+            --main-yellow: #facc15;
+            --bg-color: #eff6ff;
+            --success: #22c55e;
+            --card-front: #ffffff;
+            --card-back: #f0fdf4;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 20px 10px;
+            background-color: var(--bg-color);
+            color: #334155;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .profile-bar {
+            font-size: clamp(12px, 3.5vw, 14px); background: #dbeafe; border: 2px solid var(--main-blue);
+            padding: 8px 15px; border-radius: 20px; color: var(--dark-blue); font-weight: bold;
+            display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 800px; box-sizing: border-box;
+        }
+        .btn-switch { background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 12px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; }
+
+        .header-title { font-family: 'Fredoka One', cursive; color: var(--main-blue); font-size: clamp(28px, 5vw, 36px); margin: 0 0 5px 0; text-align: center; line-height: 1.2;}
+        .header-subtitle { font-weight: 800; color: #475569; margin-bottom: 20px; font-size: 16px; text-align: center; }
+
+        .game-container {
+            width: 100%; max-width: 800px;
+            background: white; border-radius: 20px; padding: 20px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+            border: 3px solid #bfdbfe; box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: 800; font-size: 18px; color: #64748b;
+            border-bottom: 2px dashed #bfdbfe; padding-bottom: 10px; margin-bottom: 20px;
+        }
+        .counter { color: var(--main-blue); }
+
+        /* Flip Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+
+        @media(min-width: 600px) {
+            .card-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            aspect-ratio: 4/3;
+            perspective: 1000px; /* สำหรับมิติ 3D */
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        /* เมื่อการ์ดถูกพลิก */
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* Safari */
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 10px;
+            border: 3px solid #e2e8f0;
+        }
+
+        /* หน้าการ์ด (อังกฤษ) */
+        .flip-card-front {
+            background-color: var(--card-front);
+            color: var(--dark-blue);
+        }
+        .word-en { font-family: 'Fredoka One', cursive; font-size: 18px; margin-bottom: 10px; line-height: 1.2; }
+        .word-pos { font-family: 'Sarabun'; font-size: 13px; font-weight: 800; color: #94a3b8; font-style: italic; }
+        
+        .btn-audio {
+            background: #dbeafe; color: var(--main-blue); border: none;
+            width: 35px; height: 35px; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center; font-size: 16px;
+            cursor: pointer; transition: 0.2s; margin-top: 5px; box-shadow: 0 3px 0 #93c5fd;
+        }
+        .btn-audio:active { transform: translateY(3px); box-shadow: none; }
+
+        /* หลังการ์ด (ไทย) + ไฮไลท์เขียว */
+        .flip-card-back {
+            background-color: var(--card-back);
+            color: #15803d;
+            transform: rotateY(180deg);
+            border-color: var(--success);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        }
+        .word-th { font-weight: 800; font-size: 17px; line-height: 1.3;}
+        .check-icon { font-size: 24px; margin-top: 10px; }
+
+        .btn-action { 
+            width: 100%; max-width: 400px; margin: 30px auto 0 auto; background: var(--main-blue); color: white; font-weight: 800; font-size: 18px; padding: 15px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 var(--dark-blue); transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; 
+        }
+        .btn-action.disabled { display: none; } /* ซ่อนไว้จนกว่าจะเปิดครบ */
+        .btn-action:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(239,246,255,0.9); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 3000; visibility: hidden; opacity: 0; transition: 0.3s; padding: 15px; box-sizing: border-box; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-box { background: white; padding: 30px 20px; border-radius: 30px; text-align: center; width: 100%; max-width: 340px; border: 4px solid var(--main-blue); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.2); box-sizing: border-box; }
+        .modal-box input.login-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 2px solid var(--main-blue); border-radius: 15px; text-align: center; font-family: 'Sarabun'; font-size: 16px; font-weight: 600; box-sizing: border-box; outline: none; }
+        .score-num { font-size: 60px; font-weight: 900; color: var(--main-blue); margin: 10px 0; display: block; line-height: 1;}
+        .btn-submit-modal { width: 100%; padding: 15px; background: var(--main-blue); color: white; border: none; border-radius: 15px; font-weight: 800; font-size: 18px; cursor: pointer; box-shadow: 0 4px 0 var(--dark-blue); transition: 0.1s; margin-top: 10px; font-family: 'Sarabun'; }
+        .btn-submit-modal:active { transform: translateY(4px); box-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <div id="userProfile" class="profile-bar" style="display:none;">
+        <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+        <button class="btn-switch" onclick="switchAccount()">🔄 สลับบัญชี</button>
+    </div>
+
+    <h1 class="header-title">Vocabulary</h1>
+    <div class="header-subtitle">แตะที่ 🎧 เพื่อฟังเสียง และแตะที่การ์ดเพื่อดูความหมาย!</div>
+
+    <div class="game-container">
+        <div class="status-bar">
+            <span>Score: <span id="scoreDisplay" class="counter">0</span>/7</span>
+            <span>เรียนรู้แล้ว: <span id="progressDisplay" class="counter">0</span>/7</span>
+        </div>
+        
+        <div class="card-grid" id="cardContainer">
+            <!-- Cards generated by JS -->
+        </div>
+
+        <button class="btn-action disabled" id="btnSubmitScore" onclick="proceedToLogin()">✅ ส่งคะแนน</button>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <!-- Modal Login -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color:var(--dark-blue); margin-top:0; font-size: 24px;">📝 ลงชื่อรับคะแนน</h2>
+            <p id="modalSub" style="color: #64748b; font-weight: 600; margin-top: 0; font-size: 14px;"></p>
+            <input type="text" id="in_name" class="login-input" placeholder="ชื่อ - นามสกุล">
+            <input type="text" id="in_room" class="login-input" placeholder="ชั้น/ห้อง (เช่น 1/1)">
+            <input type="text" id="in_id" class="login-input" placeholder="รหัสนักเรียน (5 หลัก)" maxlength="5">
+            <button class="btn-submit-modal" onclick="confirmUser()">🚀 ยืนยัน</button>
+        </div>
+    </div>
+
+    <!-- Modal Score/Success -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:var(--dark-blue); margin-top:0; font-size: 26px;">🎉 เก่งมาก!</h2>
+            <p style="color: #64748b; font-weight: 600; margin-bottom: 0;">คะแนนของคุณคือ</p>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#93c5fd;">/7</span></span>
+            <div id="saveStatus" style="font-weight:bold; font-size:15px; margin-bottom:15px; color:#15803d; min-height:22px;"></div>
+            <button class="btn-submit-modal" style="background: var(--main-yellow); color: #854d0e; box-shadow: 0 4px 0 #ca8a04;" onclick="restartGame()">🔄 ลองทบทวนอีกครั้ง</button>
+        </div>
+    </div>
+
+<script>
+    const TOPIC_NAME = 'ม.1 Unit 7 It was great vocab';
+    
+    // ข้อมูลคำศัพท์ทั้ง 7 คำ
+    const vocabData = [
+        { id: 1, en: "adventure park", pos: "n.", th: "สวนผจญภัย,<br>สวนสนุก", audio: "adventure_park.mp3" },
+        { id: 2, en: "art gallery", pos: "n.", th: "หอศิลป์,<br>แกลเลอรี", audio: "art_gallery.mp3" },
+        { id: 3, en: "play", pos: "n.", th: "ละครเวที,<br>การแสดง", audio: "play.mp3" },
+        { id: 4, en: "weekend", pos: "n.", th: "วันหยุด<br>สุดสัปดาห์", audio: "weekend2.mp3" },
+        { id: 5, en: "zoo", pos: "n.", th: "สวนสัตว์", audio: "zoo.mp3" },
+        { id: 6, en: "concert hall", pos: "n.", th: "หอแสดงดนตรี,<br>คอนเสิร์ตฮอลล์", audio: "concert_hall.mp3" },
+        { id: 7, en: "cinema", pos: "n.", th: "โรงภาพยนตร์", audio: "cinema.mp3" }
+    ];
+
+    const MAX_SCORE = vocabData.length;
+    let flippedCards = new Set();
+    let isSubmitting = false;
+    const audioPlayer = document.getElementById('audioPlayer');
+    let audioCtx = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initGame();
+        if(localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId'); 
+        }
+    });
+
+    // ปลดล็อกระบบเสียง
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function initGame() {
+        flippedCards.clear();
+        document.getElementById('scoreDisplay').innerText = "0";
+        document.getElementById('progressDisplay').innerText = "0";
+        document.getElementById('btnSubmitScore').classList.add('disabled');
+        
+        // สับเปลี่ยนลำดับการ์ดทุกครั้งที่เล่น
+        const shuffled = [...vocabData].sort(() => Math.random() - 0.5);
+        
+        const container = document.getElementById('cardContainer');
+        container.innerHTML = '';
+
+        shuffled.forEach(item => {
+            const cardWrap = document.createElement('div');
+            cardWrap.className = 'flip-card';
+            cardWrap.id = `card-${item.id}`;
+            cardWrap.onclick = () => toggleFlip(item.id);
+            
+            cardWrap.innerHTML = `
+                <div class="flip-card-inner">
+                    <!-- หน้าการ์ด -->
+                    <div class="flip-card-front">
+                        <div class="word-en">${item.en}</div>
+                        <div class="word-pos">${item.pos}</div>
+                        <button class="btn-audio" onclick="playAudio(event, '${item.audio}')">🎧</button>
+                    </div>
+                    <!-- หลังการ์ด -->
+                    <div class="flip-card-back">
+                        <div class="word-th">${item.th}</div>
+                        <div class="check-icon">✔️</div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(cardWrap);
+        });
+    }
+
+    // เล่นเสียงคำศัพท์
+    function playAudio(event, audioFile) {
+        // หยุดการกระจาย Event ไม่ให้การ์ดพลิกเมื่อกดแค่ปุ่มลำโพง
+        event.stopPropagation();
+        initAudio();
+        playSound('tap');
+        audioPlayer.src = audioFile;
+        audioPlayer.play().catch(e => console.log(`กรุณาอัปโหลดไฟล์ ${audioFile}`));
+    }
+
+    // พลิกการ์ดและบันทึกคะแนน
+    function toggleFlip(id) {
+        initAudio();
+        const card = document.getElementById(`card-${id}`);
+        
+        // ถ้ายิ่งยังไม่เคยเปิด ให้คะแนนเพิ่ม
+        if (!card.classList.contains('flipped')) {
+            playSound('flip');
+            card.classList.add('flipped');
+            flippedCards.add(id);
+            
+            const currentScore = flippedCards.size;
+            document.getElementById('scoreDisplay').innerText = currentScore;
+            document.getElementById('progressDisplay').innerText = currentScore;
+            
+            // เช็คว่าเปิดครบหรือยัง
+            if (currentScore === MAX_SCORE) {
+                document.getElementById('btnSubmitScore').classList.remove('disabled');
+                setTimeout(() => playSound('success'), 600); // ดีเลย์เสียงสำเร็จให้สัมพันธ์กับการพลิก
+            }
+        } else {
+            // พลิกกลับไปหน้าเดิม (ไม่ลบคะแนน)
+            playSound('tap');
+            card.classList.remove('flipped');
+        }
+    }
+
+    // ================= ระบบลงชื่อ & ส่งคะแนน =================
+    function proceedToLogin() {
+        if(!localStorage.getItem('studentId')) {
+            isSubmitting = true; 
+            document.getElementById('modalSub').innerText = `คุณเรียนรู้ครบ ${MAX_SCORE}/${MAX_SCORE} คำ\nลงชื่อเพื่อรับคะแนนเข้าสู่ระบบ`;
+            document.getElementById('loginModal').classList.add('active');
+        } else {
+            submitScore();
+        }
+    }
+
+    function switchAccount() {
+        Swal.fire({
+            title: '⚠️ สลับบัญชี?', text: "ล้างสถานะเพื่อให้นักเรียนคนใหม่เข้าเล่น", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#3b82f6', cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'ตกลง', cancelButtonText: 'ยกเลิก'
+        }).then((res) => {
+            if(res.isConfirmed) {
+                localStorage.clear(); 
+                document.getElementById('userProfile').style.display = 'none';
+                isSubmitting = false; 
+                document.getElementById('in_name').value = '';
+                document.getElementById('in_room').value = '';
+                document.getElementById('in_id').value = '';
+                
+                document.getElementById('modalSub').innerText = "ลงชื่อใช้งานก่อนเริ่มทำกิจกรรม";
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function() {
+        let nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `ม.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `ม.1/${nums[0]}`;
+    });
+
+    function confirmUser() {
+        let n = document.getElementById('in_name').value.trim();
+        let r = document.getElementById('in_room').value.trim();
+        let id = document.getElementById('in_id').value.trim();
+        if(!n || !r || id.length !== 5) { Swal.fire('ข้อมูลไม่ครบ!', 'กรุณากรอกชื่อ ห้อง และรหัส 5 หลัก', 'warning'); return; }
+        
+        localStorage.setItem('studentName', n); 
+        localStorage.setItem('studentRoom', r); 
+        localStorage.setItem('studentId', id);
+        
+        document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('userProfile').style.display = 'flex';
+        document.getElementById('p_name').innerText = n;
+        document.getElementById('p_room').innerText = r;
+        document.getElementById('p_id').innerText = id; 
+        
+        if (isSubmitting) submitScore();
+        else initGame();
+    }
+
+    function submitScore() {
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScoreText').innerText = MAX_SCORE;
+        const stat = document.getElementById('saveStatus');
+        
+        if(typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ ไม่พบไฟล์ตั้งค่า (quiz-config.js)"; return;
+        }
+        stat.innerText = "⏳ กำลังบันทึกคะแนน...";
+
+        const payload = {
+            name: localStorage.getItem('studentName'), 
+            room: localStorage.getItem('studentRoom'),
+            studentId: "'" + localStorage.getItem('studentId'), 
+            lesson: TOPIC_NAME, score: MAX_SCORE, maxScore: MAX_SCORE
+        };
+
+        fetch(QUIZ_CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+            .catch(e => console.error(e));
+
+        setTimeout(() => {
+            stat.innerText = "✅ บันทึกคะแนนลงระบบเรียบร้อย!"; 
+            initAudio(); playSound('success');
+        }, 1500);
+    }
+
+    function restartGame() {
+        document.getElementById('scoreModal').classList.remove('active');
+        initGame();
+        window.scrollTo(0, 0);
+    }
+
+    // เสียง SFX สำหรับแอปพลิเคชัน
+    function playSound(type) {
+        if (!audioCtx) return;
+        try {
+            const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'tap') {
+                osc.type = "sine"; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'flip') {
+                // เสียงพลิกการ์ดแบบกระดิกสั้นๆ
+                osc.type = "triangle"; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'success') {
+                // เสียงตอนเปิดครบทุกใบ
+                osc.type = "sine"; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }
+        } catch(e) {}
+    }
+</script>
+
+</body>
+</html>
