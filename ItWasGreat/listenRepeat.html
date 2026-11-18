@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Listen and Repeat - Unit 7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
+    
+    <style>
+        :root {
+            --main-teal: #0d9488;
+            --dark-teal: #115e59;
+            --main-yellow: #eab308;
+            --bg-color: #f0fdfa;
+            --success: #16a34a;
+            --error: #dc2626;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 20px 10px;
+            background-color: var(--bg-color);
+            color: #334155;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .profile-bar {
+            font-size: clamp(12px, 3.5vw, 14px); background: #ccfbf1; border: 2px solid var(--main-teal);
+            padding: 8px 15px; border-radius: 20px; color: var(--dark-teal); font-weight: bold;
+            display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 800px; box-sizing: border-box;
+        }
+        .btn-switch { background: #f43f5e; color: white; border: none; padding: 4px 12px; border-radius: 12px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; }
+
+        .header-title { font-family: 'Fredoka One', cursive; color: var(--main-teal); font-size: clamp(24px, 5vw, 32px); margin: 0 0 5px 0; text-align: center; line-height: 1.2;}
+        .header-subtitle { font-weight: 800; color: var(--main-yellow); margin-bottom: 5px; font-size: 18px; text-align: center; }
+        .instruction-text { color: #64748b; font-size: 15px; text-align: center; margin-bottom: 20px; font-weight: 600;}
+
+        .game-container {
+            width: 100%; max-width: 800px;
+            background: white; border-radius: 20px; padding: 20px 15px;
+            box-shadow: 0 10px 25px rgba(13, 148, 136, 0.1);
+            border: 3px solid #99f6e4; box-sizing: border-box;
+        }
+
+        .score-board {
+            text-align: right; font-weight: 800; font-size: 18px; color: var(--dark-teal); 
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed #99f6e4;
+        }
+
+        /* Phrase List */
+        .phrase-list {
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .phrase-card {
+            background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 15px;
+            padding: 15px; transition: all 0.3s;
+            box-shadow: 0 4px 0 #cbd5e1; display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .phrase-card.passed {
+            background: #dcfce7; border-color: var(--success); box-shadow: 0 4px 0 var(--success);
+        }
+
+        .phrase-text {
+            font-family: 'Fredoka One', cursive; font-size: 20px; color: #1e293b; text-align: center;
+        }
+
+        .controls-row {
+            display: flex; justify-content: center; gap: 15px; margin-top: 5px;
+        }
+
+        .btn-listen, .btn-speak {
+            border: none; border-radius: 50px; padding: 10px 20px;
+            font-family: 'Sarabun', sans-serif; font-size: 16px; font-weight: 800;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.1s;
+        }
+
+        .btn-listen {
+            background: #fef08a; color: #854d0e; box-shadow: 0 4px 0 #ca8a04; border: 2px solid #ca8a04;
+        }
+        .btn-listen:active { transform: translateY(4px); box-shadow: none; }
+
+        .btn-speak {
+            background: #38bdf8; color: white; box-shadow: 0 4px 0 #0284c7; border: 2px solid #0284c7;
+        }
+        .btn-speak:active { transform: translateY(4px); box-shadow: none; }
+        
+        /* สถานะกำลังฟัง */
+        .btn-speak.listening {
+            background: #ef4444; border-color: #991b1b; box-shadow: 0 4px 0 #991b1b;
+            animation: pulseRecord 1.5s infinite;
+        }
+        @keyframes pulseRecord {
+            0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); }
+        }
+
+        /* ผลลัพธ์จากการพูด */
+        .feedback-box {
+            text-align: center; font-size: 15px; font-weight: 600; min-height: 22px;
+            color: #64748b; font-style: italic;
+        }
+        .feedback-box.success-text { color: #15803d; font-style: normal; }
+        .feedback-box.error-text { color: #b91c1c; font-style: normal; }
+
+        /* Submit Button */
+        .btn-action { 
+            width: 100%; max-width: 400px; margin: 30px auto 0 auto; background: var(--main-teal); color: white; font-weight: 800; font-size: 18px; padding: 15px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 0 var(--dark-teal); transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 8px; 
+        }
+        .btn-action.disabled { opacity: 0.5; pointer-events: none; }
+        .btn-action:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Modals */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(240,253,250,0.9); backdrop-filter: blur(5px); 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 3000; visibility: hidden; opacity: 0; transition: 0.3s; 
+            padding: 15px; box-sizing: border-box; 
+        }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        
+        .modal-box { 
+            background: white; padding: 30px 20px; border-radius: 30px; text-align: center; 
+            width: 100%; max-width: 340px; border: 4px solid var(--main-teal); 
+            box-shadow: 0 15px 30px rgba(13, 148, 136, 0.2); box-sizing: border-box; 
+        }
+        .modal-box input.login-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 2px solid var(--main-teal); border-radius: 15px; text-align: center; font-family: 'Sarabun'; font-size: 16px; font-weight: 600; box-sizing: border-box; outline: none; }
+        .score-num { font-size: 60px; font-weight: 900; color: var(--main-teal); margin: 10px 0; display: block; line-height: 1;}
+        .btn-submit-modal { width: 100%; padding: 15px; background: var(--main-teal); color: white; border: none; border-radius: 15px; font-weight: 800; font-size: 18px; cursor: pointer; box-shadow: 0 4px 0 var(--dark-teal); transition: 0.1s; margin-top: 10px; font-family: 'Sarabun'; }
+        .btn-submit-modal:active { transform: translateY(4px); box-shadow: none; }
+    </style>
+</head>
+<body>
+
+    <div id="userProfile" class="profile-bar" style="display:none;">
+        <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+        <button class="btn-switch" onclick="switchAccount()">🔄 Switch Account</button>
+    </div>
+
+    <h1 class="header-title">It was great!</h1>
+    <div class="header-subtitle">Listen and Repeat 🗣️</div>
+    <div class="instruction-text">กด 🔊 เพื่อฟังเสียงครู แล้วกด 🎤 เพื่อออกเสียงตามให้ถูกต้อง!</div>
+
+    <div class="game-container">
+        <div class="score-board">Score: <span id="scoreDisplay">0</span> / 5</div>
+        
+        <div class="phrase-list" id="phraseContainer">
+            <!-- Cards will be generated here -->
+        </div>
+
+        <button class="btn-action disabled" id="btnSubmitScore" onclick="proceedToLogin()">✅ Submit Score</button>
+    </div>
+
+    <!-- Modal Login -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color:var(--dark-teal); margin-top:0; font-size: 24px;">📝 Sign In</h2>
+            <p id="modalSub" style="color: #64748b; font-weight: 600; margin-top: 0; font-size: 14px;">Please enter details to save score.</p>
+            <input type="text" id="in_name" class="login-input" placeholder="First Name - Last Name">
+            <input type="text" id="in_room" class="login-input" placeholder="Class/Room (e.g., 1/1)">
+            <input type="text" id="in_id" class="login-input" placeholder="Student ID (5 digits)" maxlength="5">
+            <button class="btn-submit-modal" onclick="confirmUser()">🚀 Proceed</button>
+        </div>
+    </div>
+
+    <!-- Modal Score/Success -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:var(--dark-teal); margin-top:0; font-size: 26px;">🎉 Well Done!</h2>
+            <p style="color: #64748b; font-weight: 600; margin-bottom: 0;">Your speaking score is</p>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#5eead4;">/5</span></span>
+            <div id="saveStatus" style="font-weight:bold; font-size:15px; margin-bottom:15px; color:#15803d; min-height:22px;"></div>
+            <button class="btn-submit-modal" style="background: var(--main-yellow); box-shadow: 0 4px 0 #ca8a04; color: #854d0e;" onclick="restartApp()">🔄 Try Again</button>
+        </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+<script>
+    const TOPIC_NAME = 'ม.1 บทที่ 7 It was great! Listen and repeat';
+    
+    const phrasesData = [
+        { id: 1, text: "How was your weekend?", audio: "weekend.mp3" },
+        { id: 2, text: "Quite boring.", audio: "boring.mp3" },
+        { id: 3, text: "What about you?", audio: "about_you.mp3" },
+        { id: 4, text: "Did you like it?", audio: "like_it.mp3" },
+        { id: 5, text: "Who else was with you?", audio: "with_you.mp3" }
+    ];
+
+    const MAX_SCORE = phrasesData.length;
+    let score = 0;
+    let passedPhrases = new Set();
+    let isSubmitting = false;
+
+    // Web Speech API Setup
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isRecording = false;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US'; 
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+    }
+
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!SpeechRecognition) {
+            Swal.fire('Browser Not Supported', 'อุปกรณ์หรือเบราว์เซอร์ของคุณไม่รองรับระบบตรวจจับเสียง กรุณาใช้ Google Chrome หรือ Safari เวอร์ชันล่าสุดครับ', 'error');
+        }
+        
+        initApp();
+        if(localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId'); 
+        }
+    });
+
+    function initApp() {
+        score = 0;
+        passedPhrases.clear();
+        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('btnSubmitScore').classList.add('disabled');
+
+        const container = document.getElementById('phraseContainer');
+        container.innerHTML = '';
+
+        phrasesData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "phrase-card";
+            card.id = `card-${item.id}`;
+            card.innerHTML = `
+                <div class="phrase-text">${item.text}</div>
+                <div class="controls-row">
+                    <button class="btn-listen" onclick="playAudio('${item.audio}')">🔊 Listen</button>
+                    <button class="btn-speak" id="btn-speak-${item.id}" onclick="toggleSpeech(${item.id}, '${item.text.replace(/'/g, "\\'")}')">🎤 Speak</button>
+                </div>
+                <div class="feedback-box" id="feedback-${item.id}"></div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function playAudio(audioFile) {
+        audioPlayer.src = audioFile;
+        audioPlayer.play().catch(e => console.log(`โปรดอัปโหลดไฟล์ ${audioFile}`));
+        playSound('tap');
+    }
+
+    // ================= SPEECH RECOGNITION =================
+    function toggleSpeech(id, targetText) {
+        if (!recognition) return;
+        
+        const btn = document.getElementById(`btn-speak-${id}`);
+        const feedback = document.getElementById(`feedback-${id}`);
+
+        if (isRecording) {
+            recognition.stop();
+            return;
+        }
+
+        // Reset UI for this card
+        document.querySelectorAll('.btn-speak').forEach(b => b.classList.remove('listening'));
+        btn.classList.add('listening');
+        btn.innerHTML = "🔴 Listening...";
+        feedback.innerText = "กำลังฟัง...";
+        feedback.className = "feedback-box";
+        isRecording = true;
+
+        recognition.start();
+        playSound('tap');
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            processPronunciation(id, targetText, transcript);
+        };
+
+        recognition.onerror = (event) => {
+            feedback.innerText = "ไม่ได้ยินเสียง หรือไมโครโฟนมีปัญหา ลองอีกครั้งครับ";
+            feedback.className = "feedback-box error-text";
+            resetSpeakBtn(btn);
+        };
+
+        recognition.onend = () => {
+            resetSpeakBtn(btn);
+        };
+    }
+
+    function resetSpeakBtn(btn) {
+        btn.classList.remove('listening');
+        btn.innerHTML = "🎤 Speak";
+        isRecording = false;
+    }
+
+    function processPronunciation(id, targetText, transcript) {
+        const feedback = document.getElementById(`feedback-${id}`);
+        const card = document.getElementById(`card-${id}`);
+
+        // Clean punctuation and make lowercase
+        let cleanTranscript = transcript.toLowerCase().replace(/[.,?¿\-!]/g, "").trim();
+        let cleanTarget = targetText.toLowerCase().replace(/[.,?¿\-!]/g, "").trim();
+
+        feedback.innerHTML = `หนูพูดว่า: "<b>${cleanTranscript}</b>"`;
+
+        // ตรวจความแม่นยำ (Fuzzy Match)
+        let isPass = false;
+        
+        if (cleanTranscript === cleanTarget) {
+            isPass = true;
+        } else {
+            // อนุโลมถ้าถูกเกิน 75%
+            let targetWords = cleanTarget.split(" ");
+            let transcriptWords = cleanTranscript.split(" ");
+            let matchCount = 0;
+
+            targetWords.forEach(word => {
+                if (transcriptWords.includes(word)) matchCount++;
+            });
+
+            // ประโยคสั้น 2 คำ ต้องถูกหมด, ถ้ายาวกว่านั้นอนุโลม 75%
+            let requiredMatches = targetWords.length <= 2 ? targetWords.length : Math.ceil(targetWords.length * 0.75);
+            
+            if (matchCount >= requiredMatches) isPass = true;
+        }
+
+        if (isPass) {
+            feedback.className = "feedback-box success-text";
+            if (!passedPhrases.has(id)) {
+                passedPhrases.add(id);
+                score++;
+                document.getElementById('scoreDisplay').innerText = score;
+                card.classList.add('passed');
+                playSound('correct');
+                
+                if (score === MAX_SCORE) {
+                    document.getElementById('btnSubmitScore').classList.remove('disabled');
+                    setTimeout(() => playSound('success'), 500);
+                }
+            } else {
+                playSound('correct'); // ออกเสียงถูกซ้ำ
+            }
+        } else {
+            feedback.className = "feedback-box error-text";
+            feedback.innerHTML += "<br><i>เกือบแล้ว ลองออกเสียงใหม่นะ!</i>";
+            playSound('wrong');
+        }
+    }
+
+    // ================= SUBMISSION LOGIC =================
+    function proceedToLogin() {
+        if(!localStorage.getItem('studentId')) {
+            isSubmitting = true; 
+            document.getElementById('modalSub').innerText = `Your score is ${score}/${MAX_SCORE}\nPlease sign in to save it.`;
+            document.getElementById('loginModal').classList.add('active');
+        } else {
+            submitScore();
+        }
+    }
+
+    function switchAccount() {
+        Swal.fire({
+            title: '⚠️ Switch Account?', text: "Current progress will be reset.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#0d9488', cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Yes, switch', cancelButtonText: 'Cancel'
+        }).then((res) => {
+            if(res.isConfirmed) {
+                localStorage.clear(); 
+                document.getElementById('userProfile').style.display = 'none';
+                isSubmitting = false; 
+                document.getElementById('in_name').value = '';
+                document.getElementById('in_room').value = '';
+                document.getElementById('in_id').value = '';
+                
+                document.getElementById('modalSub').innerText = "Please sign in to start the activity.";
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function() {
+        let nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `M.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `M.1/${nums[0]}`;
+    });
+
+    function confirmUser() {
+        let n = document.getElementById('in_name').value.trim();
+        let r = document.getElementById('in_room').value.trim();
+        let id = document.getElementById('in_id').value.trim();
+        if(!n || !r || id.length !== 5) { Swal.fire('Incomplete Details!', 'Please enter Name, Room, and a 5-digit Student ID.', 'warning'); return; }
+        
+        localStorage.setItem('studentName', n); 
+        localStorage.setItem('studentRoom', r); 
+        localStorage.setItem('studentId', id);
+        
+        document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('userProfile').style.display = 'flex';
+        document.getElementById('p_name').innerText = n;
+        document.getElementById('p_room').innerText = r;
+        document.getElementById('p_id').innerText = id; 
+        
+        if (isSubmitting) submitScore();
+        else initApp();
+    }
+
+    function submitScore() {
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScoreText').innerText = score;
+        const stat = document.getElementById('saveStatus');
+        
+        if(typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ Configuration file not found (quiz-config.js)"; return;
+        }
+        stat.innerText = "⏳ Saving score...";
+
+        const payload = {
+            name: localStorage.getItem('studentName'), 
+            room: localStorage.getItem('studentRoom'),
+            studentId: "'" + localStorage.getItem('studentId'), 
+            lesson: TOPIC_NAME, score: score, maxScore: MAX_SCORE
+        };
+
+        fetch(QUIZ_CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+            .catch(e => console.error(e));
+
+        setTimeout(() => {
+            stat.innerText = "✅ Score saved successfully!"; 
+            playSound('success');
+        }, 1500);
+    }
+
+    function restartApp() {
+        document.getElementById('scoreModal').classList.remove('active');
+        initApp();
+        window.scrollTo(0, 0);
+    }
+
+    // Audio SFX
+    function playSound(type) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'tap') {
+                osc.type = "sine"; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'correct') {
+                osc.type = "sine"; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'wrong') {
+                osc.type = "sawtooth"; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'success') {
+                osc.type = "sine"; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }
+        } catch(e) {}
+    }
+</script>
+
+</body>
+</html>
