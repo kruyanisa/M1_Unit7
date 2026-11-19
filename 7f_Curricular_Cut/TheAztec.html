@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Aztecs - Listen & Read</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Prompt:wght@500;700&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
+
+    <style>
+        :root {
+            --bg-sand: #edf4ee;
+            --paper-bg: #fbfaf5;
+            --aztec-dark: #14532d;
+            --aztec-jade: #0f766e;
+            --aztec-gold: #d97706;
+            --aztec-gold-dark: #b45309;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            padding: 16px 12px 40px 12px;
+            background-color: var(--bg-sand);
+            background-image: radial-gradient(rgba(15, 118, 110, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #1c2e24;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Profile Bar */
+        .profile-bar {
+            font-size: clamp(12px, 3.3vw, 14px);
+            background: #fef3c7;
+            border: 2px solid var(--aztec-gold);
+            padding: 8px 14px;
+            border-radius: 20px;
+            color: #451a03;
+            font-weight: 700;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        .btn-switch {
+            background: #dc2626;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* Header */
+        .header-wrap {
+            text-align: center;
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        .badge-unit {
+            display: inline-block;
+            background: var(--aztec-jade);
+            color: #fff;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--aztec-dark);
+            font-size: clamp(26px, 6vw, 38px);
+            margin: 0;
+            line-height: 1.15;
+        }
+
+        .subtitle-hint {
+            font-size: 14px;
+            color: #115e59;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Main Cards */
+        .card {
+            width: 100%;
+            max-width: 780px;
+            background: var(--paper-bg);
+            border: 3px solid #cce3d8;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 10px 25px rgba(20, 83, 45, 0.12);
+            margin-bottom: 18px;
+        }
+
+        /* Storybook Stage (Image + Subtitle Overlay) */
+        .stage-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #0f172a;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stage-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            transition: opacity 0.25s ease;
+        }
+
+        /* Scene Indicator Badge */
+        .scene-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.72);
+            color: #fef08a;
+            font-family: 'Prompt', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(254, 240, 138, 0.35);
+            z-index: 12;
+        }
+
+        /* Exit Fullscreen Button (Visible only in Fullscreen) */
+        .btn-exit-fs {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(220, 38, 38, 0.9);
+            color: #fff;
+            border: 2px solid #fecaca;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 25;
+        }
+
+        /* Fullscreen Modes (Native + Mobile Fallback) */
+        .stage-wrapper:fullscreen,
+        .stage-wrapper.pseudo-fullscreen {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            aspect-ratio: auto;
+            border-radius: 0;
+            z-index: 2500;
+            background: #000;
+        }
+
+        .stage-wrapper:fullscreen .btn-exit-fs,
+        .stage-wrapper.pseudo-fullscreen .btn-exit-fs {
+            display: inline-block;
+        }
+
+        .stage-wrapper:fullscreen .video-sub-box,
+        .stage-wrapper.pseudo-fullscreen .video-sub-box {
+            font-size: clamp(18px, 3.2vw, 28px);
+        }
+
+        .stage-wrapper:fullscreen .fs-audio-bar,
+        .stage-wrapper.pseudo-fullscreen .fs-audio-bar {
+            display: flex;
+        }
+
+        /* Floating Play/Pause bar in Fullscreen */
+        .fs-audio-bar {
+            display: none;
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.8);
+            padding: 6px 14px;
+            border-radius: 20px;
+            gap: 10px;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .fs-play-btn {
+            background: var(--aztec-gold);
+            color: #fff;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Word-by-Word Subtitle Overlay */
+        .video-sub-overlay {
+            position: absolute;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            width: 94%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .stage-wrapper:fullscreen .video-sub-overlay,
+        .stage-wrapper.pseudo-fullscreen .video-sub-overlay {
+            bottom: 64px;
+        }
+
+        .video-sub-box {
+            display: inline-block;
+            background: rgba(15, 23, 42, 0.84);
+            color: #f8fafc;
+            font-family: 'Prompt', sans-serif;
+            font-size: clamp(13px, 3vw, 19px);
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 10px;
+            line-height: 1.45;
+            text-shadow: 0 1px 2px #000;
+        }
+
+        .video-sub-overlay.hidden,
+        .video-sub-box:empty {
+            display: none;
+        }
+
+        .sub-word {
+            display: inline-block;
+            padding: 0 3px;
+            margin: 0 1px;
+            border-radius: 5px;
+            transition: background-color 0.08s, color 0.08s;
+        }
+
+        .sub-word.active {
+            background-color: #fde047;
+            color: #14532d;
+            font-weight: 700;
+            text-shadow: none;
+        }
+
+        .sub-word.is-vocab {
+            pointer-events: auto;
+            cursor: pointer;
+            border-bottom: 2px dashed #f87171;
+            color: #fca5a5;
+        }
+
+        .sub-word.is-vocab.active {
+            color: #991b1b;
+        }
+
+        /* Audio Player */
+        audio {
+            width: 100%;
+            margin-top: 12px;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .video-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-cc {
+            background: var(--aztec-dark);
+            color: #fef3c7;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cc.off {
+            background: #94a3b8;
+            color: #fff;
+        }
+
+        /* Key Vocabulary Bar */
+        .vocab-section {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 2px dashed #cce3d8;
+        }
+
+        .vocab-label {
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--aztec-jade);
+            margin-bottom: 8px;
+        }
+
+        .vocab-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .vocab-chip {
+            background: #fff;
+            border: 2px dashed #ef4444;
+            color: #b91c1c;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 11px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .vocab-chip:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
+
+        /* Vocab Popover */
+        #vocab-popover {
+            display: none;
+            position: fixed;
+            background: #ffffff;
+            border: 2px solid var(--aztec-dark);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.28);
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 3500;
+            min-width: 175px;
+            max-width: 240px;
+        }
+
+        .pop-eng { font-family: 'Prompt', sans-serif; font-size: 18px; font-weight: 700; color: var(--aztec-dark); }
+        .pop-pos { font-size: 12px; color: #0f766e; font-weight: 700; background: #ccfbf1; display: inline-block; padding: 1px 8px; border-radius: 8px; margin: 3px 0; }
+        .pop-phonetic { color: #64748b; font-size: 13px; margin-bottom: 6px; }
+        .pop-thai { color: #b45309; font-weight: 800; font-size: 17px; }
+
+        /* Quiz Section */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed #cce3d8;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .quiz-title {
+            font-family: 'Prompt', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--aztec-dark);
+            margin: 0;
+        }
+
+        .quiz-badge {
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            border: 2px solid #86efac;
+        }
+
+        .question-card {
+            background: #ffffff;
+            border: 2px solid #d1e7dd;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-family: 'Prompt', sans-serif;
+            font-size: clamp(15px, 4vw, 17px);
+            font-weight: 700;
+            color: var(--aztec-dark);
+            margin: 0 0 10px 0;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        @media (min-width: 600px) {
+            .options-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .option-btn {
+            text-align: left;
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .option-btn:hover:not(:disabled) { border-color: var(--aztec-jade); background: #f0fdfa; }
+        .option-btn.selected { border-color: var(--aztec-gold); background: #fef3c7; color: #451a03; font-weight: 800; }
+        .option-btn.correct { border-color: var(--success); background: #dcfce7; color: #14532d; font-weight: 800; }
+        .option-btn.wrong { border-color: var(--danger); background: #fee2e2; color: #7f1d1d; font-weight: 800; }
+
+        .opt-letter {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #334155;
+            font-family: 'Prompt', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .option-btn.selected .opt-letter { background: var(--aztec-gold); color: #fff; }
+        .option-btn.correct .opt-letter { background: var(--success); color: #fff; }
+        .option-btn.wrong .opt-letter { background: var(--danger); color: #fff; }
+
+        .btn-submit {
+            width: 100%;
+            max-width: 380px;
+            margin: 16px auto 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--aztec-gold);
+            color: #fff;
+            font-family: 'Prompt', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--aztec-gold-dark);
+        }
+
+        .btn-submit:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--aztec-gold-dark); }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 83, 45, 0.72);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.25s;
+            padding: 15px;
+        }
+
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+
+        .modal-box {
+            background: #fff;
+            padding: 26px 22px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            border: 4px solid var(--aztec-jade);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 11px;
+            margin-bottom: 10px;
+            border: 2px solid var(--aztec-jade);
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .score-num {
+            font-family: 'Fredoka One', cursive;
+            font-size: 60px;
+            color: var(--aztec-gold-dark);
+            margin: 8px 0;
+            display: block;
+            line-height: 1;
+        }
+
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: var(--aztec-gold);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--aztec-gold-dark);
+            margin-top: 8px;
+        }
+
+        .btn-retry { background: #16a34a; box-shadow: 0 4px 0 #15803d; }
+    </style>
+</head>
+<body>
+
+    <!-- User Profile Bar -->
+    <div id="userProfile" class="profile-bar" style="display:none;">
+        <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+        <button class="btn-switch" onclick="switchAccount()">Switch Account</button>
+    </div>
+
+    <!-- Header -->
+    <div class="header-wrap">
+        <div class="badge-unit">Unit 7 • Curricular Cut</div>
+        <h1>The Aztecs (14th–16th century)</h1>
+        <div class="subtitle-hint">Listen to the story, follow the highlighted subtitles, tap red words for meanings, and answer 5 questions.</div>
+    </div>
+
+    <!-- Storybook Stage + Audio + Key Vocabulary Card -->
+    <div class="card">
+        <div class="stage-wrapper" id="stageWrapper">
+            <div class="scene-badge" id="sceneBadge">Scene 1: Intro & Location</div>
+            <button class="btn-exit-fs" onclick="toggleFullscreen()">✕ Exit (Esc)</button>
+
+            <img id="sceneImage" src="Intro1.jpg" alt="The Aztecs Scene">
+
+            <div id="videoSubOverlay" class="video-sub-overlay">
+                <div id="videoSubBox" class="video-sub-box"></div>
+            </div>
+
+            <!-- Play/Pause button when in Fullscreen -->
+            <div class="fs-audio-bar">
+                <button class="fs-play-btn" id="fsPlayBtn" onclick="togglePlayFromFS()">⏯ Play / Pause</button>
+            </div>
+        </div>
+
+        <audio id="story-audio" controls preload="metadata">
+            <source src="TheAztec.mp3" type="audio/mpeg">
+            Your browser does not support HTML5 audio.
+        </audio>
+
+        <div class="video-toolbar">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button id="btnToggleCC" class="btn-cc" onclick="toggleCC()">CC Subtitle: ON</button>
+                <button class="btn-cc" style="background:#b45309;" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+            </div>
+            <span style="font-size:13px; color:#115e59; font-weight:600;">💡 Press Esc or tap ✕ Exit to leave Fullscreen</span>
+        </div>
+
+        <!-- Key Vocabulary Bar -->
+        <div class="vocab-section">
+            <div class="vocab-label">📚 Key Vocabulary (Tap to see meaning):</div>
+            <div class="vocab-chips" id="vocabChips"></div>
+        </div>
+    </div>
+
+    <!-- Quiz Card -->
+    <div class="card" id="quizSection">
+        <div class="quiz-header">
+            <h2 class="quiz-title">📝 Reading Comprehension</h2>
+            <span class="quiz-badge">5 Points</span>
+        </div>
+        <div id="quizContainer"></div>
+        <button id="btnCheckQuiz" class="btn-submit" onclick="checkAndSubmitQuiz()">✅ Check Answers & Submit Score</button>
+    </div>
+
+    <!-- Vocabulary Popover -->
+    <div id="vocab-popover">
+        <div class="pop-eng" id="pop-eng"></div>
+        <div class="pop-pos" id="pop-pos"></div>
+        <div class="pop-phonetic" id="pop-phonetic"></div>
+        <div class="pop-thai" id="pop-thai"></div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color:var(--aztec-dark); margin:0 0 6px 0; font-family:'Prompt';">📝 Student Login</h2>
+            <p id="modalSub" style="color:#64748b; font-weight:600; margin:0 0 12px 0; font-size:14px;"></p>
+            <input type="text" id="in_name" class="login-input" placeholder="Full Name (ชื่อ - นามสกุล)">
+            <input type="text" id="in_room" class="login-input" placeholder="Class / Room (เช่น 1/1)">
+            <input type="text" id="in_id" class="login-input" placeholder="Student ID (รหัสนักเรียน 5 หลัก)" maxlength="5">
+            <button class="btn-modal" onclick="confirmUser()">🚀 Confirm & Save Score</button>
+        </div>
+    </div>
+
+    <!-- Score Modal -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:var(--aztec-dark); margin:0; font-family:'Prompt';">🎉 Great Job!</h2>
+            <p style="color:#64748b; font-weight:600; margin:6px 0 0 0;">Your Score</p>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#d97706;">/5</span></span>
+            <div id="saveStatus" style="font-weight:700; font-size:15px; margin-bottom:12px; color:#15803d; min-height:22px;"></div>
+            <button class="btn-modal btn-retry" onclick="closeScoreModal()">👀 Review Answers</button>
+            <button class="btn-modal" style="background:#f59e0b; box-shadow:0 4px 0 #b45309;" onclick="resetQuiz()">🔄 Try Quiz Again</button>
+        </div>
+    </div>
+
+<script>
+    const TOPIC_NAME = 'ม.1 Unit 7 Curricular Cut The Aztecs';
+
+    // ปรับเวลาซับ (วินาที): 0 = ตรงตามไฟล์เสียงต้นฉบับ
+    const SYNC_OFFSET = 0;
+
+    // 1. จังหวะเปลี่ยนรูป 5 ฉากตามหัวข้อบทเรียน
+    const scenes = [
+        { start: 0,      img: "Intro1.jpg", label: "Scene 1: Intro & Location" },
+        { start: 11.5,   img: "Scene2.jpg", label: "Scene 2: The Emperor" },
+        { start: 29.0,   img: "Scene3.jpg", label: "Scene 3: The People" },
+        { start: 45.2,   img: "Scene4.jpg", label: "Scene 4: Houses and Temples" },
+        { start: 59.6,   img: "Scene5.jpg", label: "Scene 5: Transport" }
+    ];
+
+    // 2. คำศัพท์ 14 คำ พร้อมคำอ่านและคำแปลตามบริบท
+    const dictionary = {
+        "century":    { label: "century",    pos: "n.",        phonetic: "[ˈsentʃəri]",   thai: "ศตวรรษ" },
+        "grand":      { label: "grand",      pos: "adj.",      phonetic: "[ɡrænd]",       thai: "ยิ่งใหญ่, โอ่อ่า" },
+        "government": { label: "government", pos: "n.",        phonetic: "[ˈɡʌvərnmənt]", thai: "รัฐบาล, การปกครอง" },
+        "army":       { label: "army",       pos: "n.",        phonetic: "[ˈɑːrmi]",      thai: "กองทัพ" },
+        "capital":    { label: "capital",    pos: "n.",        phonetic: "[ˈkæpɪtl]",     thai: "เมืองหลวง" },
+        "farmers":    { label: "farmers",    pos: "n. (pl.)",  phonetic: "[ˈfɑːrmərz]",   thai: "เกษตรกร, ชาวนา" },
+        "fields":     { label: "fields",     pos: "n. (pl.)",  phonetic: "[fiːldz]",      thai: "ไร่นา, ทุ่งนา" },
+        "grow":       { label: "grow",       pos: "v.",        phonetic: "[ɡrəʊ]",        thai: "ปลูก" },
+        "amaranth":   { label: "amaranth",   pos: "n.",        phonetic: "[ˈæmərænθ]",    thai: "ผักโขม (ธัญพืชโบราณ)" },
+        "majority":   { label: "majority",   pos: "n.",        phonetic: "[məˈdʒɒrəti]",  thai: "คนส่วนใหญ่" },
+        "wooden":     { label: "wooden",     pos: "adj.",      phonetic: "[ˈwʊdn]",       thai: "ที่ทำจากไม้" },
+        "similar":    { label: "similar to", pos: "phr.",      phonetic: "[ˈsɪmələr tuː]",thai: "คล้ายคลึงกับ" },
+        "travelled":  { label: "travelled",  pos: "v. (past)", phonetic: "[ˈtrævəld]",    thai: "เดินทาง" },
+        "special":    { label: "special",    pos: "adj.",      phonetic: "[ˈspeʃl]",      thai: "พิเศษ" }
+    };
+
+    // 3. ข้อมูลซับไตเติลรายประโยค + เวลาคำต่อคำจาก TheAztec.json
+    const subtitleSegments = [
+        { start: 0.331, end: 1.600, words: [{w:"The",s:0.331,e:0.471},{w:"Aztecs.",s:0.751,e:1.432}] },
+        { start: 2.112, end: 5.000, words: [{w:"14th",s:2.112,e:2.772},{w:"to",s:3.032,e:3.132},{w:"16th",s:3.273,e:3.993},{w:"century.",s:4.153,e:4.753}] },
+        { start: 5.974, end: 6.900, words: [{w:"Location.",s:5.974,e:6.654}] },
+        { start: 7.575, end: 10.700, words: [{w:"The",s:7.575,e:7.675},{w:"Aztec",s:7.895,e:8.395},{w:"people",s:8.475,e:8.855},{w:"lived",s:9.135,e:9.435},{w:"in",s:9.595,e:9.696},{w:"Mexico.",s:9.796,e:10.416}] },
+        { start: 11.716, end: 12.800, words: [{w:"The",s:11.716,e:11.837},{w:"Emperor.",s:12.057,e:12.577}] },
+        { start: 13.617, end: 17.400, words: [{w:"Their",s:13.617,e:13.917},{w:"emperor",s:14.098,e:14.558},{w:"was",s:14.638,e:14.778},{w:"known",s:14.878,e:15.238},{w:"as",s:15.438,e:15.538},{w:"the",s:15.578,e:15.698},{w:"Hueyi",s:15.858,e:16.379},{w:"Tlatoani.",s:16.399,e:17.179}] },
+        { start: 17.959, end: 28.000, words: [{w:"He",s:17.959,e:18.059},{w:"lived",s:18.139,e:18.420},{w:"in",s:18.540,e:18.600},{w:"a",s:18.640,e:18.680},{w:"grand",s:18.820,e:19.280},{w:"palace",s:19.420,e:19.880},{w:"in",s:20.240,e:20.320},{w:"Tenochtitlan,",s:20.441,e:21.521},{w:"the",s:21.961,e:22.061},{w:"capital",s:22.121,e:22.642},{w:"city",s:22.762,e:23.102},{w:"of",s:23.162,e:23.222},{w:"the",s:23.282,e:23.362},{w:"empire,",s:23.502,e:24.002},{w:"and",s:24.723,e:24.823},{w:"he",s:24.883,e:24.983},{w:"led",s:25.063,e:25.323},{w:"both",s:25.463,e:25.703},{w:"the",s:25.803,e:25.883},{w:"government",s:25.983,e:26.503},{w:"and",s:26.904,e:27.044},{w:"the",s:27.144,e:27.244},{w:"army.",s:27.404,e:27.684}] },
+        { start: 29.231, end: 30.100, words: [{w:"The",s:29.231,e:29.351},{w:"People.",s:29.431,e:29.851}] },
+        { start: 30.932, end: 33.150, words: [{w:"Most",s:30.932,e:31.252},{w:"Aztecs",s:31.452,e:32.013},{w:"were",s:32.133,e:32.273},{w:"farmers.",s:32.373,e:32.933}] },
+        { start: 33.534, end: 44.100, words: [{w:"They",s:33.534,e:33.674},{w:"worked",s:33.754,e:34.094},{w:"in",s:34.154,e:34.234},{w:"the",s:34.254,e:34.334},{w:"fields",s:34.434,e:34.955},{w:"to",s:35.075,e:35.195},{w:"grow",s:35.255,e:35.515},{w:"crops",s:35.635,e:36.055},{w:"like",s:36.176,e:36.416},{w:"avocados,",s:36.736,e:37.596},{w:"beans,",s:38.077,e:38.657},{w:"sweet",s:39.097,e:39.418},{w:"potatoes,",s:39.498,e:40.218},{w:"tomatoes,",s:40.658,e:41.399},{w:"amaranth,",s:41.979,e:42.580},{w:"and",s:42.880,e:43.020},{w:"chillies.",s:43.240,e:43.720}] },
+        { start: 45.482, end: 47.400, words: [{w:"Houses",s:45.482,e:46.042},{w:"and",s:46.302,e:46.442},{w:"Temples.",s:46.602,e:47.163}] },
+        { start: 48.023, end: 51.600, words: [{w:"The",s:48.023,e:48.123},{w:"majority",s:48.163,e:48.804},{w:"of",s:48.844,e:48.904},{w:"Aztecs",s:49.124,e:49.664},{w:"lived",s:49.764,e:50.044},{w:"in",s:50.185,e:50.285},{w:"wooden",s:50.385,e:50.765},{w:"houses.",s:50.845,e:51.365}] },
+        { start: 52.066, end: 58.700, words: [{w:"They",s:52.066,e:52.186},{w:"also",s:52.326,e:52.646},{w:"built",s:52.746,e:52.986},{w:"very",s:53.106,e:53.427},{w:"beautiful",s:53.547,e:54.067},{w:"temples",s:54.187,e:54.708},{w:"that",s:55.068,e:55.228},{w:"looked",s:55.288,e:55.548},{w:"similar",s:55.688,e:56.128},{w:"to",s:56.228,e:56.329},{w:"the",s:56.369,e:56.469},{w:"great",s:56.549,e:56.849},{w:"pyramids",s:57.029,e:57.669},{w:"of",s:57.749,e:57.810},{w:"Egypt.",s:58.010,e:58.410}] },
+        { start: 59.879, end: 60.850, words: [{w:"Transport.",s:59.879,e:60.621}] },
+        { start: 61.383, end: 71.500, words: [{w:"The",s:61.383,e:61.503},{w:"Aztecs",s:61.664,e:62.225},{w:"usually",s:62.465,e:62.907},{w:"travelled",s:63.007,e:63.468},{w:"by",s:63.568,e:63.749},{w:"walking",s:63.849,e:64.330},{w:"on",s:64.551,e:64.651},{w:"foot,",s:64.751,e:65.052},{w:"and",s:65.553,e:65.653},{w:"there",s:65.673,e:65.834},{w:"were",s:65.874,e:66.014},{w:"special",s:66.054,e:66.495},{w:"rest",s:66.616,e:66.977},{w:"stops",s:67.057,e:67.478},{w:"along",s:67.598,e:67.919},{w:"the",s:67.959,e:68.059},{w:"way",s:68.119,e:68.400},{w:"for",s:68.520,e:68.681},{w:"travellers",s:68.781,e:69.322},{w:"to",s:69.623,e:69.763},{w:"rest",s:69.844,e:70.225},{w:"and",s:70.425,e:70.545},{w:"eat.",s:70.706,e:70.886}] }
+    ];
+
+    // 4. แบบทดสอบปรนัย 5 ข้อ (อิงโครงสร้าง The Incas แต่เป็นเนื้อหา The Aztecs)
+    const quizData = [
+        {
+            q: "1. Where did the Aztec emperor live?",
+            options: [
+                "In a grand palace in Tenochtitlan.",
+                "In a stone palace in Cuzco.",
+                "In a small wooden house.",
+                "Inside the great pyramid."
+            ],
+            answer: "In a grand palace in Tenochtitlan."
+        },
+        {
+            q: "2. Where did the majority of Aztecs live?",
+            options: [
+                "In wooden houses.",
+                "In stone houses without doors.",
+                "In palaces with the army.",
+                "In tents along the roads."
+            ],
+            answer: "In wooden houses."
+        },
+        {
+            q: "3. Where did the people work?",
+            options: [
+                "In the fields growing avocados, beans, sweet potatoes, tomatoes, amaranth, and chillies.",
+                "In the fields growing corn, potatoes, and raising ducks and dogs.",
+                "In the palace leading the government and the army.",
+                "At special rest stops cooking food for travellers."
+            ],
+            answer: "In the fields growing avocados, beans, sweet potatoes, tomatoes, amaranth, and chillies."
+        },
+        {
+            q: "4. What were their temples like?",
+            options: [
+                "They were very beautiful and looked similar to the great pyramids of Egypt.",
+                "They were made of wood and looked like small houses.",
+                "They were simple stone buildings with no roofs.",
+                "They were underground caves in Mexico."
+            ],
+            answer: "They were very beautiful and looked similar to the great pyramids of Egypt."
+        },
+        {
+            q: "5. How did the Aztecs usually travel?",
+            options: [
+                "They walked on foot and used special rest stops along the way.",
+                "They used animals to transport food across the empire.",
+                "They sailed on large wooden ships across the ocean.",
+                "They rode horses between villages."
+            ],
+            answer: "They walked on foot and used special rest stops along the way."
+        }
+    ];
+
+    const audio = document.getElementById("story-audio");
+    const sceneImg = document.getElementById("sceneImage");
+    const sceneBadge = document.getElementById("sceneBadge");
+    const subOverlay = document.getElementById("videoSubOverlay");
+    const subBox = document.getElementById("videoSubBox");
+    const popover = document.getElementById("vocab-popover");
+
+    let ccEnabled = true;
+    let currentSceneIdx = 0;
+    let currentSegIdx = -1;
+    let currentWordIdx = -1;
+    let userAnswers = {};
+    let currentQuizOrder = [];
+    let isQuizGraded = false;
+    let latestScore = 0;
+    let isPendingSubmit = false;
+    let audioCtx = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // โหลดรูปล่วงหน้าเพื่อไม่ให้กระตุกตอนเปลี่ยนฉาก
+        scenes.forEach(s => { const img = new Image(); img.src = s.img; });
+        renderVocabChips();
+        renderQuiz();
+        loadStudentProfile();
+    });
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSFX(type) {
+        initAudio();
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'tap') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(520, now);
+                gain.gain.setValueAtTime(0.06, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                osc.start(now); osc.stop(now + 0.06);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc.start(now); osc.stop(now + 0.45);
+            }
+        } catch (e) {}
+    }
+
+    // สร้างปุ่มคำศัพท์ 14 คำ
+    function renderVocabChips() {
+        const wrap = document.getElementById("vocabChips");
+        wrap.innerHTML = "";
+        Object.keys(dictionary).forEach(key => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "vocab-chip";
+            btn.innerText = dictionary[key].label;
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                playSFX('tap');
+                showPopover(e, key);
+            };
+            wrap.appendChild(btn);
+        });
+    }
+
+    // ซิงก์เปลี่ยนรูปฉาก + ซับไตเติลไฮไลท์คำต่อคำ (60 FPS)
+    function syncStory() {
+        const time = audio.currentTime + SYNC_OFFSET;
+
+        // 1) อัปเดตรูปฉากตามเวลา
+        let sIdx = 0;
+        for (let i = scenes.length - 1; i >= 0; i--) {
+            if (time >= scenes[i].start) { sIdx = i; break; }
+        }
+        if (sIdx !== currentSceneIdx) {
+            currentSceneIdx = sIdx;
+            sceneImg.src = scenes[sIdx].img;
+            sceneBadge.innerText = scenes[sIdx].label;
+        }
+
+        // 2) อัปเดตซับไตเติลไฮไลท์ทีละคำ
+        if (ccEnabled) {
+            const segIdx = subtitleSegments.findIndex(seg => time >= seg.start && time <= seg.end);
+            if (segIdx !== currentSegIdx) {
+                currentSegIdx = segIdx;
+                currentWordIdx = -1;
+                subBox.innerHTML = "";
+
+                if (segIdx !== -1) {
+                    subtitleSegments[segIdx].words.forEach((item, wIdx) => {
+                        const span = document.createElement("span");
+                        span.className = "sub-word";
+                        span.id = `sw-${wIdx}`;
+                        span.innerText = item.w;
+
+                        const clean = item.w.replace(/[^a-zA-Z]/g, "").toLowerCase();
+                        if (dictionary[clean]) {
+                            span.classList.add("is-vocab");
+                            span.onclick = (e) => {
+                                e.stopPropagation();
+                                audio.pause();
+                                playSFX('tap');
+                                showPopover(e, clean);
+                            };
+                        }
+                        subBox.appendChild(span);
+                    });
+                }
+            }
+
+            if (segIdx !== -1) {
+                const words = subtitleSegments[segIdx].words;
+                const wIdx = words.findIndex((item, i) => {
+                    const next = words[i + 1];
+                    const endT = next ? next.s : item.e + 0.4;
+                    return time >= item.s && time < endT;
+                });
+
+                if (wIdx !== currentWordIdx) {
+                    if (currentWordIdx !== -1) {
+                        const oldW = document.getElementById(`sw-${currentWordIdx}`);
+                        if (oldW) oldW.classList.remove("active");
+                    }
+                    if (wIdx !== -1) {
+                        const newW = document.getElementById(`sw-${wIdx}`);
+                        if (newW) newW.classList.add("active");
+                    }
+                    currentWordIdx = wIdx;
+                }
+            }
+        }
+
+        if (!audio.paused && !audio.ended) {
+            requestAnimationFrame(syncStory);
+        }
+    }
+
+    audio.addEventListener("play", () => {
+        document.getElementById("fsPlayBtn").innerText = "⏸ Pause";
+        requestAnimationFrame(syncStory);
+    });
+    audio.addEventListener("pause", () => {
+        document.getElementById("fsPlayBtn").innerText = "▶ Play";
+    });
+    audio.addEventListener("seeked", () => syncStory());
+    audio.addEventListener("ended", () => {
+        currentSegIdx = -1; currentWordIdx = -1; subBox.innerHTML = "";
+        document.getElementById("fsPlayBtn").innerText = "🔄 Replay";
+    });
+
+    function togglePlayFromFS() {
+        if (audio.paused) audio.play();
+        else audio.pause();
+    }
+
+    function toggleFullscreen() {
+        const wrapper = document.getElementById("stageWrapper");
+        const isNativeFS = document.fullscreenElement || document.webkitFullscreenElement;
+        const isPseudoFS = wrapper.classList.contains("pseudo-fullscreen");
+
+        if (!isNativeFS && !isPseudoFS) {
+            if (wrapper.requestFullscreen) {
+                wrapper.requestFullscreen().catch(() => wrapper.classList.add("pseudo-fullscreen"));
+            } else if (wrapper.webkitRequestFullscreen) {
+                wrapper.webkitRequestFullscreen();
+            } else {
+                wrapper.classList.add("pseudo-fullscreen");
+            }
+        } else {
+            if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+            else if (document.webkitExitFullscreen && document.webkitFullscreenElement) document.webkitExitFullscreen();
+            wrapper.classList.remove("pseudo-fullscreen");
+        }
+    }
+
+    // รองรับปุ่ม Esc สำหรับโหมด Pseudo Fullscreen
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            document.getElementById("stageWrapper").classList.remove("pseudo-fullscreen");
+        }
+    });
+
+    function toggleCC() {
+        ccEnabled = !ccEnabled;
+        const btn = document.getElementById("btnToggleCC");
+        if (ccEnabled) {
+            btn.innerText = "CC Subtitle: ON";
+            btn.classList.remove("off");
+            subOverlay.classList.remove("hidden");
+            syncStory();
+        } else {
+            btn.innerText = "CC Subtitle: OFF";
+            btn.classList.add("off");
+            subOverlay.classList.add("hidden");
+            subBox.innerHTML = "";
+        }
+    }
+
+    function showPopover(event, wordKey) {
+        const data = dictionary[wordKey];
+        document.getElementById("pop-eng").innerText = data.label;
+        document.getElementById("pop-pos").innerText = data.pos;
+        document.getElementById("pop-phonetic").innerText = data.phonetic;
+        document.getElementById("pop-thai").innerText = data.thai;
+
+        popover.style.display = "block";
+        const popW = popover.offsetWidth;
+        const popH = popover.offsetHeight;
+        let leftPos = event.clientX - (popW / 2);
+        let topPos = event.clientY + 18;
+
+        if (leftPos < 10) leftPos = 10;
+        if (leftPos + popW > window.innerWidth - 10) leftPos = window.innerWidth - popW - 10;
+        if (topPos + popH > window.innerHeight - 10) topPos = event.clientY - popH - 18;
+
+        popover.style.left = leftPos + "px";
+        popover.style.top = topPos + "px";
+    }
+
+    document.addEventListener("click", () => { popover.style.display = "none"; });
+
+    // ================= ระบบแบบทดสอบปรนัย 5 ข้อ =================
+    function renderQuiz() {
+        const container = document.getElementById("quizContainer");
+        container.innerHTML = "";
+        userAnswers = {};
+        isQuizGraded = false;
+
+        const btn = document.getElementById("btnCheckQuiz");
+        btn.innerText = "✅ Check Answers & Submit Score";
+        btn.style.background = "";
+        btn.onclick = checkAndSubmitQuiz;
+
+        currentQuizOrder = quizData.map(item => ({
+            q: item.q,
+            answer: item.answer,
+            options: [...item.options].sort(() => Math.random() - 0.5)
+        }));
+
+        const letters = ["A", "B", "C", "D"];
+        currentQuizOrder.forEach((item, qIdx) => {
+            const qCard = document.createElement("div");
+            qCard.className = "question-card";
+            qCard.innerHTML = `<p class="question-text">${item.q}</p>`;
+
+            const grid = document.createElement("div");
+            grid.className = "options-grid";
+
+            item.options.forEach((optText, oIdx) => {
+                const optBtn = document.createElement("button");
+                optBtn.type = "button";
+                optBtn.className = "option-btn";
+                optBtn.id = `q-${qIdx}-opt-${oIdx}`;
+                optBtn.innerHTML = `<span class="opt-letter">${letters[oIdx]}</span><span>${optText}</span>`;
+                optBtn.onclick = () => selectOption(qIdx, oIdx, optText);
+                grid.appendChild(optBtn);
+            });
+
+            qCard.appendChild(grid);
+            container.appendChild(qCard);
+        });
+    }
+
+    function selectOption(qIdx, oIdx, optText) {
+        if (isQuizGraded) return;
+        playSFX('tap');
+        userAnswers[qIdx] = { oIdx, text: optText };
+        for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById(`q-${qIdx}-opt-${i}`);
+            if (btn) btn.classList.toggle("selected", i === oIdx);
+        }
+    }
+
+    function checkAndSubmitQuiz() {
+        if (Object.keys(userAnswers).length < currentQuizOrder.length) {
+            Swal.fire({ icon: 'warning', title: 'Incomplete Quiz', text: 'Please answer all 5 questions!', confirmButtonColor: '#0f766e' });
+            return;
+        }
+
+        isQuizGraded = true;
+        const btn = document.getElementById("btnCheckQuiz");
+        btn.innerText = "🔄 Try Quiz Again";
+        btn.style.background = "#16a34a";
+        btn.onclick = resetQuiz;
+
+        let score = 0;
+        currentQuizOrder.forEach((item, qIdx) => {
+            const chosen = userAnswers[qIdx];
+            item.options.forEach((optText, oIdx) => {
+                const optBtn = document.getElementById(`q-${qIdx}-opt-${oIdx}`);
+                optBtn.disabled = true;
+                optBtn.classList.remove("selected");
+                if (optText === item.answer) optBtn.classList.add("correct");
+                if (oIdx === chosen.oIdx && optText !== item.answer) optBtn.classList.add("wrong");
+            });
+            if (chosen.text === item.answer) score++;
+        });
+
+        latestScore = score;
+        playSFX('success');
+
+        if (!localStorage.getItem('studentId')) {
+            isPendingSubmit = true;
+            document.getElementById('modalSub').innerText = `You scored ${latestScore}/5! Enter your details to save your score.`;
+            document.getElementById('loginModal').classList.add('active');
+        } else {
+            submitScoreToSheet();
+        }
+    }
+
+    // ================= บัญชีนักเรียน & ส่งคะแนน Google Sheets =================
+    function loadStudentProfile() {
+        if (localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId');
+        }
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function () {
+        const nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `ม.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `ม.1/${nums[0]}`;
+    });
+
+    function switchAccount() {
+        Swal.fire({
+            title: 'Switch Account?', text: 'Clear current student info?', icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#0f766e', cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, switch', cancelButtonText: 'Cancel'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                localStorage.clear();
+                document.getElementById('userProfile').style.display = 'none';
+                isPendingSubmit = false;
+                document.getElementById('in_name').value = '';
+                document.getElementById('in_room').value = '';
+                document.getElementById('in_id').value = '';
+                document.getElementById('modalSub').innerText = 'Enter student details to begin.';
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    function confirmUser() {
+        const n = document.getElementById('in_name').value.trim();
+        const r = document.getElementById('in_room').value.trim();
+        const id = document.getElementById('in_id').value.trim();
+        if (!n || !r || id.length !== 5) {
+            Swal.fire('Incomplete Info', 'Please enter name, room, and 5-digit student ID.', 'warning');
+            return;
+        }
+        localStorage.setItem('studentName', n);
+        localStorage.setItem('studentRoom', r);
+        localStorage.setItem('studentId', id);
+        document.getElementById('loginModal').classList.remove('active');
+        loadStudentProfile();
+        if (isPendingSubmit) { isPendingSubmit = false; submitScoreToSheet(); }
+    }
+
+    function submitScoreToSheet() {
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScoreText').innerText = latestScore;
+        const stat = document.getElementById('saveStatus');
+
+        if (typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ Config file (quiz-config.js) not found.";
+            return;
+        }
+
+        stat.innerText = "⏳ Saving your score...";
+        fetch(QUIZ_CONFIG.SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({
+                name: localStorage.getItem('studentName'),
+                room: localStorage.getItem('studentRoom'),
+                studentId: "'" + localStorage.getItem('studentId'),
+                lesson: TOPIC_NAME,
+                score: latestScore,
+                maxScore: 5
+            })
+        }).catch(e => console.error(e));
+
+        setTimeout(() => { stat.innerText = "✅ Score saved successfully!"; }, 1200);
+    }
+
+    function closeScoreModal() { document.getElementById('scoreModal').classList.remove('active'); }
+    function resetQuiz() {
+        document.getElementById('scoreModal').classList.remove('active');
+        renderQuiz();
+        document.getElementById('quizSection').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
