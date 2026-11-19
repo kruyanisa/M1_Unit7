@@ -455,6 +455,8 @@
         }
 
         .btn-retry { background: #16a34a; box-shadow: 0 4px 0 #15803d; }
+        .video-wrapper:fullscreen { border-radius: 0; }
+        .video-wrapper:fullscreen .video-sub-box { font-size: clamp(18px, 3.2vw, 28px); }
     </style>
 </head>
 <body>
@@ -474,20 +476,22 @@
 
     <!-- Video + Key Vocabulary Card -->
     <div class="card">
-        <div class="video-wrapper">
-            <video id="story-video" controls playsinline preload="metadata">
-                <source src="The_Incas.mp4" type="video/mp4">
-                Your browser does not support HTML5 video.
-            </video>
-            <div id="videoSubOverlay" class="video-sub-overlay">
-                <div id="videoSubBox" class="video-sub-box"></div>
-            </div>
-        </div>
+        <div class="video-wrapper" id="videoWrapper">
+    <video id="story-video" controls playsinline preload="metadata" controlsList="nofullscreen">
+        <source src="The_Incas.mp4" type="video/mp4">
+    </video>
+    <div id="videoSubOverlay" class="video-sub-overlay">
+        <div id="videoSubBox" class="video-sub-box"></div>
+    </div>
+</div>
 
-        <div class="video-toolbar">
-            <button id="btnToggleCC" class="btn-cc" onclick="toggleCC()">CC Subtitle: ON</button>
-            <span style="font-size:13px; color:#78350f; font-weight:600;">💡 Tap red words for Thai meanings</span>
-        </div>
+<div class="video-toolbar">
+    <div style="display:flex; gap:8px;">
+        <button id="btnToggleCC" class="btn-cc" onclick="toggleCC()">CC Subtitle: ON</button>
+        <button class="btn-cc" style="background:#b45309;" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+    <span style="font-size:13px; color:#78350f; font-weight:600;">💡 Tap red words for Thai meanings</span>
+</div>
 
         <!-- Compact Key Vocabulary Bar -->
         <div class="vocab-section">
@@ -716,6 +720,16 @@
     video.addEventListener("seeked", () => syncVideoSubtitle());
     video.addEventListener("ended", () => { currentSegIdx = -1; currentWordIdx = -1; subBox.innerHTML = ""; });
 
+    function toggleFullscreen() {
+    const wrapper = document.getElementById("videoWrapper");
+    if (!document.fullscreenElement) {
+        if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+        else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+    }
     function toggleCC() {
         ccEnabled = !ccEnabled;
         const btn = document.getElementById("btnToggleCC");
@@ -758,7 +772,10 @@
         container.innerHTML = "";
         userAnswers = {};
         isQuizGraded = false;
-        document.getElementById("btnCheckQuiz").disabled = false;
+        const btn = document.getElementById("btnCheckQuiz");
+        btn.innerText = "✅ Check Answers & Submit Score";
+        btn.style.background = "";        // กลับเป็นสีทองเดิม
+        btn.onclick = checkAndSubmitQuiz; // กลับไปเป็นปุ่มตรวจคำตอบ
 
         currentQuizOrder = quizData.map(item => ({
             q: item.q,
@@ -807,7 +824,10 @@
         }
 
         isQuizGraded = true;
-        document.getElementById("btnCheckQuiz").disabled = true;
+        const btn = document.getElementById("btnCheckQuiz");
+        btn.innerText = "🔄 Try Quiz Again";
+        btn.style.background = "#16a34a"; // เปลี่ยนเป็นสีเขียว
+        btn.onclick = resetQuiz;          // กดแล้วเริ่มทำใหม่เลย
         let score = 0;
 
         currentQuizOrder.forEach((item, qIdx) => {
