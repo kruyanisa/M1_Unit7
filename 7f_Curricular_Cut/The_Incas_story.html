@@ -755,15 +755,19 @@
         document.getElementById("pop-phonetic").innerText = data.phonetic;
         document.getElementById("pop-thai").innerText = data.thai;
 
-        popover.style.display = "block";
-        const popW = popover.offsetWidth;
-        const screenW = window.innerWidth;
-        let leftPos = event.pageX - (popW / 2);
-        if (leftPos < 10) leftPos = 10;
-        if (leftPos + popW > screenW - 10) leftPos = screenW - popW - 10;
+        popover.style.position = "fixed";
+    popover.style.display = "block";
+    const popW = popover.offsetWidth;
+    const popH = popover.offsetHeight;
+    let leftPos = event.clientX - (popW / 2);
+    let topPos = event.clientY + 18;
 
-        popover.style.left = leftPos + "px";
-        popover.style.top = (event.pageY + 20) + "px";
+    if (leftPos < 10) leftPos = 10;
+    if (leftPos + popW > window.innerWidth - 10) leftPos = window.innerWidth - popW - 10;
+    if (topPos + popH > window.innerHeight - 10) topPos = event.clientY - popH - 18;
+
+    popover.style.left = leftPos + "px";
+    popover.style.top = topPos + "px";
     }
 
     document.addEventListener("click", () => { popover.style.display = "none"; });
