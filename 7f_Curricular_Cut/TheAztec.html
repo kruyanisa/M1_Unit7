@@ -974,8 +974,6 @@
     const container = document.fullscreenElement || document.webkitFullscreenElement || document.body;
     if (popover.parentNode !== container) container.appendChild(popover);
 
-    const data = dictionary[wordKey];
-    // ... โค้ดเดิมด้านล่างปล่อยไว้เหมือนเดิมครับ
         const data = dictionary[wordKey];
         document.getElementById("pop-eng").innerText = data.label;
         document.getElementById("pop-pos").innerText = data.pos;
