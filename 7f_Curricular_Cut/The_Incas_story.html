@@ -15,10 +15,6 @@
             --inca-brown: #4a2c18;
             --inca-gold: #d97706;
             --inca-gold-dark: #b45309;
-            --inca-accent: #f59e0b;
-            --highlight-bg: #a7f3d0;
-            --highlight-text: #064e3b;
-            --vocab-red: #b91c1c;
             --success: #16a34a;
             --danger: #dc2626;
         }
@@ -88,16 +84,14 @@
             padding: 4px 14px;
             border-radius: 20px;
             margin-bottom: 6px;
-            letter-spacing: 0.5px;
         }
 
         h1 {
             font-family: 'Fredoka One', cursive;
             color: var(--inca-brown);
-            font-size: clamp(28px, 6vw, 40px);
+            font-size: clamp(26px, 6vw, 38px);
             margin: 0;
             line-height: 1.15;
-            text-shadow: 0 2px 0 rgba(255,255,255,0.7);
         }
 
         .subtitle-hint {
@@ -116,7 +110,7 @@
             border-radius: 20px;
             padding: 18px;
             box-shadow: 0 10px 25px rgba(74, 44, 24, 0.12);
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         /* Video Section */
@@ -137,35 +131,60 @@
             display: block;
         }
 
-        /* Subtitle Overlay on Video */
+        /* Word-by-Word Subtitle Overlay on Video */
         .video-sub-overlay {
             position: absolute;
             left: 50%;
-            bottom: 48px;
+            bottom: 46px;
             transform: translateX(-50%);
-            width: 92%;
+            width: 94%;
             text-align: center;
             pointer-events: none;
             z-index: 10;
-            transition: opacity 0.15s;
         }
 
-        .video-sub-text {
+        .video-sub-box {
             display: inline-block;
-            background: rgba(28, 25, 23, 0.82);
-            color: #fef9c3;
+            background: rgba(20, 15, 10, 0.84);
+            color: #f5f5f4;
             font-family: 'Prompt', sans-serif;
-            font-size: clamp(13px, 3vw, 18px);
+            font-size: clamp(13px, 3vw, 19px);
             font-weight: 500;
             padding: 6px 14px;
-            border-radius: 8px;
-            line-height: 1.4;
+            border-radius: 10px;
+            line-height: 1.45;
             text-shadow: 0 1px 2px #000;
         }
 
         .video-sub-overlay.hidden,
-        .video-sub-text:empty {
+        .video-sub-box:empty {
             display: none;
+        }
+
+        .sub-word {
+            display: inline-block;
+            padding: 0 3px;
+            margin: 0 1px;
+            border-radius: 5px;
+            transition: background-color 0.08s, color 0.08s;
+        }
+
+        .sub-word.active {
+            background-color: #fde047;
+            color: #451a03;
+            font-weight: 700;
+            text-shadow: none;
+        }
+
+        .sub-word.is-vocab {
+            pointer-events: auto;
+            cursor: pointer;
+            border-bottom: 2px dashed #f87171;
+            color: #fca5a5;
+        }
+
+        .sub-word.is-vocab.active {
+            color: #991b1b;
         }
 
         .video-toolbar {
@@ -187,7 +206,6 @@
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.15s;
         }
 
         .btn-cc.off {
@@ -195,103 +213,43 @@
             color: #fff;
         }
 
-        .tip-pill {
-            font-size: 13px;
-            color: #78350f;
-            background: #fef3c7;
-            padding: 5px 12px;
-            border-radius: 10px;
-            font-weight: 600;
+        /* Compact Key Vocabulary Bar */
+        .vocab-section {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 2px dashed #e7d3b3;
         }
 
-        /* Interactive Reader */
-        .reader-header {
+        .vocab-label {
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--inca-gold-dark);
+            margin-bottom: 8px;
+        }
+
+        .vocab-chips {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px dashed #d6bc96;
-            padding-bottom: 10px;
-            margin-bottom: 14px;
             flex-wrap: wrap;
             gap: 8px;
         }
 
-        .reader-title {
+        .vocab-chip {
+            background: #fff;
+            border: 2px dashed #ef4444;
+            color: #b91c1c;
             font-family: 'Prompt', sans-serif;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
-            color: var(--inca-gold-dark);
-            margin: 0;
-        }
-
-        .vocab-legend {
-            font-size: 13px;
-            color: var(--vocab-red);
-            font-weight: 700;
-            border-bottom: 2px dashed #ef4444;
-        }
-
-        .reader-container {
-            font-size: clamp(17px, 4.2vw, 21px);
-            line-height: 2;
-            color: #3e2723;
-        }
-
-        .story-block {
-            margin-bottom: 14px;
-        }
-
-        .story-block:last-child {
-            margin-bottom: 0;
-        }
-
-        .story-heading {
-            font-family: 'Prompt', sans-serif;
-            font-weight: 700;
-            color: var(--inca-gold-dark);
-            font-size: clamp(18px, 4.5vw, 22px);
-            margin-bottom: 2px;
-        }
-
-        .story-main-title {
-            text-align: center;
-            font-family: 'Prompt', sans-serif;
-            font-weight: 700;
-            font-size: clamp(20px, 5vw, 26px);
-            color: var(--inca-brown);
-            background: #fef3c7;
-            padding: 8px 12px;
+            padding: 5px 12px;
             border-radius: 12px;
-            border: 2px solid #fcd34d;
-            margin-bottom: 16px;
-        }
-
-        .word {
-            display: inline-block;
-            padding: 1px 4px;
-            margin-right: 2px;
-            border-radius: 6px;
-            transition: background-color 0.1s, color 0.1s;
             cursor: pointer;
+            transition: 0.15s;
         }
 
-        .word:hover {
-            background-color: #fde68a;
-        }
-
-        .highlight {
-            background-color: var(--highlight-bg) !important;
-            color: var(--highlight-text) !important;
-        }
-
-        .vocab-word {
-            border-bottom: 2px dashed #ef4444;
-            color: var(--vocab-red);
-            font-weight: 800;
-        }
-
-        .vocab-word:hover {
-            background-color: #fecaca;
+        .vocab-chip:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
         }
 
         /* Vocab Popover */
@@ -300,7 +258,7 @@
             position: absolute;
             background: #ffffff;
             border: 2px solid var(--inca-brown);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
             padding: 12px 16px;
             border-radius: 12px;
             text-align: center;
@@ -309,37 +267,10 @@
             max-width: 240px;
         }
 
-        .pop-eng {
-            font-family: 'Prompt', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--inca-brown);
-            text-transform: capitalize;
-        }
-
-        .pop-pos {
-            font-size: 12px;
-            color: #92400e;
-            font-weight: 700;
-            background: #fef3c7;
-            display: inline-block;
-            padding: 1px 8px;
-            border-radius: 8px;
-            margin: 3px 0;
-        }
-
-        .pop-phonetic {
-            color: #78716c;
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-
-        .pop-thai {
-            color: #0369a1;
-            font-weight: 800;
-            font-size: 17px;
-            font-family: 'Sarabun', sans-serif;
-        }
+        .pop-eng { font-family: 'Prompt', sans-serif; font-size: 18px; font-weight: 700; color: var(--inca-brown); text-transform: capitalize; }
+        .pop-pos { font-size: 12px; color: #92400e; font-weight: 700; background: #fef3c7; display: inline-block; padding: 1px 8px; border-radius: 8px; margin: 3px 0; }
+        .pop-phonetic { color: #78716c; font-size: 13px; margin-bottom: 6px; }
+        .pop-thai { color: #0369a1; font-weight: 800; font-size: 17px; }
 
         /* Quiz Section */
         .quiz-header {
@@ -348,12 +279,12 @@
             align-items: center;
             border-bottom: 2px dashed #d6bc96;
             padding-bottom: 10px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .quiz-title {
             font-family: 'Prompt', sans-serif;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 700;
             color: var(--inca-brown);
             margin: 0;
@@ -373,8 +304,8 @@
             background: #ffffff;
             border: 2px solid #e7d3b3;
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
         }
 
         .question-text {
@@ -382,8 +313,7 @@
             font-size: clamp(15px, 4vw, 17px);
             font-weight: 700;
             color: var(--inca-brown);
-            margin: 0 0 12px 0;
-            line-height: 1.45;
+            margin: 0 0 10px 0;
         }
 
         .options-grid {
@@ -393,9 +323,7 @@
         }
 
         @media (min-width: 600px) {
-            .options-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+            .options-grid { grid-template-columns: 1fr 1fr; }
         }
 
         .option-btn {
@@ -403,45 +331,22 @@
             background: #fafaf9;
             border: 2px solid #d6d3d1;
             border-radius: 12px;
-            padding: 11px 14px;
+            padding: 10px 12px;
             font-family: 'Sarabun', sans-serif;
             font-size: 15px;
             font-weight: 600;
             color: #292524;
             cursor: pointer;
-            transition: all 0.15s;
+            transition: 0.15s;
             display: flex;
             align-items: flex-start;
             gap: 8px;
-            line-height: 1.35;
         }
 
-        .option-btn:hover:not(:disabled) {
-            border-color: var(--inca-gold);
-            background: #fffbeb;
-        }
-
-        .option-btn.selected {
-            border-color: var(--inca-gold);
-            background: #fef3c7;
-            color: var(--inca-brown);
-            font-weight: 800;
-            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25);
-        }
-
-        .option-btn.correct {
-            border-color: var(--success);
-            background: #dcfce7;
-            color: #14532d;
-            font-weight: 800;
-        }
-
-        .option-btn.wrong {
-            border-color: var(--danger);
-            background: #fee2e2;
-            color: #7f1d1d;
-            font-weight: 800;
-        }
+        .option-btn:hover:not(:disabled) { border-color: var(--inca-gold); background: #fffbeb; }
+        .option-btn.selected { border-color: var(--inca-gold); background: #fef3c7; color: var(--inca-brown); font-weight: 800; }
+        .option-btn.correct { border-color: var(--success); background: #dcfce7; color: #14532d; font-weight: 800; }
+        .option-btn.wrong { border-color: var(--danger); background: #fee2e2; color: #7f1d1d; font-weight: 800; }
 
         .opt-letter {
             display: inline-flex;
@@ -458,53 +363,31 @@
             flex-shrink: 0;
         }
 
-        .option-btn.selected .opt-letter {
-            background: var(--inca-gold);
-            color: #fff;
-        }
+        .option-btn.selected .opt-letter { background: var(--inca-gold); color: #fff; }
+        .option-btn.correct .opt-letter { background: var(--success); color: #fff; }
+        .option-btn.wrong .opt-letter { background: var(--danger); color: #fff; }
 
-        .option-btn.correct .opt-letter {
-            background: var(--success);
-            color: #fff;
-        }
-
-        .option-btn.wrong .opt-letter {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        /* Action Button */
         .btn-submit {
             width: 100%;
             max-width: 380px;
-            margin: 18px auto 0 auto;
+            margin: 16px auto 0 auto;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
             background: var(--inca-gold);
             color: #fff;
             font-family: 'Prompt', sans-serif;
             font-size: 18px;
             font-weight: 700;
-            padding: 14px 20px;
+            padding: 13px 20px;
             border: none;
             border-radius: 14px;
             cursor: pointer;
             box-shadow: 0 5px 0 var(--inca-gold-dark);
-            transition: 0.1s;
         }
 
-        .btn-submit:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 var(--inca-gold-dark);
-        }
-
-        .btn-submit:disabled {
-            background: #a8a29e;
-            box-shadow: 0 5px 0 #78716c;
-            cursor: not-allowed;
-        }
+        .btn-submit:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--inca-gold-dark); }
+        .btn-submit:disabled { background: #a8a29e; box-shadow: 0 5px 0 #78716c; cursor: not-allowed; }
 
         /* Modals */
         .modal-overlay {
@@ -522,28 +405,24 @@
             padding: 15px;
         }
 
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
 
         .modal-box {
             background: #fff;
-            padding: 28px 22px;
-            border-radius: 26px;
+            padding: 26px 22px;
+            border-radius: 24px;
             text-align: center;
             width: 100%;
             max-width: 350px;
             border: 4px solid var(--inca-gold);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
         }
 
         .login-input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 2px solid #d97706;
-            border-radius: 14px;
+            padding: 11px;
+            margin-bottom: 10px;
+            border: 2px solid var(--inca-gold);
+            border-radius: 12px;
             text-align: center;
             font-family: 'Sarabun', sans-serif;
             font-size: 16px;
@@ -553,7 +432,7 @@
 
         .score-num {
             font-family: 'Fredoka One', cursive;
-            font-size: 62px;
+            font-size: 60px;
             color: var(--inca-gold-dark);
             margin: 8px 0;
             display: block;
@@ -562,28 +441,20 @@
 
         .btn-modal {
             width: 100%;
-            padding: 13px;
+            padding: 12px;
             background: var(--inca-gold);
             color: #fff;
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-family: 'Prompt', sans-serif;
             font-weight: 700;
-            font-size: 17px;
+            font-size: 16px;
             cursor: pointer;
             box-shadow: 0 4px 0 var(--inca-gold-dark);
             margin-top: 8px;
         }
 
-        .btn-modal:active {
-            transform: translateY(3px);
-            box-shadow: none;
-        }
-
-        .btn-retry {
-            background: #16a34a;
-            box-shadow: 0 4px 0 #15803d;
-        }
+        .btn-retry { background: #16a34a; box-shadow: 0 4px 0 #15803d; }
     </style>
 </head>
 <body>
@@ -598,10 +469,10 @@
     <div class="header-wrap">
         <div class="badge-unit">Unit 7 • Curricular Cut</div>
         <h1>The Incas (1197AD–1572AD)</h1>
-        <div class="subtitle-hint">Watch the video, follow the highlighted text, tap red words for meanings, and answer 5 questions.</div>
+        <div class="subtitle-hint">Watch the video, tap key vocabulary for meanings, and answer 5 questions.</div>
     </div>
 
-    <!-- Video Player Card -->
+    <!-- Video + Key Vocabulary Card -->
     <div class="card">
         <div class="video-wrapper">
             <video id="story-video" controls playsinline preload="metadata">
@@ -609,22 +480,20 @@
                 Your browser does not support HTML5 video.
             </video>
             <div id="videoSubOverlay" class="video-sub-overlay">
-                <span id="videoSubText" class="video-sub-text"></span>
+                <div id="videoSubBox" class="video-sub-box"></div>
             </div>
         </div>
+
         <div class="video-toolbar">
             <button id="btnToggleCC" class="btn-cc" onclick="toggleCC()">CC Subtitle: ON</button>
-            <span class="tip-pill">💡 Tap any word below to jump to that part!</span>
+            <span style="font-size:13px; color:#78350f; font-weight:600;">💡 Tap red words for Thai meanings</span>
         </div>
-    </div>
 
-    <!-- Interactive Reading Card -->
-    <div class="card">
-        <div class="reader-header">
-            <h2 class="reader-title">📖 Listen and Read</h2>
-            <span class="vocab-legend">Red dashed words = Tap for meaning</span>
+        <!-- Compact Key Vocabulary Bar -->
+        <div class="vocab-section">
+            <div class="vocab-label">📚 Key Vocabulary (Tap to see meaning):</div>
+            <div class="vocab-chips" id="vocabChips"></div>
         </div>
-        <div class="reader-container" id="story-content"></div>
     </div>
 
     <!-- Quiz Card -->
@@ -633,9 +502,7 @@
             <h2 class="quiz-title">📝 Reading Comprehension</h2>
             <span class="quiz-badge">5 Points</span>
         </div>
-
         <div id="quizContainer"></div>
-
         <button id="btnCheckQuiz" class="btn-submit" onclick="checkAndSubmitQuiz()">✅ Check Answers & Submit Score</button>
     </div>
 
@@ -651,7 +518,7 @@
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
             <h2 style="color:var(--inca-brown); margin:0 0 6px 0; font-family:'Prompt';">📝 Student Login</h2>
-            <p id="modalSub" style="color:#78716c; font-weight:600; margin:0 0 14px 0; font-size:14px;"></p>
+            <p id="modalSub" style="color:#78716c; font-weight:600; margin:0 0 12px 0; font-size:14px;"></p>
             <input type="text" id="in_name" class="login-input" placeholder="Full Name (ชื่อ - นามสกุล)">
             <input type="text" id="in_room" class="login-input" placeholder="Class / Room (เช่น 1/1)">
             <input type="text" id="in_id" class="login-input" placeholder="Student ID (รหัสนักเรียน 5 หลัก)" maxlength="5">
@@ -665,7 +532,7 @@
             <h2 style="color:var(--inca-brown); margin:0; font-family:'Prompt';">🎉 Great Job!</h2>
             <p style="color:#78716c; font-weight:600; margin:6px 0 0 0;">Your Score</p>
             <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:30px; color:#d97706;">/5</span></span>
-            <div id="saveStatus" style="font-weight:700; font-size:15px; margin-bottom:14px; color:#15803d; min-height:22px;"></div>
+            <div id="saveStatus" style="font-weight:700; font-size:15px; margin-bottom:12px; color:#15803d; min-height:22px;"></div>
             <button class="btn-modal btn-retry" onclick="closeScoreModal()">👀 Review Answers</button>
             <button class="btn-modal" style="background:#f59e0b; box-shadow:0 4px 0 #b45309;" onclick="resetQuiz()">🔄 Try Quiz Again</button>
         </div>
@@ -674,264 +541,59 @@
 <script>
     const TOPIC_NAME = 'ม.1 Unit 7 Curricular Cut listen and read The Incas';
 
-    // 1. ข้อมูลคำศัพท์ 6 คำ พร้อมคำอ่านและคำแปลตามบริบท
+    // ปรับเวลาซับให้ตรงเสียง (วินาที): เพิ่มเลข = ซับมาเร็วขึ้น, ลดเลข = ซับมาช้าลง
+    const SYNC_OFFSET = 1.5;
+
+    // คำศัพท์ 6 คำ พร้อมคำอ่านและคำแปลตามบริบท
     const dictionary = {
-        "emperor": { pos: "n.", phonetic: "[ˈempərər]", thai: "จักรพรรดิ" },
-        "raised": { pos: "v. (past)", phonetic: "[reɪzd]", thai: "เลี้ยง (สัตว์)" },
-        "stone": { pos: "n. / adj.", phonetic: "[stəʊn]", thai: "หิน, ที่ทำจากหิน" },
-        "temples": { pos: "n. (pl.)", phonetic: "[ˈtempəlz]", thai: "วิหาร, วัด" },
-        "transport": { pos: "n. / v.", phonetic: "[ˈtrænspɔːrt]", thai: "การคมนาคมขนส่ง / ขนส่ง" },
-        "villages": { pos: "n. (pl.)", phonetic: "[ˈvɪlɪdʒɪz]", thai: "หมู่บ้าน" }
+        "emperor": { label: "Emperor", pos: "n.", phonetic: "[ˈempərər]", thai: "จักรพรรดิ" },
+        "raised": { label: "raised", pos: "v. (past)", phonetic: "[reɪzd]", thai: "เลี้ยง (สัตว์)" },
+        "stone": { label: "stone", pos: "n. / adj.", phonetic: "[stəʊn]", thai: "หิน, ที่ทำจากหิน" },
+        "temples": { label: "temples", pos: "n. (pl.)", phonetic: "[ˈtempəlz]", thai: "วิหาร, วัด" },
+        "transport": { label: "Transport", pos: "n. / v.", phonetic: "[ˈtrænspɔːrt]", thai: "การคมนาคมขนส่ง / ขนส่ง" },
+        "villages": { label: "villages", pos: "n. (pl.)", phonetic: "[ˈvɪlɪdʒɪz]", thai: "หมู่บ้าน" }
     };
 
-    // 2. ข้อมูลซับไตเติลรายประโยคสำหรับแสดงซ้อนบนวิดีโอ (ปรับแก้ inkers -> Incas แล้ว)
+    // ซับไตเติลรายประโยค + เวลาคำต่อคำสำหรับไฮไลท์บนวิดีโอ
     const subtitleSegments = [
-        { start: 0.311, end: 1.400, text: "The Incas." },
-        { start: 2.393, end: 6.600, text: "1197 AD to 1572 AD." },
-        { start: 7.417, end: 8.300, text: "Location." },
-        { start: 8.779, end: 11.400, text: "The Incas lived in South America." },
-        { start: 12.242, end: 13.300, text: "The Emperor." },
-        { start: 13.983, end: 21.400, text: "Each emperor, called the Sapa Inca, or the Child of the Sun, lived in a palace in Cuzco." },
-        { start: 21.950, end: 25.100, text: "His advisors lived with him and helped him." },
-        { start: 25.772, end: 26.600, text: "The People." },
-        { start: 27.052, end: 29.400, text: "The people lived in small villages." },
-        { start: 29.854, end: 32.000, text: "The Incas worked very hard." },
-        { start: 32.415, end: 37.900, text: "They worked in the fields to grow corn, potatoes, beans and peppers." },
-        { start: 38.337, end: 41.300, text: "They also raised ducks and dogs." },
-        { start: 42.219, end: 43.900, text: "Houses and Temples." },
-        { start: 44.440, end: 47.300, text: "Most Incas lived in stone houses." },
-        { start: 47.644, end: 49.950, text: "There weren't any doors in their houses." },
-        { start: 50.367, end: 52.800, text: "The people had everything they needed." },
-        { start: 53.150, end: 55.500, text: "Their temples were very beautiful." },
-        { start: 56.153, end: 57.200, text: "Transport." },
-        { start: 57.595, end: 60.350, text: "The Incas had a great system of roads." },
-        { start: 60.678, end: 65.200, text: "They used animals to transport food across the empire." }
+        { start: 0.311, end: 1.400, words: [{w:"The",s:0.311,e:0.431},{w:"Incas.",s:0.591,e:1.072}] },
+        { start: 2.393, end: 6.600, words: [{w:"1197",s:2.393,e:3.054},{w:"AD",s:3.254,e:3.654},{w:"to",s:4.575,e:4.895},{w:"1572",s:4.915,e:5.756},{w:"AD.",s:5.956,e:6.336}] },
+        { start: 7.417, end: 8.300, words: [{w:"Location.",s:7.417,e:8.038}] },
+        { start: 8.779, end: 11.400, words: [{w:"The",s:8.779,e:8.879},{w:"Incas",s:9.019,e:9.419},{w:"lived",s:9.519,e:9.860},{w:"in",s:10.000,e:10.100},{w:"South",s:10.200,e:10.480},{w:"America.",s:10.540,e:11.021}] },
+        { start: 12.242, end: 13.300, words: [{w:"The",s:12.242,e:12.382},{w:"Emperor.",s:12.562,e:13.022}] },
+        { start: 13.983, end: 21.400, words: [{w:"Each",s:13.983,e:14.203},{w:"emperor,",s:14.404,e:14.844},{w:"called",s:15.104,e:15.464},{w:"the",s:15.484,e:15.725},{w:"Sapa",s:15.805,e:16.165},{w:"Inca,",s:16.305,e:16.665},{w:"or",s:16.986,e:17.246},{w:"the",s:17.306,e:17.386},{w:"Child",s:17.466,e:17.987},{w:"of",s:18.087,e:18.147},{w:"the",s:18.207,e:18.287},{w:"Sun,",s:18.367,e:18.687},{w:"lived",s:19.148,e:19.448},{w:"in",s:19.588,e:19.668},{w:"a",s:19.688,e:19.708},{w:"palace",s:19.808,e:20.229},{w:"in",s:20.449,e:20.549},{w:"Cuzco.",s:20.629,e:21.149}] },
+        { start: 21.950, end: 25.100, words: [{w:"His",s:21.950,e:22.090},{w:"advisors",s:22.170,e:22.850},{w:"lived",s:22.991,e:23.251},{w:"with",s:23.331,e:23.491},{w:"him",s:23.531,e:23.691},{w:"and",s:24.111,e:24.211},{w:"helped",s:24.291,e:24.591},{w:"him.",s:24.631,e:24.771}] },
+        { start: 25.772, end: 26.600, words: [{w:"The",s:25.772,e:25.872},{w:"People.",s:25.912,e:26.272}] },
+        { start: 27.052, end: 29.400, words: [{w:"The",s:27.052,e:27.152},{w:"people",s:27.212,e:27.593},{w:"lived",s:27.733,e:27.993},{w:"in",s:28.033,e:28.133},{w:"small",s:28.233,e:28.573},{w:"villages.",s:28.653,e:29.213}] },
+        { start: 29.854, end: 32.000, words: [{w:"The",s:29.854,e:29.974},{w:"Incas",s:30.114,e:30.494},{w:"worked",s:30.614,e:30.934},{w:"very",s:31.054,e:31.334},{w:"hard.",s:31.414,e:31.814}] },
+        { start: 32.415, end: 37.900, words: [{w:"They",s:32.415,e:32.555},{w:"worked",s:32.635,e:32.935},{w:"in",s:33.055,e:33.135},{w:"the",s:33.155,e:33.235},{w:"fields",s:33.315,e:33.815},{w:"to",s:33.995,e:34.115},{w:"grow",s:34.155,e:34.416},{w:"corn,",s:34.516,e:34.956},{w:"potatoes,",s:35.256,e:35.976},{w:"beans",s:36.336,e:36.817},{w:"and",s:37.017,e:37.117},{w:"peppers.",s:37.197,e:37.637}] },
+        { start: 38.337, end: 41.300, words: [{w:"They",s:38.337,e:38.477},{w:"also",s:38.617,e:39.018},{w:"raised",s:39.158,e:39.578},{w:"ducks",s:39.718,e:40.138},{w:"and",s:40.338,e:40.458},{w:"dogs.",s:40.538,e:40.999}] },
+        { start: 42.219, end: 43.900, words: [{w:"Houses",s:42.219,e:42.759},{w:"and",s:42.959,e:43.059},{w:"Temples.",s:43.180,e:43.680}] },
+        { start: 44.440, end: 47.300, words: [{w:"Most",s:44.440,e:44.761},{w:"Incas",s:44.921,e:45.321},{w:"lived",s:45.421,e:45.702},{w:"in",s:45.822,e:45.942},{w:"stone",s:46.042,e:46.462},{w:"houses.",s:46.563,e:47.103}] },
+        { start: 47.644, end: 49.950, words: [{w:"There",s:47.644,e:47.804},{w:"weren't",s:47.824,e:48.104},{w:"any",s:48.224,e:48.385},{w:"doors",s:48.445,e:48.885},{w:"in",s:48.985,e:49.045},{w:"their",s:49.085,e:49.266},{w:"houses.",s:49.306,e:49.726}] },
+        { start: 50.367, end: 52.800, words: [{w:"The",s:50.367,e:50.467},{w:"people",s:50.507,e:50.847},{w:"had",s:50.927,e:51.168},{w:"everything",s:51.368,e:51.868},{w:"they",s:51.929,e:52.109},{w:"needed.",s:52.169,e:52.549}] },
+        { start: 53.150, end: 55.500, words: [{w:"Their",s:53.150,e:53.330},{w:"temples",s:53.410,e:53.931},{w:"were",s:54.051,e:54.211},{w:"very",s:54.311,e:54.591},{w:"beautiful.",s:54.652,e:55.152}] },
+        { start: 56.153, end: 57.200, words: [{w:"Transport.",s:56.153,e:56.874}] },
+        { start: 57.595, end: 60.350, words: [{w:"The",s:57.595,e:57.715},{w:"Incas",s:57.875,e:58.296},{w:"had",s:58.376,e:58.536},{w:"a",s:58.556,e:58.596},{w:"great",s:58.696,e:58.956},{w:"system",s:59.096,e:59.477},{w:"of",s:59.517,e:59.597},{w:"roads.",s:59.697,e:60.138}] },
+        { start: 60.678, end: 65.200, words: [{w:"They",s:60.678,e:60.838},{w:"used",s:60.999,e:61.219},{w:"animals",s:61.419,e:61.840},{w:"to",s:61.960,e:62.080},{w:"transport",s:62.160,e:62.801},{w:"food",s:62.901,e:63.261},{w:"across",s:63.461,e:63.882},{w:"the",s:63.962,e:64.062},{w:"empire.",s:64.182,e:64.703}] }
     ];
 
-    // 3. ข้อมูลคำต่อคำ (Word-level Timestamps) แบ่งตามย่อหน้าเพื่อให้อ่านง่ายเหมือนหนังสือเรียน
-    const storySections = [
-        {
-            type: "title",
-            words: [
-                { w: "The", start: 0.311, end: 0.431 },
-                { w: "Incas", start: 0.591, end: 1.072 },
-                { w: "(1197", start: 2.393, end: 3.054 },
-                { w: "AD", start: 3.254, end: 3.654 },
-                { w: "to", start: 4.575, end: 4.895 },
-                { w: "1572", start: 4.915, end: 5.756 },
-                { w: "AD)", start: 5.956, end: 6.336 }
-            ]
-        },
-        {
-            type: "section",
-            heading: [
-                { w: "Location", start: 7.417, end: 8.038 }
-            ],
-            body: [
-                { w: "The", start: 8.779, end: 8.879 },
-                { w: "Incas", start: 9.019, end: 9.419 },
-                { w: "lived", start: 9.519, end: 9.860 },
-                { w: "in", start: 10.000, end: 10.100 },
-                { w: "South", start: 10.200, end: 10.480 },
-                { w: "America.", start: 10.540, end: 11.021 }
-            ]
-        },
-        {
-            type: "section",
-            heading: [
-                { w: "The", start: 12.242, end: 12.382 },
-                { w: "Emperor", start: 12.562, end: 13.022 }
-            ],
-            body: [
-                { w: "Each", start: 13.983, end: 14.203 },
-                { w: "emperor,", start: 14.404, end: 14.844 },
-                { w: "called", start: 15.104, end: 15.464 },
-                { w: "the", start: 15.484, end: 15.725 },
-                { w: "Sapa", start: 15.805, end: 16.165 },
-                { w: "Inca,", start: 16.305, end: 16.665 },
-                { w: "or", start: 16.986, end: 17.246 },
-                { w: "the", start: 17.306, end: 17.386 },
-                { w: "Child", start: 17.466, end: 17.987 },
-                { w: "of", start: 18.087, end: 18.147 },
-                { w: "the", start: 18.207, end: 18.287 },
-                { w: "Sun,", start: 18.367, end: 18.687 },
-                { w: "lived", start: 19.148, end: 19.448 },
-                { w: "in", start: 19.588, end: 19.668 },
-                { w: "a", start: 19.688, end: 19.708 },
-                { w: "palace", start: 19.808, end: 20.229 },
-                { w: "in", start: 20.449, end: 20.549 },
-                { w: "Cuzco.", start: 20.629, end: 21.149 },
-                { w: "His", start: 21.950, end: 22.090 },
-                { w: "advisors", start: 22.170, end: 22.850 },
-                { w: "lived", start: 22.991, end: 23.251 },
-                { w: "with", start: 23.331, end: 23.491 },
-                { w: "him", start: 23.531, end: 23.691 },
-                { w: "and", start: 24.111, end: 24.211 },
-                { w: "helped", start: 24.291, end: 24.591 },
-                { w: "him.", start: 24.631, end: 24.771 }
-            ]
-        },
-        {
-            type: "section",
-            heading: [
-                { w: "The", start: 25.772, end: 25.872 },
-                { w: "People", start: 25.912, end: 26.272 }
-            ],
-            body: [
-                { w: "The", start: 27.052, end: 27.152 },
-                { w: "people", start: 27.212, end: 27.593 },
-                { w: "lived", start: 27.733, end: 27.993 },
-                { w: "in", start: 28.033, end: 28.133 },
-                { w: "small", start: 28.233, end: 28.573 },
-                { w: "villages.", start: 28.653, end: 29.213 },
-                { w: "The", start: 29.854, end: 29.974 },
-                { w: "Incas", start: 30.114, end: 30.494 },
-                { w: "worked", start: 30.614, end: 30.934 },
-                { w: "very", start: 31.054, end: 31.334 },
-                { w: "hard.", start: 31.414, end: 31.814 },
-                { w: "They", start: 32.415, end: 32.555 },
-                { w: "worked", start: 32.635, end: 32.935 },
-                { w: "in", start: 33.055, end: 33.135 },
-                { w: "the", start: 33.155, end: 33.235 },
-                { w: "fields", start: 33.315, end: 33.815 },
-                { w: "to", start: 33.995, end: 34.115 },
-                { w: "grow", start: 34.155, end: 34.416 },
-                { w: "corn,", start: 34.516, end: 34.956 },
-                { w: "potatoes,", start: 35.256, end: 35.976 },
-                { w: "beans", start: 36.336, end: 36.817 },
-                { w: "and", start: 37.017, end: 37.117 },
-                { w: "peppers.", start: 37.197, end: 37.637 },
-                { w: "They", start: 38.337, end: 38.477 },
-                { w: "also", start: 38.617, end: 39.018 },
-                { w: "raised", start: 39.158, end: 39.578 },
-                { w: "ducks", start: 39.718, end: 40.138 },
-                { w: "and", start: 40.338, end: 40.458 },
-                { w: "dogs.", start: 40.538, end: 40.999 }
-            ]
-        },
-        {
-            type: "section",
-            heading: [
-                { w: "Houses", start: 42.219, end: 42.759 },
-                { w: "and", start: 42.959, end: 43.059 },
-                { w: "Temples", start: 43.180, end: 43.680 }
-            ],
-            body: [
-                { w: "Most", start: 44.440, end: 44.761 },
-                { w: "Incas", start: 44.921, end: 45.321 },
-                { w: "lived", start: 45.421, end: 45.702 },
-                { w: "in", start: 45.822, end: 45.942 },
-                { w: "stone", start: 46.042, end: 46.462 },
-                { w: "houses.", start: 46.563, end: 47.103 },
-                { w: "There", start: 47.644, end: 47.804 },
-                { w: "weren't", start: 47.824, end: 48.104 },
-                { w: "any", start: 48.224, end: 48.385 },
-                { w: "doors", start: 48.445, end: 48.885 },
-                { w: "in", start: 48.985, end: 49.045 },
-                { w: "their", start: 49.085, end: 49.266 },
-                { w: "houses.", start: 49.306, end: 49.726 },
-                { w: "The", start: 50.367, end: 50.467 },
-                { w: "people", start: 50.507, end: 50.847 },
-                { w: "had", start: 50.927, end: 51.168 },
-                { w: "everything", start: 51.368, end: 51.868 },
-                { w: "they", start: 51.929, end: 52.109 },
-                { w: "needed.", start: 52.169, end: 52.549 },
-                { w: "Their", start: 53.150, end: 53.330 },
-                { w: "temples", start: 53.410, end: 53.931 },
-                { w: "were", start: 54.051, end: 54.211 },
-                { w: "very", start: 54.311, end: 54.591 },
-                { w: "beautiful.", start: 54.652, end: 55.152 }
-            ]
-        },
-        {
-            type: "section",
-            heading: [
-                { w: "Transport", start: 56.153, end: 56.874 }
-            ],
-            body: [
-                { w: "The", start: 57.595, end: 57.715 },
-                { w: "Incas", start: 57.875, end: 58.296 },
-                { w: "had", start: 58.376, end: 58.536 },
-                { w: "a", start: 58.556, end: 58.596 },
-                { w: "great", start: 58.696, end: 58.956 },
-                { w: "system", start: 59.096, end: 59.477 },
-                { w: "of", start: 59.517, end: 59.597 },
-                { w: "roads.", start: 59.697, end: 60.138 },
-                { w: "They", start: 60.678, end: 60.838 },
-                { w: "used", start: 60.999, end: 61.219 },
-                { w: "animals", start: 61.419, end: 61.840 },
-                { w: "to", start: 61.960, end: 62.080 },
-                { w: "transport", start: 62.160, end: 62.801 },
-                { w: "food", start: 62.901, end: 63.261 },
-                { w: "across", start: 63.461, end: 63.882 },
-                { w: "the", start: 63.962, end: 64.062 },
-                { w: "empire.", start: 64.182, end: 64.703 }
-            ]
-        }
-    ];
-
-    // 4. แบบทดสอบปรนัย 5 ข้อ (4 ตัวเลือก)
     const quizData = [
-        {
-            q: "1. Where did the emperors live?",
-            options: [
-                "In a palace.",
-                "In small villages.",
-                "In stone temples.",
-                "In the fields."
-            ],
-            answer: "In a palace."
-        },
-        {
-            q: "2. Where did the people live?",
-            options: [
-                "In small villages and stone houses.",
-                "In a palace in Cuzco.",
-                "In wooden houses with big doors.",
-                "Inside the beautiful temples."
-            ],
-            answer: "In small villages and stone houses."
-        },
-        {
-            q: "3. Where did the people work?",
-            options: [
-                "In the fields growing corn, potatoes, beans and peppers.",
-                "In the palace helping the Sapa Inca.",
-                "On the rivers catching fish and ducks.",
-                "In the markets selling stone pots."
-            ],
-            answer: "In the fields growing corn, potatoes, beans and peppers."
-        },
-        {
-            q: "4. What were their temples like?",
-            options: [
-                "They were very beautiful.",
-                "They were very small and dark.",
-                "They were made of wood.",
-                "They had big golden doors."
-            ],
-            answer: "They were very beautiful."
-        },
-        {
-            q: "5. How did the Incas travel?",
-            options: [
-                "They had a great system of roads and used animals to transport food.",
-                "They used big wooden boats across the ocean.",
-                "They rode horses on mountain paths.",
-                "They walked without using any animals."
-            ],
-            answer: "They had a great system of roads and used animals to transport food."
-        }
+        { q: "1. Where did the emperors live?", options: ["In a palace.", "In small villages.", "In stone temples.", "In the fields."], answer: "In a palace." },
+        { q: "2. Where did the people live?", options: ["In small villages and stone houses.", "In a palace in Cuzco.", "In wooden houses with big doors.", "Inside the beautiful temples."], answer: "In small villages and stone houses." },
+        { q: "3. Where did the people work?", options: ["In the fields growing corn, potatoes, beans and peppers.", "In the palace helping the Sapa Inca.", "On the rivers catching fish and ducks.", "In the markets selling stone pots."], answer: "In the fields growing corn, potatoes, beans and peppers." },
+        { q: "4. What were their temples like?", options: ["They were very beautiful.", "They were very small and dark.", "They were made of wood.", "They had big golden doors."], answer: "They were very beautiful." },
+        { q: "5. How did the Incas travel?", options: ["They had a great system of roads and used animals to transport food.", "They used big wooden boats across the ocean.", "They rode horses on mountain paths.", "They walked without using any animals."], answer: "They had a great system of roads and used animals to transport food." }
     ];
 
-    const flatWords = [];
     const video = document.getElementById("story-video");
     const subOverlay = document.getElementById("videoSubOverlay");
-    const subText = document.getElementById("videoSubText");
+    const subBox = document.getElementById("videoSubBox");
     const popover = document.getElementById("vocab-popover");
 
-    let activeWordIndex = -1;
     let ccEnabled = true;
+    let currentSegIdx = -1;
+    let currentWordIdx = -1;
     let userAnswers = {};
     let currentQuizOrder = [];
     let isQuizGraded = false;
@@ -940,7 +602,7 @@
     let audioCtx = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-        renderStory();
+        renderVocabChips();
         renderQuiz();
         loadStudentProfile();
     });
@@ -955,127 +617,104 @@
         try {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             const now = audioCtx.currentTime;
-
             if (type === 'tap') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(520, now);
-                gain.gain.setValueAtTime(0.06, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(520, now);
+                gain.gain.setValueAtTime(0.06, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
                 osc.start(now); osc.stop(now + 0.06);
             } else if (type === 'success') {
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(523.25, now);
                 osc.frequency.setValueAtTime(659.25, now + 0.1);
                 osc.frequency.setValueAtTime(783.99, now + 0.2);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
                 osc.start(now); osc.stop(now + 0.45);
             }
         } catch (e) {}
     }
 
-    // ================= 1. สร้างเนื้อเรื่อง + ระบบไฮไลท์คำต่อคำ =================
-    function createWordSpan(item) {
-        const index = flatWords.length;
-        flatWords.push(item);
-
-        const span = document.createElement("span");
-        span.className = "word";
-        span.id = `w-${index}`;
-        span.innerText = item.w;
-
-        const cleanWord = item.w.replace(/[^a-zA-Z]/g, "").toLowerCase();
-        if (dictionary[cleanWord]) {
-            span.classList.add("vocab-word");
-            span.onclick = (e) => {
+    // สร้างปุ่มคำศัพท์ 6 คำใต้วิดีโอ
+    function renderVocabChips() {
+        const wrap = document.getElementById("vocabChips");
+        wrap.innerHTML = "";
+        Object.keys(dictionary).forEach(key => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "vocab-chip";
+            btn.innerText = dictionary[key].label;
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 playSFX('tap');
-                showPopover(e, cleanWord);
+                showPopover(e, key);
             };
-        } else {
-            // แตะคำทั่วไปเพื่อกระโดดวิดีโอไปฟังตรงคำนั้น
-            span.onclick = () => {
-                video.currentTime = item.start;
-                video.play();
-            };
-        }
-        return span;
-    }
-
-    function renderStory() {
-        const container = document.getElementById("story-content");
-        container.innerHTML = "";
-
-        storySections.forEach(sec => {
-            if (sec.type === "title") {
-                const titleDiv = document.createElement("div");
-                titleDiv.className = "story-main-title";
-                sec.words.forEach(w => titleDiv.appendChild(createWordSpan(w)));
-                container.appendChild(titleDiv);
-            } else {
-                const block = document.createElement("div");
-                block.className = "story-block";
-
-                const headDiv = document.createElement("div");
-                headDiv.className = "story-heading";
-                sec.heading.forEach(w => headDiv.appendChild(createWordSpan(w)));
-
-                const bodyDiv = document.createElement("div");
-                sec.body.forEach(w => bodyDiv.appendChild(createWordSpan(w)));
-
-                block.appendChild(headDiv);
-                block.appendChild(bodyDiv);
-                container.appendChild(block);
-            }
+            wrap.appendChild(btn);
         });
     }
 
-    function syncHighlight() {
-        const time = video.currentTime;
+    // ซิงก์ซับบนวิดีโอแบบไฮไลท์ทีละคำ (60 FPS)
+    function syncVideoSubtitle() {
+        if (!ccEnabled) return;
 
-        // 1) ซิงก์ไฮไลท์ทีละคำ (60 FPS)
-        const newIndex = flatWords.findIndex((item, idx) => {
-            const nextItem = flatWords[idx + 1];
-            const endTime = nextItem ? Math.min(nextItem.start, item.end + 0.6) : item.end + 0.5;
-            return time >= item.start && time < endTime;
-        });
+        const time = video.currentTime + SYNC_OFFSET;
+        const segIdx = subtitleSegments.findIndex(seg => time >= seg.start && time <= seg.end);
 
-        if (newIndex !== activeWordIndex) {
-            if (activeWordIndex !== -1) {
-                const oldEl = document.getElementById(`w-${activeWordIndex}`);
-                if (oldEl) oldEl.classList.remove("highlight");
+        if (segIdx !== currentSegIdx) {
+            currentSegIdx = segIdx;
+            currentWordIdx = -1;
+            subBox.innerHTML = "";
+
+            if (segIdx !== -1) {
+                subtitleSegments[segIdx].words.forEach((item, wIdx) => {
+                    const span = document.createElement("span");
+                    span.className = "sub-word";
+                    span.id = `sw-${wIdx}`;
+                    span.innerText = item.w;
+
+                    const clean = item.w.replace(/[^a-zA-Z]/g, "").toLowerCase();
+                    if (dictionary[clean]) {
+                        span.classList.add("is-vocab");
+                        span.onclick = (e) => {
+                            e.stopPropagation();
+                            video.pause();
+                            playSFX('tap');
+                            showPopover(e, clean);
+                        };
+                    }
+                    subBox.appendChild(span);
+                });
             }
-            if (newIndex !== -1) {
-                const newEl = document.getElementById(`w-${newIndex}`);
-                if (newEl) newEl.classList.add("highlight");
-            }
-            activeWordIndex = newIndex;
         }
 
-        // 2) ซิงก์ซับไตเติลที่ซ้อนบนวิดีโอ
-        if (ccEnabled) {
-            const activeSub = subtitleSegments.find(s => time >= s.start && time <= s.end);
-            subText.innerText = activeSub ? activeSub.text : "";
+        if (segIdx !== -1) {
+            const words = subtitleSegments[segIdx].words;
+            const wIdx = words.findIndex((item, i) => {
+                const next = words[i + 1];
+                const endT = next ? next.s : item.e + 0.4;
+                return time >= item.s && time < endT;
+            });
+
+            if (wIdx !== currentWordIdx) {
+                if (currentWordIdx !== -1) {
+                    const oldW = document.getElementById(`sw-${currentWordIdx}`);
+                    if (oldW) oldW.classList.remove("active");
+                }
+                if (wIdx !== -1) {
+                    const newW = document.getElementById(`sw-${wIdx}`);
+                    if (newW) newW.classList.add("active");
+                }
+                currentWordIdx = wIdx;
+            }
         }
 
         if (!video.paused && !video.ended) {
-            requestAnimationFrame(syncHighlight);
+            requestAnimationFrame(syncVideoSubtitle);
         }
     }
 
-    video.addEventListener("play", () => requestAnimationFrame(syncHighlight));
-    video.addEventListener("seeked", () => syncHighlight());
-    video.addEventListener("ended", () => {
-        if (activeWordIndex !== -1) {
-            const oldEl = document.getElementById(`w-${activeWordIndex}`);
-            if (oldEl) oldEl.classList.remove("highlight");
-            activeWordIndex = -1;
-        }
-        subText.innerText = "";
-    });
+    video.addEventListener("play", () => requestAnimationFrame(syncVideoSubtitle));
+    video.addEventListener("seeked", () => syncVideoSubtitle());
+    video.addEventListener("ended", () => { currentSegIdx = -1; currentWordIdx = -1; subBox.innerHTML = ""; });
 
     function toggleCC() {
         ccEnabled = !ccEnabled;
@@ -1084,19 +723,18 @@
             btn.innerText = "CC Subtitle: ON";
             btn.classList.remove("off");
             subOverlay.classList.remove("hidden");
-            syncHighlight();
+            syncVideoSubtitle();
         } else {
             btn.innerText = "CC Subtitle: OFF";
             btn.classList.add("off");
             subOverlay.classList.add("hidden");
-            subText.innerText = "";
+            subBox.innerHTML = "";
         }
     }
 
-    // Popover แปลศัพท์ (จัดตำแหน่งไม่ให้ล้นขอบจอมือถือ)
     function showPopover(event, wordKey) {
         const data = dictionary[wordKey];
-        document.getElementById("pop-eng").innerText = wordKey;
+        document.getElementById("pop-eng").innerText = data.label;
         document.getElementById("pop-pos").innerText = data.pos;
         document.getElementById("pop-phonetic").innerText = data.phonetic;
         document.getElementById("pop-thai").innerText = data.thai;
@@ -1105,19 +743,16 @@
         const popW = popover.offsetWidth;
         const screenW = window.innerWidth;
         let leftPos = event.pageX - (popW / 2);
-
         if (leftPos < 10) leftPos = 10;
         if (leftPos + popW > screenW - 10) leftPos = screenW - popW - 10;
 
         popover.style.left = leftPos + "px";
-        popover.style.top = (event.pageY + 24) + "px";
+        popover.style.top = (event.pageY + 20) + "px";
     }
 
-    document.addEventListener("click", () => {
-        popover.style.display = "none";
-    });
+    document.addEventListener("click", () => { popover.style.display = "none"; });
 
-    // ================= 2. ระบบแบบทดสอบปรนัย 5 ข้อ =================
+    // ================= ระบบแบบทดสอบปรนัย 5 ข้อ =================
     function renderQuiz() {
         const container = document.getElementById("quizContainer");
         container.innerHTML = "";
@@ -1125,7 +760,6 @@
         isQuizGraded = false;
         document.getElementById("btnCheckQuiz").disabled = false;
 
-        // สลับลำดับตัวเลือกในแต่ละข้อ
         currentQuizOrder = quizData.map(item => ({
             q: item.q,
             answer: item.answer,
@@ -1133,15 +767,10 @@
         }));
 
         const letters = ["A", "B", "C", "D"];
-
         currentQuizOrder.forEach((item, qIdx) => {
             const qCard = document.createElement("div");
             qCard.className = "question-card";
-
-            const qTitle = document.createElement("p");
-            qTitle.className = "question-text";
-            qTitle.innerText = item.q;
-            qCard.appendChild(qTitle);
+            qCard.innerHTML = `<p class="question-text">${item.q}</p>`;
 
             const grid = document.createElement("div");
             grid.className = "options-grid";
@@ -1165,7 +794,6 @@
         if (isQuizGraded) return;
         playSFX('tap');
         userAnswers[qIdx] = { oIdx, text: optText };
-
         for (let i = 0; i < 4; i++) {
             const btn = document.getElementById(`q-${qIdx}-opt-${i}`);
             if (btn) btn.classList.toggle("selected", i === oIdx);
@@ -1174,12 +802,7 @@
 
     function checkAndSubmitQuiz() {
         if (Object.keys(userAnswers).length < currentQuizOrder.length) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Incomplete Quiz',
-                text: 'Please answer all 5 questions before submitting!',
-                confirmButtonColor: '#d97706'
-            });
+            Swal.fire({ icon: 'warning', title: 'Incomplete Quiz', text: 'Please answer all 5 questions!', confirmButtonColor: '#d97706' });
             return;
         }
 
@@ -1193,15 +816,9 @@
                 const btn = document.getElementById(`q-${qIdx}-opt-${oIdx}`);
                 btn.disabled = true;
                 btn.classList.remove("selected");
-
-                if (optText === item.answer) {
-                    btn.classList.add("correct");
-                }
-                if (oIdx === chosen.oIdx && optText !== item.answer) {
-                    btn.classList.add("wrong");
-                }
+                if (optText === item.answer) btn.classList.add("correct");
+                if (oIdx === chosen.oIdx && optText !== item.answer) btn.classList.add("wrong");
             });
-
             if (chosen.text === item.answer) score++;
         });
 
@@ -1210,14 +827,14 @@
 
         if (!localStorage.getItem('studentId')) {
             isPendingSubmit = true;
-            document.getElementById('modalSub').innerText = `You scored ${latestScore}/5! Please enter your details to save your score.`;
+            document.getElementById('modalSub').innerText = `You scored ${latestScore}/5! Enter your details to save your score.`;
             document.getElementById('loginModal').classList.add('active');
         } else {
             submitScoreToSheet();
         }
     }
 
-    // ================= 3. ระบบบัญชีนักเรียน & ส่งคะแนน Google Sheets =================
+    // ================= บัญชีนักเรียน & ส่งคะแนน Google Sheets =================
     function loadStudentProfile() {
         if (localStorage.getItem('studentId')) {
             document.getElementById('userProfile').style.display = 'flex';
@@ -1235,14 +852,9 @@
 
     function switchAccount() {
         Swal.fire({
-            title: 'Switch Account?',
-            text: 'Clear current student info for the next student?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d97706',
-            cancelButtonColor: '#78716c',
-            confirmButtonText: 'Yes, switch',
-            cancelButtonText: 'Cancel'
+            title: 'Switch Account?', text: 'Clear current student info?', icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d97706', cancelButtonColor: '#78716c',
+            confirmButtonText: 'Yes, switch', cancelButtonText: 'Cancel'
         }).then((res) => {
             if (res.isConfirmed) {
                 localStorage.clear();
@@ -1261,23 +873,16 @@
         const n = document.getElementById('in_name').value.trim();
         const r = document.getElementById('in_room').value.trim();
         const id = document.getElementById('in_id').value.trim();
-
         if (!n || !r || id.length !== 5) {
-            Swal.fire('Incomplete Info', 'Please enter your name, room, and 5-digit student ID.', 'warning');
+            Swal.fire('Incomplete Info', 'Please enter name, room, and 5-digit student ID.', 'warning');
             return;
         }
-
         localStorage.setItem('studentName', n);
         localStorage.setItem('studentRoom', r);
         localStorage.setItem('studentId', id);
-
         document.getElementById('loginModal').classList.remove('active');
         loadStudentProfile();
-
-        if (isPendingSubmit) {
-            isPendingSubmit = false;
-            submitScoreToSheet();
-        }
+        if (isPendingSubmit) { isPendingSubmit = false; submitScoreToSheet(); }
     }
 
     function submitScoreToSheet() {
@@ -1291,31 +896,22 @@
         }
 
         stat.innerText = "⏳ Saving your score...";
-
-        const payload = {
-            name: localStorage.getItem('studentName'),
-            room: localStorage.getItem('studentRoom'),
-            studentId: "'" + localStorage.getItem('studentId'),
-            lesson: TOPIC_NAME,
-            score: latestScore,
-            maxScore: 5
-        };
-
         fetch(QUIZ_CONFIG.SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(payload)
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({
+                name: localStorage.getItem('studentName'),
+                room: localStorage.getItem('studentRoom'),
+                studentId: "'" + localStorage.getItem('studentId'),
+                lesson: TOPIC_NAME,
+                score: latestScore,
+                maxScore: 5
+            })
         }).catch(e => console.error(e));
 
-        setTimeout(() => {
-            stat.innerText = "✅ Score saved successfully!";
-        }, 1200);
+        setTimeout(() => { stat.innerText = "✅ Score saved successfully!"; }, 1200);
     }
 
-    function closeScoreModal() {
-        document.getElementById('scoreModal').classList.remove('active');
-    }
-
+    function closeScoreModal() { document.getElementById('scoreModal').classList.remove('active'); }
     function resetQuiz() {
         document.getElementById('scoreModal').classList.remove('active');
         renderQuiz();
