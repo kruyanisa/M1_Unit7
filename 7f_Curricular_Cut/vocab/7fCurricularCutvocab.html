@@ -1,1 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inca Treasure Hunt - Unit 7f Vocab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Prompt:wght@500;700&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
 
+    <style>
+        :root {
+            --bg-sand: #f5efe6;
+            --card-bg: #fffdf9;
+            --inca-brown: #78350f;
+            --inca-dark: #451a03;
+            --inca-gold: #d97706;
+            --inca-gold-bright: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            padding: 16px 12px 36px 12px;
+            background-color: var(--bg-sand);
+            background-image: radial-gradient(rgba(120, 53, 15, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--inca-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Profile Bar */
+        .profile-bar {
+            font-size: clamp(12px, 3.3vw, 14px);
+            background: #fef3c7;
+            border: 2px solid var(--inca-gold);
+            padding: 8px 14px;
+            border-radius: 20px;
+            color: var(--inca-dark);
+            font-weight: 700;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .btn-switch {
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* Header */
+        .header-wrap {
+            text-align: center;
+            margin-bottom: 14px;
+            width: 100%;
+            max-width: 560px;
+        }
+
+        .badge-unit {
+            display: inline-block;
+            background: var(--inca-brown);
+            color: #fef08a;
+            font-family: 'Prompt', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--inca-brown);
+            font-size: clamp(26px, 6.5vw, 34px);
+            margin: 0;
+            line-height: 1.15;
+        }
+
+        /* Game Card */
+        .game-card {
+            width: 100%;
+            max-width: 560px;
+            background: var(--card-bg);
+            border: 3px solid #e7d5b8;
+            border-radius: 24px;
+            padding: 20px 18px;
+            box-shadow: 0 12px 28px rgba(120, 53, 15, 0.14);
+        }
+
+        /* Status Bar */
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .pill-progress {
+            background: #fef3c7;
+            color: var(--inca-brown);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 2px solid #fcd34d;
+        }
+
+        .pill-score {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 2px solid #86efac;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            background: #e7d5b8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            transition: width 0.3s ease;
+        }
+
+        /* Word & Audio Box */
+        .word-stage {
+            background: linear-gradient(135deg, #78350f, #451a03);
+            border: 3px solid #f59e0b;
+            border-radius: 20px;
+            padding: 24px 16px;
+            text-align: center;
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .pos-tag {
+            display: inline-block;
+            background: rgba(254, 240, 138, 0.2);
+            color: #fef08a;
+            font-family: 'Prompt', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .target-word {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(28px, 7.5vw, 38px);
+            color: #ffffff;
+            margin: 0 0 14px 0;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+            word-break: break-word;
+        }
+
+        .btn-audio {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #facc15;
+            color: var(--inca-dark);
+            border: 2px solid #fef08a;
+            border-radius: 14px;
+            padding: 10px 22px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #b45309;
+            transition: 0.1s;
+        }
+
+        .btn-audio:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #b45309;
+        }
+
+        /* Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .opt-btn {
+            width: 100%;
+            text-align: left;
+            background: #ffffff;
+            border: 2px solid #d6c3a5;
+            border-radius: 14px;
+            padding: 13px 16px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--inca-dark);
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            border-color: var(--inca-gold);
+            background: #fffbeb;
+        }
+
+        .opt-btn.correct {
+            border-color: var(--success);
+            background: #dcfce7;
+            color: #14532d;
+        }
+
+        .opt-btn.wrong {
+            border-color: var(--danger);
+            background: #fee2e2;
+            color: #7f1d1d;
+        }
+
+        .opt-letter {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f3e8d6;
+            color: var(--inca-brown);
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .opt-btn.correct .opt-letter { background: var(--success); color: #fff; }
+        .opt-btn.wrong .opt-letter { background: var(--danger); color: #fff; }
+
+        /* Next Button */
+        .btn-next {
+            display: none;
+            width: 100%;
+            margin-top: 16px;
+            padding: 13px;
+            background: var(--inca-gold);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #92400e;
+        }
+
+        .btn-next:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #92400e;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(69, 26, 3, 0.75);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.25s;
+            padding: 15px;
+        }
+
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+
+        .modal-box {
+            background: #fff;
+            padding: 26px 22px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            border: 4px solid var(--inca-gold);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 11px;
+            margin-bottom: 10px;
+            border: 2px solid var(--inca-gold);
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .score-num {
+            font-family: 'Fredoka One', cursive;
+            font-size: 58px;
+            color: var(--inca-brown);
+            margin: 8px 0;
+            display: block;
+            line-height: 1;
+        }
+
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: var(--inca-gold);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #92400e;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- User Profile Bar -->
+    <div id="userProfile" class="profile-bar" style="display:none;">
+        <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+        <button class="btn-switch" onclick="switchAccount()">Switch Account</button>
+    </div>
+
+    <!-- Header -->
+    <div class="header-wrap">
+        <div class="badge-unit">Unit 7f • Curricular Cut Vocabulary</div>
+        <h1>🏛️ Inca Treasure Hunt</h1>
+    </div>
+
+    <!-- Main Game Card -->
+    <div class="game-card">
+        <div class="status-row">
+            <span class="pill-progress">Word <span id="qIndex">1</span> / 17</span>
+            <span class="pill-score">🪙 Coins: <span id="scoreDisplay">0</span></span>
+        </div>
+
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="word-stage">
+            <div class="pos-tag" id="wordPos">Noun (n.)</div>
+            <div class="target-word" id="targetWord">...</div>
+            <button class="btn-audio" onclick="playCurrentWord()">🔊 Listen</button>
+        </div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <button class="btn-next" id="btnNext" onclick="nextQuestion()">Next Word ➡️</button>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color:var(--inca-brown); margin:0 0 6px 0; font-family:'Prompt';">📝 Student Login</h2>
+            <p id="modalSub" style="color:#64748b; font-weight:600; margin:0 0 12px 0; font-size:14px;"></p>
+            <input type="text" id="in_name" class="login-input" placeholder="Full Name (ชื่อ - นามสกุล)">
+            <input type="text" id="in_room" class="login-input" placeholder="Class / Room (เช่น 1/1)">
+            <input type="text" id="in_id" class="login-input" placeholder="Student ID (รหัสนักเรียน 5 หลัก)" maxlength="5">
+            <button class="btn-modal" onclick="confirmUser()">🚀 Confirm & Save Score</button>
+        </div>
+    </div>
+
+    <!-- Score Modal -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:var(--inca-brown); margin:0; font-family:'Prompt';">🏆 Treasure Unlocked!</h2>
+            <p style="color:#64748b; font-weight:600; margin:6px 0 0 0;">Your Score</p>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:28px; color:#d97706;">/17</span></span>
+            <div id="saveStatus" style="font-weight:700; font-size:15px; margin-bottom:12px; color:#15803d; min-height:22px;"></div>
+            <button class="btn-modal" style="background:#16a34a; box-shadow:0 4px 0 #15803d;" onclick="startGame()">🔄 Play Again</button>
+        </div>
+    </div>
+
+<script>
+    const TOPIC_NAME = 'ม.1 Unit 7 Curricular Cut vocab';
+
+    // คำศัพท์ 17 คำ พร้อมไฟล์เสียง .mp3 และคำแปลตรงบริบทเรื่อง The Incas
+    const vocabList = [
+        { word: "raise",          pos: "Verb (v.)",       audio: "raise.mp3",          thai: "เลี้ยง (สัตว์)" },
+        { word: "advisor",        pos: "Noun (n.)",       audio: "advisor.mp3",        thai: "ที่ปรึกษา" },
+        { word: "beans",          pos: "Noun (n.)",       audio: "beans.mp3",          thai: "ถั่ว" },
+        { word: "corn",           pos: "Noun (n.)",       audio: "corn.mp3",           thai: "ข้าวโพด" },
+        { word: "Cuzco",          pos: "Noun (n.)",       audio: "Cuzco.mp3",          thai: "เมืองกุสโก (เมืองหลวงอินคา)" },
+        { word: "dog",            pos: "Noun (n.)",       audio: "dog.mp3",            thai: "สุนัข" },
+        { word: "duck",           pos: "Noun (n.)",       audio: "duck.mp3",           thai: "เป็ด" },
+        { word: "emperor",        pos: "Noun (n.)",       audio: "emperor.mp3",        thai: "จักรพรรดิ" },
+        { word: "location",       pos: "Noun (n.)",       audio: "location.mp3",       thai: "ที่ตั้ง, ตำแหน่งที่ตั้ง" },
+        { word: "peppers",        pos: "Noun (n.)",       audio: "peppers.mp3",        thai: "พริก" },
+        { word: "potato",         pos: "Noun (n.)",       audio: "potato.mp3",         thai: "มันฝรั่ง" },
+        { word: "Sapa Inca",      pos: "Noun (n.)",       audio: "Sapa_Inca.mp3",      thai: "ซาปา อินคา (โอรสแห่งดวงอาทิตย์)" },
+        { word: "South American", pos: "Noun / Adj.",     audio: "South_American.mp3", thai: "ชาวอเมริกาใต้ / แห่งอเมริกาใต้" },
+        { word: "the Incas",      pos: "Noun (n.)",       audio: "the_Incas.mp3",      thai: "ชาวอินคา" },
+        { word: "transport",      pos: "Noun / Verb",     audio: "transport.mp3",      thai: "การขนส่ง, ขนส่ง" },
+        { word: "village",        pos: "Noun (n.)",       audio: "village.mp3",        thai: "หมู่บ้าน" },
+        { word: "system of roads",pos: "Phrase (phr.)",   audio: "system_of_roads.mp3",thai: "ระบบถนน, เครือข่ายถนน" }
+    ];
+
+    let gameOrder = [];
+    let currentIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+    let currentAudio = null;
+    let isPendingSubmit = false;
+    let audioCtx = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadStudentProfile();
+        startGame();
+    });
+
+    function initAudioCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSFX(type) {
+        initAudioCtx();
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.setValueAtTime(880, now + 0.08);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.start(now); osc.stop(now + 0.25);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(165, now + 0.1);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.start(now); osc.stop(now + 0.25);
+            } else if (type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc.start(now); osc.stop(now + 0.45);
+            }
+        } catch (e) {}
+    }
+
+    function startGame() {
+        document.getElementById('scoreModal').classList.remove('active');
+        gameOrder = [...vocabList].sort(() => Math.random() - 0.5);
+        currentIndex = 0;
+        score = 0;
+        document.getElementById("scoreDisplay").innerText = "0";
+        renderQuestion();
+    }
+
+    function playCurrentWord() {
+        const item = gameOrder[currentIndex];
+        if (!item) return;
+        if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+        currentAudio = new Audio(item.audio);
+        currentAudio.play().catch(() => {});
+    }
+
+    function renderQuestion() {
+        isAnswered = false;
+        const item = gameOrder[currentIndex];
+
+        document.getElementById("qIndex").innerText = currentIndex + 1;
+        document.getElementById("progressFill").style.width = ((currentIndex / gameOrder.length) * 100) + "%";
+        document.getElementById("wordPos").innerText = item.pos;
+        document.getElementById("targetWord").innerText = item.word;
+
+        const btnNext = document.getElementById("btnNext");
+        btnNext.style.display = "none";
+        btnNext.innerText = (currentIndex === gameOrder.length - 1) ? "🏆 Finish & Save Score" : "Next Word ➡️";
+
+        // สุ่มตัวเลือกหลอก 3 ข้อ
+        const distractors = vocabList
+            .filter(v => v.word !== item.word)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+            .map(v => v.thai);
+
+        const choices = [item.thai, ...distractors].sort(() => Math.random() - 0.5);
+        const letters = ["A", "B", "C", "D"];
+        const grid = document.getElementById("optionsGrid");
+        grid.innerHTML = "";
+
+        choices.forEach((thaiText, idx) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "opt-btn";
+            btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span><span>${thaiText}</span>`;
+            btn.onclick = () => checkAnswer(btn, thaiText, item.thai);
+            grid.appendChild(btn);
+        });
+
+        // เล่นเสียงอัตโนมัติ (ยกเว้นข้อแรกที่เบราว์เซอร์อาจบล็อก Autoplay ก่อนแตะจอ)
+        if (currentIndex > 0) playCurrentWord();
+    }
+
+    function checkAnswer(clickedBtn, chosenThai, correctThai) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const allBtns = document.querySelectorAll(".opt-btn");
+        allBtns.forEach(b => {
+            b.disabled = true;
+            if (b.querySelector("span:last-child").innerText === correctThai) {
+                b.classList.add("correct");
+            }
+        });
+
+        if (chosenThai === correctThai) {
+            score++;
+            document.getElementById("scoreDisplay").innerText = score;
+            playSFX('correct');
+        } else {
+            clickedBtn.classList.add("wrong");
+            playSFX('wrong');
+        }
+
+        document.getElementById("btnNext").style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < gameOrder.length) {
+            renderQuestion();
+        } else {
+            document.getElementById("progressFill").style.width = "100%";
+            playSFX('win');
+            if (!localStorage.getItem('studentId')) {
+                isPendingSubmit = true;
+                document.getElementById('modalSub').innerText = `You scored ${score}/17! Enter your details to save your score.`;
+                document.getElementById('loginModal').classList.add('active');
+            } else {
+                submitScoreToSheet();
+            }
+        }
+    }
+
+    // ================= บัญชีนักเรียน & ส่งคะแนน Google Sheets =================
+    function loadStudentProfile() {
+        if (localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId');
+        }
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function () {
+        const nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `ม.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `ม.1/${nums[0]}`;
+    });
+
+    function switchAccount() {
+        Swal.fire({
+            title: 'Switch Account?', text: 'Clear current student info?', icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d97706', cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, switch', cancelButtonText: 'Cancel'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                localStorage.clear();
+                document.getElementById('userProfile').style.display = 'none';
+                isPendingSubmit = false;
+                document.getElementById('in_name').value = '';
+                document.getElementById('in_room').value = '';
+                document.getElementById('in_id').value = '';
+                document.getElementById('modalSub').innerText = 'Enter student details to begin.';
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    function confirmUser() {
+        const n = document.getElementById('in_name').value.trim();
+        const r = document.getElementById('in_room').value.trim();
+        const id = document.getElementById('in_id').value.trim();
+        if (!n || !r || id.length !== 5) {
+            Swal.fire('Incomplete Info', 'Please enter name, room, and 5-digit student ID.', 'warning');
+            return;
+        }
+        localStorage.setItem('studentName', n);
+        localStorage.setItem('studentRoom', r);
+        localStorage.setItem('studentId', id);
+        document.getElementById('loginModal').classList.remove('active');
+        loadStudentProfile();
+        if (isPendingSubmit) { isPendingSubmit = false; submitScoreToSheet(); }
+    }
+
+    function submitScoreToSheet() {
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScoreText').innerText = score;
+        const stat = document.getElementById('saveStatus');
+
+        if (typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ Config file (quiz-config.js) not found.";
+            return;
+        }
+
+        stat.innerText = "⏳ Saving your score...";
+        fetch(QUIZ_CONFIG.SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({
+                name: localStorage.getItem('studentName'),
+                room: localStorage.getItem('studentRoom'),
+                studentId: "'" + localStorage.getItem('studentId'),
+                lesson: TOPIC_NAME,
+                score: score,
+                maxScore: 17
+            })
+        }).catch(e => console.error(e));
+
+        setTimeout(() => { stat.innerText = "✅ Score saved successfully!"; }, 1200);
+    }
+</script>
+
+</body>
+</html>
