@@ -15,7 +15,6 @@
             --inca-brown: #78350f;
             --inca-dark: #451a03;
             --inca-gold: #d97706;
-            --inca-gold-bright: #f59e0b;
             --success: #16a34a;
             --danger: #dc2626;
         }
@@ -36,7 +35,6 @@
             min-height: 100vh;
         }
 
-        /* Profile Bar */
         .profile-bar {
             font-size: clamp(12px, 3.3vw, 14px);
             background: #fef3c7;
@@ -67,7 +65,6 @@
             font-size: 13px;
         }
 
-        /* Header */
         .header-wrap {
             text-align: center;
             margin-bottom: 14px;
@@ -85,7 +82,6 @@
             padding: 4px 14px;
             border-radius: 20px;
             margin-bottom: 6px;
-            letter-spacing: 0.5px;
         }
 
         h1 {
@@ -96,7 +92,6 @@
             line-height: 1.15;
         }
 
-        /* Game Card */
         .game-card {
             width: 100%;
             max-width: 560px;
@@ -107,7 +102,6 @@
             box-shadow: 0 12px 28px rgba(120, 53, 15, 0.14);
         }
 
-        /* Status Bar */
         .status-row {
             display: flex;
             justify-content: space-between;
@@ -150,7 +144,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Word & Audio Box */
         .word-stage {
             background: linear-gradient(135deg, #78350f, #451a03);
             border: 3px solid #f59e0b;
@@ -158,7 +151,6 @@
             padding: 24px 16px;
             text-align: center;
             margin-bottom: 18px;
-            position: relative;
         }
 
         .pos-tag {
@@ -197,15 +189,10 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 4px 0 #b45309;
-            transition: 0.1s;
         }
 
-        .btn-audio:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #b45309;
-        }
+        .btn-audio:active { transform: translateY(4px); box-shadow: 0 0 0 #b45309; }
 
-        /* Options Grid */
         .options-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -230,22 +217,18 @@
             gap: 12px;
         }
 
-        .opt-btn:hover:not(:disabled) {
+        .opt-btn:hover:not(:disabled) { border-color: var(--inca-gold); background: #fffbeb; }
+
+        /* สถานะตอนเลือก (ยังเปลี่ยนใจได้) */
+        .opt-btn.selected {
             border-color: var(--inca-gold);
-            background: #fffbeb;
+            background: #fef3c7;
+            color: var(--inca-dark);
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25);
         }
 
-        .opt-btn.correct {
-            border-color: var(--success);
-            background: #dcfce7;
-            color: #14532d;
-        }
-
-        .opt-btn.wrong {
-            border-color: var(--danger);
-            background: #fee2e2;
-            color: #7f1d1d;
-        }
+        .opt-btn.correct { border-color: var(--success); background: #dcfce7; color: #14532d; }
+        .opt-btn.wrong { border-color: var(--danger); background: #fee2e2; color: #7f1d1d; }
 
         .opt-letter {
             display: inline-flex;
@@ -262,10 +245,10 @@
             flex-shrink: 0;
         }
 
+        .opt-btn.selected .opt-letter { background: var(--inca-gold); color: #fff; }
         .opt-btn.correct .opt-letter { background: var(--success); color: #fff; }
         .opt-btn.wrong .opt-letter { background: var(--danger); color: #fff; }
 
-        /* Next Button */
         .btn-next {
             display: none;
             width: 100%;
@@ -282,12 +265,9 @@
             box-shadow: 0 5px 0 #92400e;
         }
 
-        .btn-next:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #92400e;
-        }
+        .btn-next:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #92400e; }
+        .btn-next:disabled { opacity: 0.65; cursor: not-allowed; }
 
-        /* Modals */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -351,23 +331,28 @@
             box-shadow: 0 4px 0 #92400e;
             margin-top: 8px;
         }
+
+        /* สไตล์ปุ่ม Play Again ตอนยังส่งคะแนนไม่เสร็จ */
+        .btn-modal:disabled {
+            background: #94a3b8 !important;
+            box-shadow: 0 4px 0 #64748b !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
 
-    <!-- User Profile Bar -->
     <div id="userProfile" class="profile-bar" style="display:none;">
         <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
         <button class="btn-switch" onclick="switchAccount()">Switch Account</button>
     </div>
 
-    <!-- Header -->
     <div class="header-wrap">
         <div class="badge-unit">Unit 7f • Curricular Cut Vocabulary</div>
         <h1>🏛️ Inca Treasure Hunt</h1>
     </div>
 
-    <!-- Main Game Card -->
     <div class="game-card">
         <div class="status-row">
             <span class="pill-progress">Word <span id="qIndex">1</span> / 17</span>
@@ -386,7 +371,7 @@
 
         <div class="options-grid" id="optionsGrid"></div>
 
-        <button class="btn-next" id="btnNext" onclick="nextQuestion()">Next Word ➡️</button>
+        <button class="btn-next" id="btnNext" onclick="confirmAndNext()">Confirm & Next ➡️</button>
     </div>
 
     <!-- Login Modal -->
@@ -408,14 +393,13 @@
             <p style="color:#64748b; font-weight:600; margin:6px 0 0 0;">Your Score</p>
             <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:28px; color:#d97706;">/17</span></span>
             <div id="saveStatus" style="font-weight:700; font-size:15px; margin-bottom:12px; color:#15803d; min-height:22px;"></div>
-            <button class="btn-modal" style="background:#16a34a; box-shadow:0 4px 0 #15803d;" onclick="startGame()">🔄 Play Again</button>
+            <button id="btnPlayAgain" class="btn-modal" style="background:#16a34a; box-shadow:0 4px 0 #15803d;" onclick="startGame()" disabled>🔄 Play Again</button>
         </div>
     </div>
 
 <script>
     const TOPIC_NAME = 'ม.1 Unit 7 Curricular Cut vocab';
 
-    // คำศัพท์ 17 คำ พร้อมไฟล์เสียง .mp3 และคำแปลตรงบริบทเรื่อง The Incas
     const vocabList = [
         { word: "raise",          pos: "Verb (v.)",       audio: "raise.mp3",          thai: "เลี้ยง (สัตว์)" },
         { word: "advisor",        pos: "Noun (n.)",       audio: "advisor.mp3",        thai: "ที่ปรึกษา" },
@@ -439,7 +423,9 @@
     let gameOrder = [];
     let currentIndex = 0;
     let score = 0;
-    let isAnswered = false;
+    let selectedBtn = null;
+    let selectedThai = null;
+    let isChecking = false;
     let currentAudio = null;
     let isPendingSubmit = false;
     let audioCtx = null;
@@ -461,7 +447,11 @@
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             const now = audioCtx.currentTime;
-            if (type === 'correct') {
+            if (type === 'tap') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(520, now);
+                gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                osc.start(now); osc.stop(now + 0.06);
+            } else if (type === 'correct') {
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(587.33, now);
                 osc.frequency.setValueAtTime(880, now + 0.08);
@@ -505,7 +495,9 @@
     }
 
     function renderQuestion() {
-        isAnswered = false;
+        selectedBtn = null;
+        selectedThai = null;
+        isChecking = false;
         const item = gameOrder[currentIndex];
 
         document.getElementById("qIndex").innerText = currentIndex + 1;
@@ -515,9 +507,9 @@
 
         const btnNext = document.getElementById("btnNext");
         btnNext.style.display = "none";
-        btnNext.innerText = (currentIndex === gameOrder.length - 1) ? "🏆 Finish & Save Score" : "Next Word ➡️";
+        btnNext.disabled = false;
+        btnNext.innerText = (currentIndex === gameOrder.length - 1) ? "🏆 Confirm & Finish" : "Confirm & Next ➡️";
 
-        // สุ่มตัวเลือกหลอก 3 ข้อ
         const distractors = vocabList
             .filter(v => v.word !== item.word)
             .sort(() => Math.random() - 0.5)
@@ -534,56 +526,70 @@
             btn.type = "button";
             btn.className = "opt-btn";
             btn.innerHTML = `<span class="opt-letter">${letters[idx]}</span><span>${thaiText}</span>`;
-            btn.onclick = () => checkAnswer(btn, thaiText, item.thai);
+            btn.onclick = () => selectAnswer(btn, thaiText);
             grid.appendChild(btn);
         });
 
-        // เล่นเสียงอัตโนมัติ (ยกเว้นข้อแรกที่เบราว์เซอร์อาจบล็อก Autoplay ก่อนแตะจอ)
         if (currentIndex > 0) playCurrentWord();
     }
 
-    function checkAnswer(clickedBtn, chosenThai, correctThai) {
-        if (isAnswered) return;
-        isAnswered = true;
+    // เลือกคำตอบ (ยังไม่ตรวจ เปลี่ยนใจได้)
+    function selectAnswer(btn, thaiText) {
+        if (isChecking) return;
+        playSFX('tap');
+        document.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedBtn = btn;
+        selectedThai = thaiText;
+        document.getElementById("btnNext").style.display = "block";
+    }
 
+    // ตรวจคำตอบตอนกดปุ่ม Next แล้วไปข้อถัดไปอัตโนมัติ
+    function confirmAndNext() {
+        if (isChecking || !selectedBtn) return;
+        isChecking = true;
+
+        const btnNext = document.getElementById("btnNext");
+        btnNext.disabled = true;
+
+        const correctThai = gameOrder[currentIndex].thai;
         const allBtns = document.querySelectorAll(".opt-btn");
         allBtns.forEach(b => {
             b.disabled = true;
+            b.classList.remove("selected");
             if (b.querySelector("span:last-child").innerText === correctThai) {
                 b.classList.add("correct");
             }
         });
 
-        if (chosenThai === correctThai) {
+        if (selectedThai === correctThai) {
             score++;
             document.getElementById("scoreDisplay").innerText = score;
             playSFX('correct');
         } else {
-            clickedBtn.classList.add("wrong");
+            selectedBtn.classList.add("wrong");
             playSFX('wrong');
         }
 
-        document.getElementById("btnNext").style.display = "block";
-    }
-
-    function nextQuestion() {
-        currentIndex++;
-        if (currentIndex < gameOrder.length) {
-            renderQuestion();
-        } else {
-            document.getElementById("progressFill").style.width = "100%";
-            playSFX('win');
-            if (!localStorage.getItem('studentId')) {
-                isPendingSubmit = true;
-                document.getElementById('modalSub').innerText = `You scored ${score}/17! Enter your details to save your score.`;
-                document.getElementById('loginModal').classList.add('active');
+        // แสดงผลถูก/ผิด 0.85 วินาที แล้วไปข้อถัดไป
+        setTimeout(() => {
+            currentIndex++;
+            if (currentIndex < gameOrder.length) {
+                renderQuestion();
             } else {
-                submitScoreToSheet();
+                document.getElementById("progressFill").style.width = "100%";
+                playSFX('win');
+                if (!localStorage.getItem('studentId')) {
+                    isPendingSubmit = true;
+                    document.getElementById('modalSub').innerText = `You scored ${score}/17! Enter your details to save your score.`;
+                    document.getElementById('loginModal').classList.add('active');
+                } else {
+                    submitScoreToSheet();
+                }
             }
-        }
+        }, 850);
     }
 
-    // ================= บัญชีนักเรียน & ส่งคะแนน Google Sheets =================
     function loadStudentProfile() {
         if (localStorage.getItem('studentId')) {
             document.getElementById('userProfile').style.display = 'flex';
@@ -635,12 +641,16 @@
     }
 
     function submitScoreToSheet() {
+        const btnPlayAgain = document.getElementById('btnPlayAgain');
+        btnPlayAgain.disabled = true; // ล็อกปุ่มไว้ก่อนจนกว่าจะส่งสำเร็จ
+
         document.getElementById('scoreModal').classList.add('active');
         document.getElementById('finalScoreText').innerText = score;
         const stat = document.getElementById('saveStatus');
 
         if (typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
             stat.innerText = "❌ Config file (quiz-config.js) not found.";
+            btnPlayAgain.disabled = false;
             return;
         }
 
@@ -655,9 +665,16 @@
                 score: score,
                 maxScore: 17
             })
-        }).catch(e => console.error(e));
-
-        setTimeout(() => { stat.innerText = "✅ Score saved successfully!"; }, 1200);
+        }).then(() => {
+            setTimeout(() => {
+                stat.innerText = "✅ Score saved successfully!";
+                btnPlayAgain.disabled = false; // เปิดใช้งานปุ่ม Play Again
+            }, 1000);
+        }).catch(e => {
+            console.error(e);
+            stat.innerText = "⚠️ Could not confirm save. Try again.";
+            btnPlayAgain.disabled = false;
+        });
     }
 </script>
 
