@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Aztecs - Tap & Place</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Prompt:wght@500;700&family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://kruyanisa.github.io/classroom-core/quiz-config.js"></script>
+
+    <style>
+        :root {
+            --bg-sand: #edf4ee;
+            --paper-bg: #fbfaf5;
+            --aztec-dark: #14532d;
+            --aztec-jade: #0f766e;
+            --aztec-gold: #d97706;
+            --aztec-gold-dark: #b45309;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            padding: 16px 12px 40px 12px;
+            background-color: var(--bg-sand);
+            background-image: radial-gradient(rgba(15, 118, 110, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #1c2e24;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Profile Bar */
+        .profile-bar {
+            font-size: clamp(12px, 3.3vw, 14px);
+            background: #fef3c7;
+            border: 2px solid var(--aztec-gold);
+            padding: 8px 14px;
+            border-radius: 20px;
+            color: #451a03;
+            font-weight: 700;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        .btn-switch {
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* Header */
+        .header-wrap {
+            text-align: center;
+            margin-bottom: 14px;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        .badge-unit {
+            display: inline-block;
+            background: var(--aztec-jade);
+            color: #fff;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--aztec-dark);
+            font-size: clamp(24px, 6vw, 36px);
+            margin: 0;
+            line-height: 1.15;
+        }
+
+        .subtitle-hint {
+            font-size: 14px;
+            color: #115e59;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Main Card */
+        .card {
+            width: 100%;
+            max-width: 780px;
+            background: var(--paper-bg);
+            border: 3px solid #cce3d8;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 10px 25px rgba(20, 83, 45, 0.12);
+            margin-bottom: 16px;
+        }
+
+        /* Audio Box */
+        .audio-box {
+            background: #f0fdfa;
+            border: 2px solid #99f6e4;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+
+        .audio-label {
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--aztec-jade);
+            margin-bottom: 6px;
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            outline: none;
+        }
+
+        /* Sticky Word Bank */
+        .word-bank-wrap {
+            position: sticky;
+            top: 8px;
+            z-index: 100;
+            background: #ecfdf5;
+            border: 2px solid var(--aztec-jade);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 16px rgba(15, 118, 110, 0.15);
+        }
+
+        .bank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--aztec-dark);
+        }
+
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .word-chip {
+            background: #ffffff;
+            border: 2px solid var(--aztec-jade);
+            color: var(--aztec-dark);
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 0 #0f766e;
+            user-select: none;
+        }
+
+        .word-chip:hover:not(.used) {
+            background: #fef3c7;
+            border-color: var(--aztec-gold);
+        }
+
+        .word-chip.selected {
+            background: var(--aztec-gold);
+            color: #ffffff;
+            border-color: var(--aztec-gold-dark);
+            box-shadow: 0 3px 0 #78350f;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .word-chip.used {
+            opacity: 0.3;
+            pointer-events: none;
+            box-shadow: none;
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            color: #64748b;
+        }
+
+        /* Reading Passage */
+        .passage-title {
+            text-align: center;
+            font-family: 'Prompt', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--aztec-dark);
+            margin: 4px 0 14px 0;
+        }
+
+        .section-heading {
+            font-family: 'Prompt', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--aztec-jade);
+            margin: 14px 0 4px 0;
+        }
+
+        .passage-p {
+            font-size: clamp(16px, 4vw, 18px);
+            line-height: 2.25;
+            margin: 0 0 8px 0;
+            color: #1e293b;
+        }
+
+        /* Blank Slots */
+        .blank-slot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+            height: 34px;
+            padding: 0 12px;
+            margin: 0 4px;
+            vertical-align: middle;
+            background: #f1f5f9;
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .blank-slot.ready {
+            border-color: var(--aztec-gold);
+            background: #fffbeb;
+        }
+
+        .blank-slot.filled {
+            background: #fef3c7;
+            border: 2px solid var(--aztec-gold);
+            color: #451a03;
+        }
+
+        .blank-slot.correct {
+            background: #dcfce7;
+            border: 2px solid var(--success);
+            color: #14532d;
+            cursor: default;
+        }
+
+        .blank-slot.wrong {
+            background: #fee2e2;
+            border: 2px solid var(--danger);
+            color: #7f1d1d;
+            cursor: default;
+        }
+
+        .ans-hint {
+            display: inline-block;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--success);
+            background: #dcfce7;
+            padding: 1px 8px;
+            border-radius: 8px;
+            margin-left: 2px;
+        }
+
+        /* Action Buttons */
+        .btn-submit {
+            width: 100%;
+            max-width: 380px;
+            margin: 18px auto 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--aztec-gold);
+            color: #fff;
+            font-family: 'Prompt', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 var(--aztec-gold-dark);
+        }
+
+        .btn-submit:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--aztec-gold-dark); }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 83, 45, 0.72);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.25s;
+            padding: 15px;
+        }
+
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+
+        .modal-box {
+            background: #fff;
+            padding: 26px 22px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            border: 4px solid var(--aztec-jade);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 11px;
+            margin-bottom: 10px;
+            border: 2px solid var(--aztec-jade);
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .score-num {
+            font-family: 'Fredoka One', cursive;
+            font-size: 58px;
+            color: var(--aztec-gold-dark);
+            margin: 8px 0;
+            display: block;
+            line-height: 1;
+        }
+
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: var(--aztec-gold);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--aztec-gold-dark);
+            margin-top: 8px;
+        }
+
+        .btn-modal:disabled {
+            background: #94a3b8 !important;
+            box-shadow: 0 4px 0 #64748b !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Profile Bar -->
+    <div id="userProfile" class="profile-bar" style="display:none;">
+        <span>👤 <span id="p_name"></span> | 🏫 <span id="p_room"></span> | 🆔 <span id="p_id"></span></span>
+        <button class="btn-switch" onclick="switchAccount()">Switch Account</button>
+    </div>
+
+    <!-- Header -->
+    <div class="header-wrap">
+        <div class="badge-unit">Unit 7f • Curricular Cut</div>
+        <h1>Complete the Text: The Aztecs</h1>
+        <div class="subtitle-hint">Tap a word below, then tap a blank to place it. (Tap a filled blank to remove it.)</div>
+    </div>
+
+    <!-- Main Exercise Card -->
+    <div class="card">
+        <!-- Audio Player -->
+        <div class="audio-box">
+            <div class="audio-label">🔊 Listen to check your answers:</div>
+            <audio controls preload="metadata">
+                <source src="TheAztec.mp3" type="audio/mpeg">
+                Your browser does not support HTML5 audio.
+            </audio>
+        </div>
+
+        <!-- Sticky Word Bank -->
+        <div class="word-bank-wrap">
+            <div class="bank-header">
+                <span>📦 Word Bank (Tap to select)</span>
+                <span id="filledCount">0 / 13 filled</span>
+            </div>
+            <div class="word-bank" id="wordBank"></div>
+        </div>
+
+        <!-- Passage -->
+        <div class="passage-title">The Aztecs (14th–16th century)</div>
+
+        <div class="section-heading">Location</div>
+        <p class="passage-p">
+            The Aztecs <span class="blank-slot" data-ans="lived"></span> in Mexico.
+        </p>
+
+        <div class="section-heading">The Emperor</div>
+        <p class="passage-p">
+            Each emperor, <span class="blank-slot" data-ans="called"></span> Hueyi Tlatoani, lived in a palace in Tenochtitlan, the <span class="blank-slot" data-ans="capital"></span> of the Aztec empire. The Tlatoani was the head of the government and the <span class="blank-slot" data-ans="army"></span>.
+        </p>
+
+        <div class="section-heading">The People</div>
+        <p class="passage-p">
+            The Aztecs were <span class="blank-slot" data-ans="farmers"></span>. They <span class="blank-slot" data-ans="worked"></span> in the fields growing avocados, beans, sweet <span class="blank-slot" data-ans="potatoes"></span>, tomatoes, amaranth and <span class="blank-slot" data-ans="chillies"></span>.
+        </p>
+
+        <div class="section-heading">Houses and Temples</div>
+        <p class="passage-p">
+            Most Aztecs lived in <span class="blank-slot" data-ans="wooden"></span> houses. Their temples <span class="blank-slot" data-ans="were"></span> very beautiful. They <span class="blank-slot" data-ans="looked"></span> like the great Egyptian pyramids.
+        </p>
+
+        <div class="section-heading">Transport</div>
+        <p class="passage-p">
+            The Aztecs usually <span class="blank-slot" data-ans="travelled"></span> on foot. There were places for the travellers to <span class="blank-slot" data-ans="rest"></span> and eat.
+        </p>
+
+        <button id="btnCheck" class="btn-submit" onclick="checkAnswers()">✅ Check Answers & Submit Score</button>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <h2 style="color:var(--aztec-dark); margin:0 0 6px 0; font-family:'Prompt';">📝 Student Login</h2>
+            <p id="modalSub" style="color:#64748b; font-weight:600; margin:0 0 12px 0; font-size:14px;"></p>
+            <input type="text" id="in_name" class="login-input" placeholder="Full Name (ชื่อ - นามสกุล)">
+            <input type="text" id="in_room" class="login-input" placeholder="Class / Room (เช่น 1/1)">
+            <input type="text" id="in_id" class="login-input" placeholder="Student ID (รหัสนักเรียน 5 หลัก)" maxlength="5">
+            <button class="btn-modal" onclick="confirmUser()">🚀 Confirm & Save Score</button>
+        </div>
+    </div>
+
+    <!-- Score Modal -->
+    <div class="modal-overlay" id="scoreModal">
+        <div class="modal-box">
+            <h2 style="color:var(--aztec-dark); margin:0; font-family:'Prompt';">🎉 Great Job!</h2>
+            <p style="color:#64748b; font-weight:600; margin:6px 0 0 0;">Your Score</p>
+            <span class="score-num"><span id="finalScoreText">0</span><span style="font-size:28px; color:#d97706;">/13</span></span>
+            <div id="saveStatus" style="font-weight:700; font-size:15px; margin-bottom:12px; color:#15803d; min-height:22px;"></div>
+            <button id="btnReview" class="btn-modal" style="background:#16a34a; box-shadow:0 4px 0 #15803d;" onclick="closeScoreModal()" disabled>👀 Review Answers</button>
+            <button id="btnPlayAgain" class="btn-modal" onclick="resetActivity()" disabled>🔄 Try Again</button>
+        </div>
+    </div>
+
+<script>
+    const TOPIC_NAME = 'ม.1 Unit 7 Curricular Cut Aztecs tab and place';
+    const wordList = [
+        "chillies", "were", "rest", "wooden", "looked",
+        "travelled", "army", "lived", "potatoes", "worked",
+        "called", "capital", "farmers"
+    ];
+
+    let selectedWord = null;
+    let selectedChipEl = null;
+    let isGraded = false;
+    let latestScore = 0;
+    let isPendingSubmit = false;
+    let audioCtx = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadStudentProfile();
+        setupActivity();
+    });
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playSFX(type) {
+        initAudio();
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'tap') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(520, now);
+                gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+                osc.start(now); osc.stop(now + 0.06);
+            } else if (type === 'place') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(660, now);
+                gain.gain.setValueAtTime(0.07, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.start(now); osc.stop(now + 0.08);
+            } else if (type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.11, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc.start(now); osc.stop(now + 0.45);
+            }
+        } catch (e) {}
+    }
+
+    function setupActivity() {
+        isGraded = false;
+        selectedWord = null;
+        selectedChipEl = null;
+
+        // ล้างเฉลยเก่า
+        document.querySelectorAll(".ans-hint").forEach(el => el.remove());
+
+        // รีเซ็ตช่องว่างทั้งหมด
+        const slots = document.querySelectorAll(".blank-slot");
+        slots.forEach(slot => {
+            slot.innerText = "______";
+            slot.dataset.placed = "";
+            slot.className = "blank-slot";
+            slot.onclick = () => handleSlotClick(slot);
+        });
+
+        // สร้างคลังคำศัพท์แบบสุ่มลำดับ
+        const bank = document.getElementById("wordBank");
+        bank.innerHTML = "";
+        const shuffled = [...wordList].sort(() => Math.random() - 0.5);
+        shuffled.forEach(word => {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "word-chip";
+            chip.dataset.word = word;
+            chip.innerText = word;
+            chip.onclick = () => handleChipClick(chip, word);
+            bank.appendChild(chip);
+        });
+
+        const btn = document.getElementById("btnCheck");
+        btn.innerText = "✅ Check Answers & Submit Score";
+        btn.style.background = "";
+        btn.onclick = checkAnswers;
+
+        updateFilledCount();
+    }
+
+    function handleChipClick(chip, word) {
+        if (isGraded || chip.classList.contains("used")) return;
+        playSFX('tap');
+
+        if (selectedChipEl === chip) {
+            chip.classList.remove("selected");
+            selectedWord = null;
+            selectedChipEl = null;
+            highlightReadySlots(false);
+        } else {
+            document.querySelectorAll(".word-chip").forEach(c => c.classList.remove("selected"));
+            chip.classList.add("selected");
+            selectedWord = word;
+            selectedChipEl = chip;
+            highlightReadySlots(true);
+        }
+    }
+
+    function handleSlotClick(slot) {
+        if (isGraded) return;
+
+        // กรณีเลือกคำศัพท์ไว้แล้ว -> วางลงช่อง (ถ้ามีคำเดิมอยู่ให้คืนคำเดิมกลับคลัง)
+        if (selectedWord && selectedChipEl) {
+            if (slot.dataset.placed) {
+                returnWordToBank(slot.dataset.placed);
+            }
+            slot.innerText = selectedWord;
+            slot.dataset.placed = selectedWord;
+            slot.classList.add("filled");
+
+            selectedChipEl.classList.remove("selected");
+            selectedChipEl.classList.add("used");
+            selectedWord = null;
+            selectedChipEl = null;
+            highlightReadySlots(false);
+            playSFX('place');
+            updateFilledCount();
+        }
+        // กรณีไม่ได้เลือกคำศัพท์ไว้ แต่แตะช่องที่มีคำอยู่ -> เอาคำออกคืนคลัง
+        else if (slot.dataset.placed) {
+            returnWordToBank(slot.dataset.placed);
+            slot.innerText = "______";
+            slot.dataset.placed = "";
+            slot.classList.remove("filled");
+            playSFX('tap');
+            updateFilledCount();
+        }
+    }
+
+    function returnWordToBank(word) {
+        const chip = document.querySelector(`.word-chip[data-word="${word}"]`);
+        if (chip) chip.classList.remove("used");
+    }
+
+    function highlightReadySlots(isReady) {
+        document.querySelectorAll(".blank-slot").forEach(slot => {
+            slot.classList.toggle("ready", isReady && !slot.dataset.placed);
+        });
+    }
+
+    function updateFilledCount() {
+        const filled = document.querySelectorAll('.blank-slot[data-placed]:not([data-placed=""])').length;
+        document.getElementById("filledCount").innerText = `${filled} / 13 filled`;
+    }
+
+    function checkAnswers() {
+        const slots = document.querySelectorAll(".blank-slot");
+        const filled = document.querySelectorAll('.blank-slot[data-placed]:not([data-placed=""])').length;
+
+        if (filled < slots.length) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete!',
+                text: `Please fill all 13 blanks (${filled}/13 filled).`,
+                confirmButtonColor: '#0f766e'
+            });
+            return;
+        }
+
+        isGraded = true;
+        highlightReadySlots(false);
+        document.querySelectorAll(".word-chip").forEach(c => c.classList.remove("selected"));
+
+        let score = 0;
+        slots.forEach(slot => {
+            const placed = slot.dataset.placed;
+            const correct = slot.dataset.ans;
+            slot.classList.remove("filled");
+
+            if (placed === correct) {
+                slot.classList.add("correct");
+                score++;
+            } else {
+                slot.classList.add("wrong");
+                const hint = document.createElement("span");
+                hint.className = "ans-hint";
+                hint.innerText = `✓ ${correct}`;
+                slot.insertAdjacentElement("afterend", hint);
+            }
+        });
+
+        latestScore = score;
+        playSFX('win');
+
+        const btn = document.getElementById("btnCheck");
+        btn.innerText = "🔄 Try Again";
+        btn.style.background = "#16a34a";
+        btn.onclick = resetActivity;
+
+        if (!localStorage.getItem('studentId')) {
+            isPendingSubmit = true;
+            document.getElementById('modalSub').innerText = `You scored ${latestScore}/13! Enter your details to save your score.`;
+            document.getElementById('loginModal').classList.add('active');
+        } else {
+            submitScoreToSheet();
+        }
+    }
+
+    // ================= บัญชีนักเรียน & ส่งคะแนน Google Sheets =================
+    function loadStudentProfile() {
+        if (localStorage.getItem('studentId')) {
+            document.getElementById('userProfile').style.display = 'flex';
+            document.getElementById('p_name').innerText = localStorage.getItem('studentName');
+            document.getElementById('p_room').innerText = localStorage.getItem('studentRoom');
+            document.getElementById('p_id').innerText = localStorage.getItem('studentId');
+        }
+    }
+
+    document.getElementById('in_room').addEventListener('blur', function () {
+        const nums = this.value.match(/\d+/g);
+        if (nums && nums.length >= 2) this.value = `ม.${nums[0]}/${nums[1]}`;
+        else if (nums && nums.length === 1) this.value = `ม.1/${nums[0]}`;
+    });
+
+    function switchAccount() {
+        Swal.fire({
+            title: 'Switch Account?', text: 'Clear current student info?', icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#0f766e', cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, switch', cancelButtonText: 'Cancel'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                localStorage.clear();
+                document.getElementById('userProfile').style.display = 'none';
+                isPendingSubmit = false;
+                document.getElementById('in_name').value = '';
+                document.getElementById('in_room').value = '';
+                document.getElementById('in_id').value = '';
+                document.getElementById('modalSub').innerText = 'Enter student details to begin.';
+                document.getElementById('loginModal').classList.add('active');
+            }
+        });
+    }
+
+    function confirmUser() {
+        const n = document.getElementById('in_name').value.trim();
+        const r = document.getElementById('in_room').value.trim();
+        const id = document.getElementById('in_id').value.trim();
+        if (!n || !r || id.length !== 5) {
+            Swal.fire('Incomplete Info', 'Please enter name, room, and 5-digit student ID.', 'warning');
+            return;
+        }
+        localStorage.setItem('studentName', n);
+        localStorage.setItem('studentRoom', r);
+        localStorage.setItem('studentId', id);
+        document.getElementById('loginModal').classList.remove('active');
+        loadStudentProfile();
+        if (isPendingSubmit) { isPendingSubmit = false; submitScoreToSheet(); }
+    }
+
+    function submitScoreToSheet() {
+        const btnReview = document.getElementById('btnReview');
+        const btnPlayAgain = document.getElementById('btnPlayAgain');
+        btnReview.disabled = true;
+        btnPlayAgain.disabled = true;
+
+        document.getElementById('scoreModal').classList.add('active');
+        document.getElementById('finalScoreText').innerText = latestScore;
+        const stat = document.getElementById('saveStatus');
+
+        if (typeof QUIZ_CONFIG === 'undefined' || !QUIZ_CONFIG.SCRIPT_URL) {
+            stat.innerText = "❌ Config file (quiz-config.js) not found.";
+            btnReview.disabled = false;
+            btnPlayAgain.disabled = false;
+            return;
+        }
+
+        stat.innerText = "⏳ Saving your score...";
+        fetch(QUIZ_CONFIG.SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({
+                name: localStorage.getItem('studentName'),
+                room: localStorage.getItem('studentRoom'),
+                studentId: "'" + localStorage.getItem('studentId'),
+                lesson: TOPIC_NAME,
+                score: latestScore,
+                maxScore: 13
+            })
+        }).then(() => {
+            setTimeout(() => {
+                stat.innerText = "✅ Score saved successfully!";
+                btnReview.disabled = false;
+                btnPlayAgain.disabled = false;
+            }, 1000);
+        }).catch(e => {
+            console.error(e);
+            stat.innerText = "⚠️ Could not confirm save. Try again.";
+            btnReview.disabled = false;
+            btnPlayAgain.disabled = false;
+        });
+    }
+
+    function closeScoreModal() { document.getElementById('scoreModal').classList.remove('active'); }
+
+    function resetActivity() {
+        document.getElementById('scoreModal').classList.remove('active');
+        setupActivity();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
